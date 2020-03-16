@@ -22,6 +22,9 @@ Object.prototype.DeepClone = function<T>(this: T)
 
     for (const key in this)
     {
+        if(!(this as any).hasOwnProperty(key))
+            continue;
+            
         let value = this[key] as any;
         if(Array.isArray(value))
             value = value.DeepClone();

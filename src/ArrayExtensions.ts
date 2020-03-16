@@ -26,6 +26,30 @@ Array.prototype.Contains = function<T>(this: Array<T>, value: T)
     return false;
 }
 
+Array.prototype.DeepClone = function<T>(this: Array<T>)
+{
+    const result = [];
+
+    for (const source of this)
+    {
+        let value: any = source;
+
+        if(Array.isArray(value))
+            value = value.DeepClone();
+        else if(Object.IsObject(value))
+            value = value.DeepClone();
+
+        result.push(value);
+    }
+
+    return result;
+}
+
+Array.prototype.IsEmpty = function<T>(this: Array<T>)
+{
+    return this.length === 0;
+}
+
 Array.prototype.Remove = function<T>(this: Array<T>, index: number)
 {
     this.splice(index, 1);

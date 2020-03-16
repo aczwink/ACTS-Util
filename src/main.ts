@@ -28,6 +28,7 @@ declare global
     {
         Contains: <T>(this: T[], value: T) => boolean;
         DeepClone: <T>(this: T[]) => T[];
+        IsEmpty: <T>(this: T[]) => boolean;
         Remove: <T>(this: T[], index: number) => void;
     }
 

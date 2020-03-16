@@ -66,8 +66,11 @@ export class MulticastObservable<T>
     {
         for (const key in this.subscriptions)
         {
-            const subscription = this.subscriptions[key];
-            subscription!.next(this.state!);
+            if(this.subscriptions.hasOwnProperty(key))
+            {
+                const subscription = this.subscriptions[key];
+                subscription!.next(this.state!);
+            }
         }
     }
 

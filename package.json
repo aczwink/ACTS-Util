@@ -1,6 +1,6 @@
 {
   "name": "acts-util",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A utility library for TypeScript / JavaScript",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
@@ -12,9 +12,13 @@
     "url": "git+https://github.com/aczwink/ACTS-Util.git"
   },
   "author": "Amir Czwink",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "bugs": {
     "url": "https://github.com/aczwink/ACTS-Util/issues"
   },
-  "homepage": "https://github.com/aczwink/ACTS-Util#readme"
+  "homepage": "https://github.com/aczwink/ACTS-Util#readme",
+  "dependencies": {
+    "typescript": "^3.8.3"
+  },
+  "prepublish": "tsc"
 }

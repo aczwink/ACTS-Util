@@ -15,15 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { DirectoryEntry, FileSystem } from "./fs/FileSystem";
+import { EncryptedFileSystem } from "./fs/EncryptedFileSystem";
+import { OSFileSystem } from "./fs/OSFileSystem";
+import { VirtualRootFileSystem } from "./fs/VirtualRootFileSystem";
+import { WebDAVFileSystem } from "./fs/WebDAVFileSystem";
+import { Promisify } from "./fs/Util";
 
-Function.prototype.Debounce = function(this: Function, delay: number)
-{
-    let timer: number | undefined;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout( () => {
-            timer = undefined;
-            this(...args);
-        }, delay);
-    };
-}
+//Exports
+export {
+    DirectoryEntry,
+    EncryptedFileSystem,
+    FileSystem,
+    OSFileSystem,
+    Promisify,
+    VirtualRootFileSystem,
+    WebDAVFileSystem,
+};

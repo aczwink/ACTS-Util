@@ -1,0 +1,33 @@
+{
+  "name": "acts-util-node",
+  "version": "0.0.1",
+  "description": "A utility library for Node.js for TypeScript / JavaScript",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "execute": "tsc --target ES5 --module commonjs --lib ES2015,dom _playground.ts && node _playground.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aczwink/ACTS-Util.git"
+  },
+  "author": "Amir Czwink",
+  "license": "AGPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/aczwink/ACTS-Util/issues"
+  },
+  "homepage": "https://github.com/aczwink/ACTS-Util#readme",
+  "dependencies": {
+    "typescript": "^3.8.3",
+    "webdav": "^3.3.0",
+    "acts-util-core": "*"
+  },
+  "prepublish": "tsc",
+  "devDependencies": {
+    "@types/node": "^13.13.4"
+  },
+  "engines": {
+    "node": ">=10.2.0"
+  }
+}

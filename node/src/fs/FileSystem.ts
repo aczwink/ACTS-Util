@@ -15,42 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { Writable, Readable } from "stream";
 
-Array.prototype.Contains = function<T>(this: Array<T>, value: T)
+export interface DirectoryEntry
 {
-    for (const it of this)
-    {
-        if(it === value)
-            return true;
-    }
-    return false;
+    fileName: string;
 }
 
-Array.prototype.DeepClone = function<T>(this: Array<T>)
+export interface FileSystem
 {
-    const result = [];
-
-    for (const source of this)
-    {
-        let value: any = source;
-
-        if(Array.isArray(value))
-            value = value.DeepClone();
-        else if(Object.IsObject(value))
-            value = value.DeepClone();
-
-        result.push(value);
-    }
-
-    return result;
-}
-
-Array.prototype.IsEmpty = function<T>(this: Array<T>)
-{
-    return this.length === 0;
-}
-
-Array.prototype.Remove = function<T>(this: Array<T>, index: number)
-{
-    this.splice(index, 1);
+    CreateDirectory(dirPath: string): Promise<void>;
+    DeleteDirectory(dirPath: string): Promise<void>;
+    DeleteFile(filePath: string): Promise<void>;
+    Exists(nodePath: string): Promise<boolean>;
+    ListDirectoryContents(dirPath: string): Promise<DirectoryEntry[]>;
+    ReadFile(filePath: string): Promise<Readable>;
+    WriteFile(filePath: string): Writable;
 }

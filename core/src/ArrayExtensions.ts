@@ -15,13 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Dictionary } from "./Dictionary";
-import { MulticastObservable } from "./MulticastObservable";
-import { Observable, Observer } from "./Observable";
-import { Property, PropertyObserver } from "./Property";
-import { TimeUtil } from "./TimeUtil";
+export {};
 
-//Extensions
 declare global
 {
     interface Array<T>
@@ -31,29 +26,43 @@ declare global
         IsEmpty: <T>(this: T[]) => boolean;
         Remove: <T>(this: T[], index: number) => void;
     }
-
-    interface Function
-    {
-        Debounce: (this: Function, delay: number) => Function;
-    }
-
-    interface Object
-    {
-        DeepClone: <T>(this: T) => T;
-        IsObject: (value: any) => boolean;
-    }
 }
-import "./ArrayExtensions";
-import "./FunctionExtensions";
-import "./ObjectExtensions";
 
-//Exports
-export {
-    Dictionary,
-    MulticastObservable,
-    Observable,
-    Observer,
-    Property,
-    PropertyObserver,
-    TimeUtil,
-};
+Array.prototype.Contains = function<T>(this: Array<T>, value: T)
+{
+    for (const it of this)
+    {
+        if(it === value)
+            return true;
+    }
+    return false;
+}
+
+Array.prototype.DeepClone = function<T>(this: Array<T>)
+{
+    const result = [];
+
+    for (const source of this)
+    {
+        let value: any = source;
+
+        if(Array.isArray(value))
+            value = value.DeepClone();
+        else if(Object.IsObject(value))
+            value = value.DeepClone();
+
+        result.push(value);
+    }
+
+    return result;
+}
+
+Array.prototype.IsEmpty = function<T>(this: Array<T>)
+{
+    return this.length === 0;
+}
+
+Array.prototype.Remove = function<T>(this: Array<T>, index: number)
+{
+    this.splice(index, 1);
+}

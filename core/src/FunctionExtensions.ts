@@ -15,29 +15,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+export {};
 
-Object.prototype.DeepClone = function<T>(this: T)
+declare global
 {
-    const result: any = {};
-
-    for (const key in this)
+    interface Function
     {
-        if(!(this as any).hasOwnProperty(key))
-            continue;
-            
-        let value = this[key] as any;
-        if(Array.isArray(value))
-            value = value.DeepClone();
-        else if(Object.IsObject(value))
-            value = value.DeepClone();
-
-        result[key] = value;
+        Debounce: (this: Function, delay: number) => Function;
     }
-
-    return result as T;
 }
 
-Object.prototype.IsObject = function(value: any)
+Function.prototype.Debounce = function(this: Function, delay: number)
 {
-    return typeof(value) === "object";
+    let timer: any;
+    return (...args: any[]) => {
+        clearTimeout(timer);
+        timer = setTimeout( () => {
+            timer = undefined;
+            this(...args);
+        }, delay);
+    };
 }

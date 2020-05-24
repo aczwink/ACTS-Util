@@ -24,14 +24,18 @@ import { Dictionary } from "./Dictionary";
 import { MulticastObservable } from "./MulticastObservable";
 import { Observable, Observer } from "./Observable";
 import { Property, PropertyObserver } from "./Property";
+import { Injector, Instantiatable, ResolutionStrategy } from "./Injector";
 
 //Exports
 export {
     Dictionary,
+    Injector,
+    Instantiatable,
     MulticastObservable,
     Observable,
     Observer,
     Property,
     PropertyObserver,
+    ResolutionStrategy,
     TimeUtil,
 };

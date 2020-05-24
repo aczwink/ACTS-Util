@@ -20,5 +20,8 @@
   "devDependencies": {
     "typescript": "^3.8.3"
   },
-  "prepublish": "tsc"
+  "prepublish": "tsc",
+  "dependencies": {
+    "reflect-metadata": "^0.1.13"
+  }
 }

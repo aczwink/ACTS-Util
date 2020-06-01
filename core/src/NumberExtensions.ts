@@ -19,26 +19,25 @@ export {};
 
 declare global
 {
-    interface Function
+    interface Number
     {
-        CallImmediate: (this: Function) => void;
-        Debounce: (this: Function, delay: number) => Function;
+        FormatBinaryPrefixed: (this: number, suffix?: string) => string;
     }
 }
 
-Function.prototype.CallImmediate = function(this: Function)
+Number.prototype.FormatBinaryPrefixed = function(this: number, suffix?: string)
 {
-    setTimeout(this, 0);
-}
+	let num = this;
 
-Function.prototype.Debounce = function(this: Function, delay: number)
-{
-    let timer: any;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout( () => {
-            timer = undefined;
-            this(...args);
-        }, delay);
-    };
+	if(suffix === undefined)
+		suffix = "B";
+	
+    const suffices = ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi'];
+	for(var i = 0; i < suffices.length; i++)
+	{
+		if(Math.abs(num) < 1024.0)
+			return num.toFixed(2) + " " + suffices[i] + suffix;
+		num /= 1024.0;
+	}
+	return num.toFixed(2) + " Yi" + suffix;
 }

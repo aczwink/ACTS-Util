@@ -18,6 +18,7 @@
 import { TimeUtil } from "./TimeUtil";
 import "./ArrayExtensions";
 import "./FunctionExtensions";
+import "./NumberExtensions";
 import "./ObjectExtensions";
 import "./StringExtensions";
 import { Dictionary } from "./Dictionary";

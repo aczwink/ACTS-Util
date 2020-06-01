@@ -74,6 +74,7 @@ export class Injector
                 return this.TryResolveParent(token);
 
             instance = this.CreateInstance(provider);
+            this.instances.set(token, instance);
         }
         return instance as unknown as T;
     }

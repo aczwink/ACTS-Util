@@ -22,14 +22,16 @@ import "./NumberExtensions";
 import "./ObjectExtensions";
 import "./StringExtensions";
 import { Dictionary } from "./Dictionary";
-import { MulticastObservable } from "./MulticastObservable";
-import { Observable, Observer } from "./Observable";
-import { Property, PropertyObserver } from "./Property";
+import { MulticastObservable } from "./Observables/MulticastObservable";
+import { Observable, Observer } from "./Observables/Observable";
+import { Property, PropertyObserver } from "./Observables/Property";
 import { Injector, Instantiatable, ResolutionStrategy } from "./Injector";
+import { Duration } from "./Duration";
 
 //Exports
 export {
     Dictionary,
+    Duration,
     Injector,
     Instantiatable,
     MulticastObservable,

@@ -21,11 +21,17 @@ declare global
 {
     interface Array<T>
     {
+        Clone: <T>(this: T[]) => T[];
         Contains: <T>(this: T[], value: T) => boolean;
         DeepClone: <T>(this: T[]) => T[];
         IsEmpty: <T>(this: T[]) => boolean;
         Remove: <T>(this: T[], index: number) => void;
     }
+}
+
+Array.prototype.Clone = function<T>(this: T[])
+{
+    return this.slice();
 }
 
 Array.prototype.Contains = function<T>(this: Array<T>, value: T)

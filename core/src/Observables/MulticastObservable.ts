@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Observer, SubscriberFunction, Subscription } from "./Observable";
-import { Dictionary } from "./Dictionary";
+import { Dictionary } from "../Dictionary";
 
 export class MulticastObservable<T>
 {

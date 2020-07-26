@@ -16,9 +16,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-export class Subject<T>
+import { Observable, Subscription, Observer } from "./Observable";
+import { Dictionary } from "../Dictionary";
+
+export class Subject<T> extends Observable<T>
 {
     constructor()
     {
+        super(newObserver => this.OnNewObserver(newObserver));
+
+        this.subscriptions = {};
+        this._nSubscriptions = 0;
+        this.subscriptionCounter = 0;
+    }
+
+    //Properties
+    public get nSubscriptions()
+    {
+        return this._nSubscriptions;
+    }
+
+    //Public methods
+    public Next(data: T)
+    {
+        for (const key in this.subscriptions)
+        {
+            if(this.subscriptions.hasOwnProperty(key))
+            {
+                const subscription = this.subscriptions[key];
+                subscription!.next(data);
+            }
+        }
+    }
+
+    //Private members
+    private subscriptions: Dictionary<Observer<T>>;
+    private _nSubscriptions: number;
+    private subscriptionCounter: number;
+
+    //Event handlers
+    protected OnNewObserver(newObserver: Observer<T>): Subscription
+    {
+        const id = this.subscriptionCounter++;
+        this.subscriptions[id] = newObserver;
+
+        this._nSubscriptions++;
+
+        const context = this;
+        return {
+            Unsubscribe()
+            {
+                delete context.subscriptions[id];
+                context._nSubscriptions--;
+            }
+        };
     }
 }

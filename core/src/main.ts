@@ -27,6 +27,7 @@ import { Observable, Observer } from "./Observables/Observable";
 import { Property, PropertyObserver } from "./Observables/Property";
 import { Injector, Instantiatable, ResolutionStrategy } from "./Injector";
 import { Duration } from "./Duration";
+import { Subject } from "./Observables/Subject";
 
 //Exports
 export {
@@ -40,5 +41,6 @@ export {
     Property,
     PropertyObserver,
     ResolutionStrategy,
+    Subject,
     TimeUtil,
 };

@@ -16,77 +16,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Observer, SubscriberFunction, Subscription } from "./Observable";
-import { Dictionary } from "../Dictionary";
+import { Subject } from "./Subject";
 
-export class MulticastObservable<T>
+export class MulticastObservable<T> extends Subject<T>
 {
-    constructor(private subscriber: SubscriberFunction<T>)
+    constructor(private singleSubscriber: SubscriberFunction<T>)
     {
+        super();
+
         this.hasState = false;
-        this.nSubscriptions = 0;
-        this.subscriptions = {};
-        this.subscriptionCounter = 0;
         this.unsubscriber = null;
     }
 
-    //Public methods
-    public Subscribe(observer: Observer<T>): Subscription
-    {
-        const id = this.subscriptionCounter++;
-        this.subscriptions[id] = observer;
+    //Private members
+    private state?: T;
+    private hasState: boolean;
+    private unsubscriber: Subscription | null;
 
-        if(this.nSubscriptions++ === 0)
-            this.unsubscriber = this.subscriber({ next: this.OnNextValue.bind(this) });
+    //Private methods
+    private Reset()
+    {
+        this.state = undefined;
+        this.hasState = false;
+        this.unsubscriber!.Unsubscribe();
+    }
+
+    //Event handlers
+    protected OnNewObserver(newObserver: Observer<T>): Subscription
+    {
+        const subscription = super.OnNewObserver(newObserver);
+
+        if(this.nSubscriptions === 1)
+            this.unsubscriber = this.singleSubscriber({ next: this.OnNextValue.bind(this) });
         else if(this.hasState)
-            observer.next(this.state!);
+            newObserver.next(this.state!);
 
 
         const context = this;
         return {
             Unsubscribe()
             {
-                delete context.subscriptions[id];
-                context.nSubscriptions--;
+                subscription.Unsubscribe();
                 if(context.nSubscriptions === 0)
                     context.Reset();
             }
         };
     }
 
-    //Private members
-    private state?: T;
-    private hasState: boolean;
-    private nSubscriptions: number;
-    private subscriptions: Dictionary<Observer<T>>;
-    private subscriptionCounter: number;
-    private unsubscriber: Subscription | null;
-
-    //Private methods
-    private Emit()
-    {
-        for (const key in this.subscriptions)
-        {
-            if(this.subscriptions.hasOwnProperty(key))
-            {
-                const subscription = this.subscriptions[key];
-                subscription!.next(this.state!);
-            }
-        }
-    }
-
-    private Reset()
-    {
-        this.state = undefined;
-        this.hasState = false;
-        this.unsubscriber!.Unsubscribe();
-        this.subscriptionCounter = 0;
-    }
-
-    //Event handlers
     private OnNextValue(newValue: T)
     {
         this.hasState = true;
         this.state = newValue;
-        this.Emit();
+        this.Next(this.state!);
     }
 }

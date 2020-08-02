@@ -15,30 +15,37 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export {};
+import { EqualsAny } from "acts-util-core";
 
-declare global
+export class Expector<T>
 {
-    interface Function
+    constructor(private value: T)
     {
-        CallImmediate: (this: Function) => void;
-        Debounce: <T>(this: (... arg: T[]) => void, delay: number) => (... arg: T[]) => void;
     }
-}
 
-Function.prototype.CallImmediate = function(this: Function)
-{
-    setTimeout(this, 0);
-}
+    //Public methods
+    public Equals(value: T)
+    {
+        if(!EqualsAny(this.value, value))
+            this.ThrowExpectedGot(value);
+    }
 
-Function.prototype.Debounce = function(this: Function, delay: number)
-{
-    let timer: any;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout( () => {
-            timer = undefined;
-            this(...args);
-        }, delay);
-    };
+    public ToBe(value: T)
+    {
+        if(this.value !== value)
+            this.ThrowExpectedGot(value);
+    }
+
+    //Private methods
+    private ThrowExpectedGot(value: T)
+    {
+        throw new Error("Expected: " + this.ToString(value) + ", got: " + this.ToString(this.value));
+    }
+
+    private ToString(value: T)
+    {
+        if(value instanceof Set)
+            return "Set {" + [...value].join(", ") + "}";
+        return "???";
+    }
 }

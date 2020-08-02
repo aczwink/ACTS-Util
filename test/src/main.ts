@@ -15,30 +15,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export {};
 
-declare global
+import { Expector } from "./Expector";
+
+interface TestCase
 {
-    interface Function
-    {
-        CallImmediate: (this: Function) => void;
-        Debounce: <T>(this: (... arg: T[]) => void, delay: number) => (... arg: T[]) => void;
-    }
+    title: string;
+    testFunction: () => void;
 }
 
-Function.prototype.CallImmediate = function(this: Function)
+export const testCases: TestCase[] = [];
+
+export function Expect<T>(value: T)
 {
-    setTimeout(this, 0);
+    return new Expector<T>(value);
 }
 
-Function.prototype.Debounce = function(this: Function, delay: number)
+export function It(title: string, testFunction: () => void)
 {
-    let timer: any;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout( () => {
-            timer = undefined;
-            this(...args);
-        }, delay);
-    };
+    testCases.push({title, testFunction});
 }

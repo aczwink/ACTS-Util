@@ -43,7 +43,7 @@ export class Injector
     }
 
     //Public members
-    public parent: Injector | null;
+    public parent: Injector | null | (() => Injector | null);
 
     //Public methods
     public CreateInstance<T>(provider: InjectionProvider<T>): T
@@ -93,8 +93,12 @@ export class Injector
     //Private methods
     private TryResolveParent<T>(token: InjectionToken<T>)
     {
-        if(this.parent === null)
+        let parent = this.parent;
+        if(typeof parent === "function")
+            parent = parent();
+
+        if(parent === null)
             throw new Error("Unknown injectable: " + token);
-        return this.parent.Resolve(token, ResolutionStrategy.Upwards);
+        return parent.Resolve(token, ResolutionStrategy.Upwards);
     }
 }

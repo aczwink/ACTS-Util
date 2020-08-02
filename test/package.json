@@ -1,0 +1,24 @@
+{
+  "name": "acts-util-test",
+  "version": "0.0.1",
+  "description": "A testing library for TypeScript / JavaScript",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
+  "scripts": {
+    "compile": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aczwink/ACTS-Util.git"
+  },
+  "author": "Amir Czwink",
+  "license": "AGPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/aczwink/ACTS-Util/issues"
+  },
+  "homepage": "https://github.com/aczwink/ACTS-Util#readme",
+  "devDependencies": {
+    "@types/node": "^14.0.26",
+    "typescript": "^3.9.7"
+  }
+}

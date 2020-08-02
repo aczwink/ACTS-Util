@@ -15,39 +15,37 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export {};
 
-declare global
+import { ForwardIterator } from "./ForwardIterator";
+
+export class MapIterator<InputType, OutputType> extends ForwardIterator<OutputType>
 {
-    interface String
+    constructor(private baseIterator: ForwardIterator<InputType>, private func: (input: InputType) => OutputType)
     {
-        TrimLeft: (this: string, chars: string) => string;
-        TrimRight: (this: string, chars: string) => string;
+        super();
+    }
+
+    //Public methods
+    public HasNext(): boolean
+    {
+        return this.baseIterator.HasNext();
+    }
+
+    public Next(): OutputType
+    {
+        return this.func(this.baseIterator.Next());
     }
 }
 
-String.prototype.TrimLeft = function(this: string, chars: string)
+declare module "./ForwardIterator"
 {
-    let i;
-    for(i = 0; i < this.length; i++)
+    interface ForwardIterator<T>
     {
-        if(chars.indexOf(this.charAt(i)) === -1)
-            break;
+        Map: <T, U>(this: ForwardIterator<T>, func: (input: T) => U) => ForwardIterator<U>;
     }
-
-    return this.substr(i);
 }
 
-String.prototype.TrimRight = function(this: string, chars: string)
+ForwardIterator.prototype.Map = function<T, U>(this: ForwardIterator<T>, func: (input: T) => U)
 {
-    let result = this;
-
-    while(result.length > 0)
-    {
-        if(chars.indexOf(result.charAt(result.length - 1)) === -1)
-            break;
-        result = result.slice(0, -1);
-    }
-
-    return result;
+    return new MapIterator<T, U>(this, func);
 }

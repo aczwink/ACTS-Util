@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { HierarchicalComparator } from "./EqualsAny";
+
 export {};
 
 declare global
@@ -22,6 +24,7 @@ declare global
     interface Object
     {
         DeepClone: <T>(this: T) => T;
+        Equals: <T>(this: T, other: T) => boolean;
         IsObject: (value: any) => boolean;
     }
 }
@@ -45,6 +48,12 @@ Object.prototype.DeepClone = function<T>(this: T)
     }
 
     return result as T;
+}
+
+Object.prototype.Equals = function<T>(this: T, other: T)
+{
+    const cmp = new HierarchicalComparator();
+    return cmp.EqualsObject(this, other);
 }
 
 Object.prototype.IsObject = function(value: any)

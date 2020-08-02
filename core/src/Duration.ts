@@ -25,18 +25,26 @@ export class Duration
     //Override Object methods
     public toString()
     {
-        let ms = this.ms;
+        const scales = [{ scale: 1000, unit: "ms" }, { scale: 60, unit: "s" }, { scale: 60, unit: "min" }, { scale: 24, unit: "h" } ];
 
-        var parts = [];
-        if(ms > 1000)
+        let current = this.ms;
+        const parts = [];
+        for (const scale of scales)
         {
-            var s = Math.floor(ms/1000);
-            ms -= s * 1000;
-            parts.push(s + " s");
+            const num = current % scale.scale;
+            if(num)
+            {
+                parts.unshift(scale.unit);
+                parts.unshift(num);
+            }
+            current = Math.floor(current / scale.scale);
         }
-        
-        if(ms > 0)
-            parts.push(ms + " ms");
+
+        if(current)
+        {
+            parts.unshift("days");
+            parts.unshift(current);
+        }
             
         return parts.join(" ");
     }

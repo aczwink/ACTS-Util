@@ -15,30 +15,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export {};
 
-declare global
-{
-    interface Function
-    {
-        CallImmediate: (this: Function) => void;
-        Debounce: <T>(this: (... arg: T[]) => void, delay: number) => (... arg: T[]) => void;
-    }
-}
+import { Expect, It } from "acts-util-test";
 
-Function.prototype.CallImmediate = function(this: Function)
-{
-    setTimeout(this, 0);
-}
-
-Function.prototype.Debounce = function(this: Function, delay: number)
-{
-    let timer: any;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout( () => {
-            timer = undefined;
-            this(...args);
-        }, delay);
+It("Equals with cycle in objects", () => {
+    const a = {
+        obj: {}
     };
-}
+    const b = {
+        obj: {}
+    };
+
+    a.obj = a;
+    b.obj = b;
+
+    Expect(a.Equals(b)).ToBe(true);
+});
+
+It("Equals with cycle in objects and additional property", () => {
+    const a = {
+        obj: {},
+        bla: "blub"
+    };
+    const b = {
+        obj: {},
+        bla: "bla"
+    };
+
+    a.obj = a;
+    b.obj = b;
+
+    Expect(a.Equals(b)).ToBe(false);
+});

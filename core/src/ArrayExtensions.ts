@@ -15,6 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { ForwardIterator } from "./Iterators/ForwardIterator";
+import { ArrayIterator } from "./Iterators/ArrayIterator";
+import { HierarchicalComparator } from "./EqualsAny";
+
 export {};
 
 declare global
@@ -24,7 +28,9 @@ declare global
         Clone: <T>(this: T[]) => T[];
         Contains: <T>(this: T[], value: T) => boolean;
         DeepClone: <T>(this: T[]) => T[];
+        Equals: <T>(this: T[], other: T[]) => boolean;
         IsEmpty: <T>(this: T[]) => boolean;
+        Iterator: <T>(this: T[]) => ForwardIterator<T>;
         Remove: <T>(this: T[], index: number) => void;
     }
 }
@@ -63,9 +69,20 @@ Array.prototype.DeepClone = function<T>(this: Array<T>)
     return result;
 }
 
+Array.prototype.Equals = function<T>(this: T[], other: T[])
+{
+    const cmp = new HierarchicalComparator();
+    return cmp.EqualsArray(this, other);
+}
+
 Array.prototype.IsEmpty = function<T>(this: Array<T>)
 {
     return this.length === 0;
+}
+
+Array.prototype.Iterator = function<T>(this: T[])
+{
+    return new ArrayIterator(this);
 }
 
 Array.prototype.Remove = function<T>(this: Array<T>, index: number)

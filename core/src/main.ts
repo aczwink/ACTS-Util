@@ -15,24 +15,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { TimeUtil } from "./TimeUtil";
 import "./ArrayExtensions";
 import "./FunctionExtensions";
 import "./NumberExtensions";
 import "./ObjectExtensions";
 import "./StringExtensions";
+
+import "./Iterators/MapIterator";
+
 import { Dictionary } from "./Dictionary";
 import { MulticastObservable } from "./Observables/MulticastObservable";
-import { Observable, Observer } from "./Observables/Observable";
+import { Observable, Observer, Subscription, SubscriberFunction } from "./Observables/Observable";
 import { Property, PropertyObserver } from "./Observables/Property";
 import { Injector, Instantiatable, ResolutionStrategy } from "./Injector";
 import { Duration } from "./Duration";
 import { Subject } from "./Observables/Subject";
+import { EqualsAny } from "./EqualsAny";
+import { TimeUtil } from "./TimeUtil";
 
 //Exports
 export {
     Dictionary,
     Duration,
+    EqualsAny,
     Injector,
     Instantiatable,
     MulticastObservable,
@@ -42,5 +47,7 @@ export {
     PropertyObserver,
     ResolutionStrategy,
     Subject,
+    SubscriberFunction,
+    Subscription,
     TimeUtil,
 };

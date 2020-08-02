@@ -15,30 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export {};
 
-declare global
-{
-    interface Function
-    {
-        CallImmediate: (this: Function) => void;
-        Debounce: <T>(this: (... arg: T[]) => void, delay: number) => (... arg: T[]) => void;
-    }
-}
+import { Expect, It } from "acts-util-test";
 
-Function.prototype.CallImmediate = function(this: Function)
-{
-    setTimeout(this, 0);
-}
+It("Array to set", () => {
+    Expect( [1, 2, 3, 4, 5, 4, 3, 2, 1, 0].Iterator().ToSet() ).Equals(new Set([0, 1, 2, 3, 4, 5]));
+});
 
-Function.prototype.Debounce = function(this: Function, delay: number)
-{
-    let timer: any;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout( () => {
-            timer = undefined;
-            this(...args);
-        }, delay);
-    };
-}
+It("Array map and reduce", () => {
+    const gaussian_sum = 4 * (4 + 1) / 2;
+    Expect( ["1", "2", "3", "4"].Iterator().Map(value => parseInt(value)).Accumulate( (x, y) => x+y ) ).Equals( gaussian_sum );
+});

@@ -15,30 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export {};
 
-declare global
-{
-    interface Function
-    {
-        CallImmediate: (this: Function) => void;
-        Debounce: <T>(this: (... arg: T[]) => void, delay: number) => (... arg: T[]) => void;
-    }
-}
+import { Expect, It } from "acts-util-test";
+import { Duration } from "acts-util-core";
 
-Function.prototype.CallImmediate = function(this: Function)
-{
-    setTimeout(this, 0);
-}
+It("Minutes", () => {
+    const d = new Duration(60 * 1000);
+    const s = d.toString();
 
-Function.prototype.Debounce = function(this: Function, delay: number)
-{
-    let timer: any;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout( () => {
-            timer = undefined;
-            this(...args);
-        }, delay);
-    };
-}
+    Expect(s).ToBe("1 min");
+});

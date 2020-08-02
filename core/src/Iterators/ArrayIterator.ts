@@ -15,30 +15,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export {};
 
-declare global
+import { ForwardIterator } from "./ForwardIterator";
+
+export class ArrayIterator<T> extends ForwardIterator<T>
 {
-    interface Function
+    constructor(private array: T[])
     {
-        CallImmediate: (this: Function) => void;
-        Debounce: <T>(this: (... arg: T[]) => void, delay: number) => (... arg: T[]) => void;
+        super();
+        
+        this.index = 0;
     }
-}
 
-Function.prototype.CallImmediate = function(this: Function)
-{
-    setTimeout(this, 0);
-}
+    //Public methods
+    public HasNext(): boolean
+    {
+        return this.index < this.array.length;
+    }
 
-Function.prototype.Debounce = function(this: Function, delay: number)
-{
-    let timer: any;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout( () => {
-            timer = undefined;
-            this(...args);
-        }, delay);
-    };
+    public Next(): T
+    {
+        return this.array[this.index++];
+    }
+
+    //Private members
+    private index: number;
 }

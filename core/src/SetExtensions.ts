@@ -15,30 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+
+import { HierarchicalComparator } from "./EqualsAny";
+
 export {};
 
 declare global
 {
-    interface Function
+    interface Set<T>
     {
-        CallImmediate: (this: Function) => void;
-        Debounce: <T>(this: (... arg: T[]) => void, delay: number) => (... arg: T[]) => void;
+        Equals: <T>(this: Set<T>, other: Set<T>) => boolean;
     }
 }
 
-Function.prototype.CallImmediate = function(this: Function)
+Set.prototype.Equals = function<T>(this: Set<T>, other: Set<T>)
 {
-    setTimeout(this, 0);
-}
-
-Function.prototype.Debounce = function(this: Function, delay: number)
-{
-    let timer: any;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout( () => {
-            timer = undefined;
-            this(...args);
-        }, delay);
-    };
+    const cmp = new HierarchicalComparator();
+    return cmp.EqualsSet(this, other);
 }

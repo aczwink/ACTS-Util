@@ -16,17 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { HierarchicalComparator } from "./EqualsAny";
+import { Subject } from "./Observables/Subject";
+import { ForwardIterator } from "./Iterators/ForwardIterator";
 
 export {};
+
+export type ObservableObject<T> = {
+    [KeyType in keyof T]: Subject<T>;
+};
 
 declare global
 {
     interface Object
     {
+        Clone: <T>(this: T) => T;
         DeepClone: <T>(this: T) => T;
         Equals: <T>(this: T, other: T) => boolean;
         IsObject: (value: any) => boolean;
+        ObserveProperties: <T>(this: T) => ObservableObject<T>;
+        OwnKeys: <T>(this: T) => ForwardIterator<keyof T>;
+        Values: <T extends object>(this: T) => ForwardIterator<T[keyof T]>;
     }
+}
+
+Object.prototype.Clone = function<T>(this: T): T
+{
+    const result = {};
+    Object.assign(result, this);
+    return result as T;
 }
 
 Object.prototype.DeepClone = function<T>(this: T)
@@ -59,4 +76,21 @@ Object.prototype.Equals = function<T>(this: T, other: T)
 Object.prototype.IsObject = function(value: any)
 {
     return typeof(value) === "object";
+}
+
+Object.prototype.ObserveProperties = function<T>(this: T): ObservableObject<T>
+{
+    const x: any = {};
+
+    return x;
+}
+
+Object.prototype.OwnKeys = function<T>(this: T): ForwardIterator<keyof T>
+{
+    return Object.getOwnPropertyNames(this).Values() as unknown as ForwardIterator<keyof T>;
+}
+
+Object.prototype.Values = function<T extends object>(this: T): ForwardIterator<T[keyof T]>
+{
+    return this.OwnKeys().Map(k => this[k]);
 }

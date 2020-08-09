@@ -21,6 +21,7 @@ import "./NumberExtensions";
 import "./ObjectExtensions";
 import "./StringExtensions";
 
+import "./Iterators/FilterIterator";
 import "./Iterators/MapIterator";
 
 import { Dictionary } from "./Dictionary";
@@ -32,6 +33,7 @@ import { Duration } from "./Duration";
 import { Subject } from "./Observables/Subject";
 import { EqualsAny } from "./EqualsAny";
 import { TimeUtil } from "./TimeUtil";
+import { ObservableObject } from "./ObjectExtensions";
 
 //Exports
 export {
@@ -42,6 +44,7 @@ export {
     Instantiatable,
     MulticastObservable,
     Observable,
+    ObservableObject,
     Observer,
     Property,
     PropertyObserver,

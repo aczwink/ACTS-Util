@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
+import { Dictionary } from "../main";
+
 export abstract class ForwardIterator<T>
 {
     //Abstract
@@ -28,7 +30,13 @@ export abstract class ForwardIterator<T>
         return this.Reduce(func, this.Next());
     }
 
-    public All()
+    public ForEach( func: (value: T) => void)
+    {
+        while(this.HasNext())
+            func(this.Next());
+    }
+
+    public PromiseAll()
     {
         return Promise.all(this.ToArray());
     }
@@ -48,6 +56,19 @@ export abstract class ForwardIterator<T>
 
         while(this.HasNext())
             result.push(this.Next());
+
+        return result;
+    }
+
+    public ToDictionary<U>( keySelector: (value: T) => string, valueSelector: (value: T) => U)
+    {
+        const result: Dictionary<U> = {};
+
+        while(this.HasNext())
+        {
+            const next = this.Next();
+            result[keySelector(next)] = valueSelector(next);
+        }
 
         return result;
     }

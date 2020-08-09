@@ -68,6 +68,11 @@ export class Property<T>
     private Emit()
     {
         for (const key in this.observers)
-            this.observers[key]!(this.state);
+        {
+            if (Object.prototype.hasOwnProperty.call(this.observers, key))
+            {
+                this.observers[key]!(this.state);
+            }
+        }
     }
 }

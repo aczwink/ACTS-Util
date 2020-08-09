@@ -19,10 +19,17 @@
 import { Expect, It } from "acts-util-test";
 
 It("Array to set", () => {
-    Expect( [1, 2, 3, 4, 5, 4, 3, 2, 1, 0].Iterator().ToSet() ).Equals(new Set([0, 1, 2, 3, 4, 5]));
+    Expect( [1, 2, 3, 4, 5, 4, 3, 2, 1, 0].Values().ToSet() )
+        .Equals( new Set([0, 1, 2, 3, 4, 5]) );
+});
+
+It("Array filter", () => {
+    Expect( [-1, 1, 2, -4, 3, 0, -3].Values().Filter(x => x > 0).ToArray() )
+        .Equals( [1, 2, 3] );
 });
 
 It("Array map and reduce", () => {
     const gaussian_sum = 4 * (4 + 1) / 2;
-    Expect( ["1", "2", "3", "4"].Iterator().Map(value => parseInt(value)).Accumulate( (x, y) => x+y ) ).Equals( gaussian_sum );
+    Expect( ["1", "2", "3", "4"].Values().Map(value => parseInt(value)).Accumulate( (x, y) => x+y ) )
+        .Equals( gaussian_sum );
 });

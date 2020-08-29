@@ -16,7 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Dictionary } from "../main";
+import { Dictionary } from "../Dictionary";
+
+type ExtractPromiseType<T> = T extends Promise<infer U> ? U : T;
 
 export abstract class ForwardIterator<T>
 {
@@ -30,15 +32,25 @@ export abstract class ForwardIterator<T>
         return this.Reduce(func, this.Next());
     }
 
+    public Any()
+    {
+        return this.HasNext();
+    }
+
+    public First()
+    {
+        return this.Next();
+    }
+
     public ForEach( func: (value: T) => void)
     {
         while(this.HasNext())
             func(this.Next());
     }
 
-    public PromiseAll()
+    public PromiseAll(): Promise<ExtractPromiseType<T>[]>
     {
-        return Promise.all(this.ToArray());
+        return Promise.all(this.ToArray()) as Promise<ExtractPromiseType<T>[]>;
     }
 
     public Reduce<U>( func: (accumulator: U, currentValue: T) => U, initialValue: U )

@@ -75,7 +75,7 @@ Object.prototype.Equals = function<T>(this: T, other: T)
 
 Object.prototype.IsObject = function(value: any)
 {
-    return typeof(value) === "object";
+    return (value !== null) && (typeof(value) === "object");
 }
 
 Object.prototype.ObserveProperties = function<T>(this: T): ObservableObject<T>

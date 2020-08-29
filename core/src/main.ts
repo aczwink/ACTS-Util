@@ -19,9 +19,11 @@ import "./ArrayExtensions";
 import "./FunctionExtensions";
 import "./NumberExtensions";
 import "./ObjectExtensions";
+import "./SetExtensions";
 import "./StringExtensions";
 
 import "./Iterators/FilterIterator";
+import "./Iterators/FlatteningIterator";
 import "./Iterators/MapIterator";
 
 import { Dictionary } from "./Dictionary";

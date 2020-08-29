@@ -33,3 +33,13 @@ It("Array map and reduce", () => {
     Expect( ["1", "2", "3", "4"].Values().Map(value => parseInt(value)).Accumulate( (x, y) => x+y ) )
         .Equals( gaussian_sum );
 });
+
+It("Flattening", () => {
+    const input = [
+        [1, 2, 3],
+        [4, 5],
+        [6, 7, 8, 9]
+    ];
+
+    Expect( input.Values().Map(x => x.Values() ).Flatten().ToArray() ).Equals( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
+});

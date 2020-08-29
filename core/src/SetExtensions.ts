@@ -25,6 +25,7 @@ declare global
     interface Set<T>
     {
         Equals: <T>(this: Set<T>, other: Set<T>) => boolean;
+        ToArray: <T>(this: Set<T>) => T[];
     }
 }
 
@@ -32,4 +33,9 @@ Set.prototype.Equals = function<T>(this: Set<T>, other: Set<T>)
 {
     const cmp = new HierarchicalComparator();
     return cmp.EqualsSet(this, other);
+}
+
+Set.prototype.ToArray = function<T>(this: Set<T>)
+{
+    return [...this];
 }

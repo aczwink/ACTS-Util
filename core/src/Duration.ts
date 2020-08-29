@@ -22,6 +22,12 @@ export class Duration
     {
     }
 
+    //Properties
+    public get milliseconds()
+    {
+        return this.ms;
+    }
+
     //Override Object methods
     public toString()
     {

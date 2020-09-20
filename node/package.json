@@ -19,9 +19,11 @@
   },
   "homepage": "https://github.com/aczwink/ACTS-Util#readme",
   "dependencies": {
+    "@types/mysql": "^2.15.15",
+    "acts-util-core": "*",
+    "mysql": "^2.18.1",
     "typescript": "^3.8.3",
-    "webdav": "^3.3.0",
-    "acts-util-core": "*"
+    "webdav": "^3.3.0"
   },
   "prepublish": "tsc",
   "devDependencies": {

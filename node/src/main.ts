@@ -21,12 +21,16 @@ import { OSFileSystem } from "./fs/OSFileSystem";
 import { VirtualRootFileSystem } from "./fs/VirtualRootFileSystem";
 import { WebDAVFileSystem } from "./fs/WebDAVFileSystem";
 import { Promisify } from "./fs/Util";
+import { MySQLConnection } from "./db/MySQLConnection";
+import { MySQLConnectionPool } from "./db/MySQLConnectionPool";
 
 //Exports
 export {
     DirectoryEntry,
     EncryptedFileSystem,
     FileSystem,
+    MySQLConnection,
+    MySQLConnectionPool,
     OSFileSystem,
     Promisify,
     VirtualRootFileSystem,

@@ -30,6 +30,7 @@ declare global
         DeepClone: <T>(this: T[]) => T[];
         Equals: <T>(this: T[], other: T[]) => boolean;
         IsEmpty: <T>(this: T[]) => boolean;
+        OrderBy: <T>(this: T[], selector: (element: T) => number) => T[];
         Remove: <T>(this: T[], index: number) => void;
         Values: <T>(this: T[]) => ForwardIterator<T>;
     }
@@ -78,6 +79,11 @@ Array.prototype.Equals = function<T>(this: T[], other: T[])
 Array.prototype.IsEmpty = function<T>(this: Array<T>)
 {
     return this.length === 0;
+}
+
+Array.prototype.OrderBy = function<T>(this: Array<T>, selector: (element: T) => number)
+{
+    return this.sort( (a,b) => selector(a) - selector(b) );
 }
 
 Array.prototype.Remove = function<T>(this: Array<T>, index: number)

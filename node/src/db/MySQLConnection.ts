@@ -11,6 +11,10 @@ interface InsertResult
 interface UpdateResult
 {
 	/**
+	 * The number of rows that met the update condition.
+	 */
+	affectedRows: number;
+	/**
 	 * The number of rows that were not only affected but actually changed.
 	 */
 	changedRows: number;

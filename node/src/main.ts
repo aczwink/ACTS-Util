@@ -23,12 +23,14 @@ import { WebDAVFileSystem } from "./fs/WebDAVFileSystem";
 import { Promisify } from "./fs/Util";
 import { MySQLConnection } from "./db/MySQLConnection";
 import { MySQLConnectionPool } from "./db/MySQLConnectionPool";
+import { Lock } from "./Lock";
 
 //Exports
 export {
     DirectoryEntry,
     EncryptedFileSystem,
     FileSystem,
+    Lock,
     MySQLConnection,
     MySQLConnectionPool,
     OSFileSystem,

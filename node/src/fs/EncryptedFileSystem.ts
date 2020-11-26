@@ -21,7 +21,7 @@ import { tmpdir } from "os";
 import { isAbsolute, join } from "path";
 import { Stream, Writable } from "stream";
 
-import { FileSystem, DirectoryEntry } from "./FileSystem";
+import { FileSystem, DirectoryEntry, ReadFileOptions, NodeAttributes } from "./FileSystem";
 
 const AUTH_TAG_NAME_SIZE = 4;
 const AUTH_TAG_DATA_SIZE = 16;
@@ -202,8 +202,16 @@ export class EncryptedFileSystem implements FileSystem
         });
     }
 
-    public async ReadFile(filePath: string)
+    public QueryAttributes(nodePath: string): Promise<NodeAttributes>
     {
+        throw new Error("Method not implemented.");
+    }
+
+    public async ReadFile(filePath: string, options?: ReadFileOptions)
+    {
+        if(options !== undefined)
+            throw new Error("NOT IMPLEMENTED");
+            
         const stream = await this.underlyingFileSystem.ReadFile(this.EncryptPath(filePath));
         return stream.pipe(new DecrypterStream(this.encryptionKey));
     }

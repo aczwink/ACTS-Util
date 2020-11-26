@@ -17,7 +17,7 @@
  * */
 const { createClient } = require("webdav");
 
-import { FileSystem, DirectoryEntry } from "./FileSystem";
+import { FileSystem, DirectoryEntry, ReadFileOptions, NodeAttributes } from "./FileSystem";
 
 export class WebDAVFileSystem implements FileSystem
 {
@@ -60,8 +60,16 @@ export class WebDAVFileSystem implements FileSystem
         });
     }
 
-    public ReadFile(filePath: string)
+    public QueryAttributes(nodePath: string): Promise<NodeAttributes>
     {
+        throw new Error("Method not implemented.");
+    }
+
+    public ReadFile(filePath: string, options?: ReadFileOptions)
+    {
+        if(options !== undefined)
+            throw new Error("NOT IMPLEMENTED");
+            
         return this.connection.createReadStream(filePath);
     }
 

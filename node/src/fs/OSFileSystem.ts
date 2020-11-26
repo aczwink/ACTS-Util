@@ -17,7 +17,7 @@
  * */
 import * as fs from "fs";
 
-import { FileSystem, DirectoryEntry } from "./FileSystem";
+import { FileSystem, DirectoryEntry, ReadFileOptions, NodeAttributes } from "./FileSystem";
 
 export class OSFileSystem implements FileSystem
 {
@@ -73,9 +73,17 @@ export class OSFileSystem implements FileSystem
         });
     }
 
-    public async ReadFile(filePath: string)
+    public async QueryAttributes(nodePath: string): Promise<NodeAttributes>
     {
-        return fs.createReadStream(filePath);
+        return fs.promises.stat(nodePath);
+    }
+
+    public async ReadFile(filePath: string, options?: ReadFileOptions)
+    {
+        return fs.createReadStream(filePath, (options === undefined) ? undefined : {
+            start: options.startOffset,
+            end: options.endOffset
+        });
     }
 
     public WriteFile(filePath: string)

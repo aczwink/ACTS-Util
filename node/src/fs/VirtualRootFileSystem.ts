@@ -18,7 +18,7 @@
 import "acts-util-core";
 import * as path from "path";
 
-import { FileSystem, DirectoryEntry } from "./FileSystem";
+import { FileSystem, DirectoryEntry, ReadFileOptions, NodeAttributes } from "./FileSystem";
 
 export class VirtualRootFileSystem implements FileSystem
 {
@@ -52,9 +52,14 @@ export class VirtualRootFileSystem implements FileSystem
         return this.wrappedFileSystem.ListDirectoryContents(this.MapPath(dirPath));
     }
 
-    public ReadFile(filePath: string)
+    public QueryAttributes(nodePath: string): Promise<NodeAttributes>
     {
-        return this.wrappedFileSystem.ReadFile(this.MapPath(filePath));
+        return this.wrappedFileSystem.QueryAttributes(this.MapPath(nodePath));
+    }
+
+    public ReadFile(filePath: string, options?: ReadFileOptions)
+    {
+        return this.wrappedFileSystem.ReadFile(this.MapPath(filePath), options);
     }
 
     public WriteFile(filePath: string)

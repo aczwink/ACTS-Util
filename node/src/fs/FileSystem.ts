@@ -22,6 +22,17 @@ export interface DirectoryEntry
     fileName: string;
 }
 
+export interface NodeAttributes
+{
+    size: number;
+}
+
+export interface ReadFileOptions
+{
+    startOffset?: number;
+    endOffset?: number;
+}
+
 export interface FileSystem
 {
     CreateDirectory(dirPath: string): Promise<void>;
@@ -29,6 +40,7 @@ export interface FileSystem
     DeleteFile(filePath: string): Promise<void>;
     Exists(nodePath: string): Promise<boolean>;
     ListDirectoryContents(dirPath: string): Promise<DirectoryEntry[]>;
-    ReadFile(filePath: string): Promise<Readable>;
+    QueryAttributes(nodePath: string): Promise<NodeAttributes>;
+    ReadFile(filePath: string, options?: ReadFileOptions): Promise<Readable>;
     WriteFile(filePath: string): Writable;
 }

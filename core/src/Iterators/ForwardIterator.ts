@@ -37,6 +37,11 @@ export abstract class ForwardIterator<T>
         return this.HasNext();
     }
 
+    public Count()
+    {
+        return this.Reduce((sum, _) => sum+1, 0);
+    }
+
     public First()
     {
         return this.Next();

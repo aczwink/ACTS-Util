@@ -21,18 +21,24 @@ import { OSFileSystem } from "./fs/OSFileSystem";
 import { VirtualRootFileSystem } from "./fs/VirtualRootFileSystem";
 import { WebDAVFileSystem } from "./fs/WebDAVFileSystem";
 import { Promisify } from "./fs/Util";
-import { MySQLConnection } from "./db/MySQLConnection";
+import { DirectMySQLConnection } from "./db/DirectMySQLConnection";
 import { MySQLConnectionPool } from "./db/MySQLConnectionPool";
 import { Lock } from "./Lock";
+import { MySQLPoolConnection } from "./db/MySQLPoolConnection";
+import { LockedProperty } from "./LockedProperty";
+import { MySQLConnection } from "./db/MySQLConnection";
 
 //Exports
 export {
+    DirectMySQLConnection,
     DirectoryEntry,
     EncryptedFileSystem,
     FileSystem,
     Lock,
+    LockedProperty,
     MySQLConnection,
     MySQLConnectionPool,
+    MySQLPoolConnection,
     OSFileSystem,
     Promisify,
     VirtualRootFileSystem,

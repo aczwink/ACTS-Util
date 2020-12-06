@@ -25,6 +25,7 @@ import "./StringExtensions";
 import "./Iterators/FilterIterator";
 import "./Iterators/FlatteningIterator";
 import "./Iterators/MapIterator";
+import "./Iterators/NumberForwardIteratorExtensions";
 
 import { Dictionary } from "./Dictionary";
 import { MulticastObservable } from "./Observables/MulticastObservable";

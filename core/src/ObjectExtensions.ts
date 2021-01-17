@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 import { HierarchicalComparator } from "./EqualsAny";
 import { Subject } from "./Observables/Subject";
 import { ForwardIterator } from "./Iterators/ForwardIterator";
+import { KeyValuePair } from "./KeyValuePair";
 
 export {};
 
@@ -31,6 +32,7 @@ declare global
     {
         Clone: <T>(this: T) => T;
         DeepClone: <T>(this: T) => T;
+        Entries: <T extends object>(this: T) => ForwardIterator<KeyValuePair<keyof T, T[keyof T]>>;
         Equals: <T>(this: T, other: T) => boolean;
         IsObject: (value: any) => boolean;
         ObserveProperties: <T>(this: T) => ObservableObject<T>;
@@ -65,6 +67,16 @@ Object.prototype.DeepClone = function<T>(this: T)
     }
 
     return result as T;
+}
+
+Object.prototype.Entries = function<T extends object>(this: T)
+{
+    return this.OwnKeys().Map(k => {
+        return {
+            key: k,
+            value: this[k]
+        };
+    });
 }
 
 Object.prototype.Equals = function<T>(this: T, other: T)

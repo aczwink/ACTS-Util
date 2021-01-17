@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -77,7 +77,7 @@ export abstract class ForwardIterator<T>
         return result;
     }
 
-    public ToDictionary<U>( keySelector: (value: T) => string, valueSelector: (value: T) => U)
+    public ToDictionary<U>( keySelector: (value: T) => number | string, valueSelector: (value: T) => U)
     {
         const result: Dictionary<U> = {};
 

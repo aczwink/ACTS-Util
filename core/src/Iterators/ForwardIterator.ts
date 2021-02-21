@@ -53,8 +53,10 @@ export abstract class ForwardIterator<T>
             func(this.Next());
     }
 
-    public PromiseAll(): Promise<ExtractPromiseType<T>[]>
+    public PromiseAll(maxConcurrency: number = Number.POSITIVE_INFINITY): Promise<ExtractPromiseType<T>[]>
     {
+        if(maxConcurrency < Number.POSITIVE_INFINITY)
+            return this.PromiseAllConcurrencyLimited(maxConcurrency);
         return Promise.all(this.ToArray()) as Promise<ExtractPromiseType<T>[]>;
     }
 
@@ -98,5 +100,48 @@ export abstract class ForwardIterator<T>
             result.add(this.Next());
 
         return result;
+    }
+
+    //Private methods
+    private PromiseAllConcurrencyLimited(maxConcurrency: number): Promise<ExtractPromiseType<T>[]>
+    {
+        const self = this;
+        return new Promise( (resolve, reject) => {
+            let nRunning = 0;
+            let index = 0;
+            const results: ExtractPromiseType<T>[] = [];
+
+            function Finished(i: number, data: ExtractPromiseType<T>)
+            {
+                results[i] = data;
+                nRunning--;
+                Schedule();
+            }
+
+            function Run(i: number, next: T)
+            {
+                if(next instanceof Promise)
+                {
+                    next.catch(reject);
+                    next.then(data => Finished(i, data));
+                }
+                else
+                    Finished(i, next as ExtractPromiseType<T>);
+            }
+
+            function Schedule()
+            {
+                while((nRunning < maxConcurrency) && self.HasNext())
+                {
+                    nRunning++;
+                    Run(index++, self.Next());
+                }
+
+                if(!self.HasNext() && (nRunning == 0))
+                    resolve(results);
+            }
+
+            Schedule();
+        });
     }
 }

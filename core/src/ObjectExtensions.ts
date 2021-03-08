@@ -17,8 +17,9 @@
  * */
 import { HierarchicalComparator } from "./EqualsAny";
 import { Subject } from "./Observables/Subject";
-import { ForwardIterator } from "./Iterators/ForwardIterator";
+import { Enumerator } from "./Iterators/Enumerator";
 import { KeyValuePair } from "./KeyValuePair";
+import { EnumeratorBuilder } from "./Iterators/EnumeratorBuilder";
 
 export {};
 
@@ -32,12 +33,12 @@ declare global
     {
         Clone: <T>(this: T) => T;
         DeepClone: <T>(this: T) => T;
-        Entries: <T extends object>(this: T) => ForwardIterator<KeyValuePair<keyof T, T[keyof T]>>;
+        Entries: <T extends object>(this: T) => EnumeratorBuilder<KeyValuePair<keyof T, T[keyof T]>>;
         Equals: <T>(this: T, other: T) => boolean;
         IsObject: (value: any) => boolean;
         ObserveProperties: <T>(this: T) => ObservableObject<T>;
-        OwnKeys: <T>(this: T) => ForwardIterator<keyof T>;
-        Values: <T extends object>(this: T) => ForwardIterator<T[keyof T]>;
+        OwnKeys: <T>(this: T) => EnumeratorBuilder<keyof T>;
+        Values: <T extends object>(this: T) => EnumeratorBuilder<T[keyof T]>;
     }
 }
 
@@ -97,12 +98,12 @@ Object.prototype.ObserveProperties = function<T>(this: T): ObservableObject<T>
     return x;
 }
 
-Object.prototype.OwnKeys = function<T>(this: T): ForwardIterator<keyof T>
+Object.prototype.OwnKeys = function<T>(this: T): EnumeratorBuilder<keyof T>
 {
-    return Object.getOwnPropertyNames(this).Values() as unknown as ForwardIterator<keyof T>;
+    return Object.getOwnPropertyNames(this).Values() as unknown as EnumeratorBuilder<keyof T>;
 }
 
-Object.prototype.Values = function<T extends object>(this: T): ForwardIterator<T[keyof T]>
+Object.prototype.Values = function<T extends object>(this: T): EnumeratorBuilder<T[keyof T]>
 {
     return this.OwnKeys().Map(k => this[k]);
 }

@@ -17,24 +17,27 @@
  * */
 
 import { Dictionary } from "../Dictionary";
+import { Enumerator } from "./Enumerator";
 
 type ExtractPromiseType<T> = T extends Promise<infer U> ? U : T;
 
-export abstract class ForwardIterator<T>
+export class EnumeratorBuilder<T>
 {
-    //Abstract
-    abstract HasNext(): boolean;
-    abstract Next(): T;
+    constructor(private iteratorInstantiator: () => Enumerator<T>)
+    {
+    }
 
     //Public methods
     public Accumulate( func: (accumulator: T, currentValue: T) => T )
     {
-        return this.Reduce(func, this.Next());
+        const it = this.CreateInstance();
+        return this.ReduceImpl(it, func, it.Next());
     }
 
     public Any()
     {
-        return this.HasNext();
+        const it = this.CreateInstance();
+        return it.HasNext();
     }
 
     public Count()
@@ -42,15 +45,15 @@ export abstract class ForwardIterator<T>
         return this.Reduce((sum, _) => sum+1, 0);
     }
 
-    public First()
+    public CreateInstance()
     {
-        return this.Next();
+        return this.iteratorInstantiator();
     }
 
-    public ForEach( func: (value: T) => void)
+    public OrderBy( selector: (element: T) => number )
     {
-        while(this.HasNext())
-            func(this.Next());
+        const array = this.ToArray().sort( (a,b) => selector(a) - selector(b) );
+        return array.Values();
     }
 
     public PromiseAll(maxConcurrency: number = Number.POSITIVE_INFINITY): Promise<ExtractPromiseType<T>[]>
@@ -62,19 +65,16 @@ export abstract class ForwardIterator<T>
 
     public Reduce<U>( func: (accumulator: U, currentValue: T) => U, initialValue: U )
     {
-        let accumulator = initialValue;
-        while(this.HasNext())
-            accumulator = func(accumulator, this.Next());
-
-        return accumulator;
+        return this.ReduceImpl(this.CreateInstance(), func, initialValue);
     }
 
     public ToArray()
     {
+        const it = this.CreateInstance();
         const result = [];
 
-        while(this.HasNext())
-            result.push(this.Next());
+        while(it.HasNext())
+            result.push(it.Next());
 
         return result;
     }
@@ -83,9 +83,10 @@ export abstract class ForwardIterator<T>
     {
         const result: Dictionary<U> = {};
 
-        while(this.HasNext())
+        const it = this.CreateInstance();
+        while(it.HasNext())
         {
-            const next = this.Next();
+            const next = it.Next();
             result[keySelector(next)] = valueSelector(next);
         }
 
@@ -94,10 +95,16 @@ export abstract class ForwardIterator<T>
 
     public ToSet()
     {
+        for (const a of this)
+        {
+            
+        }
+
+        const it = this.CreateInstance();
         const result = new Set<T>();
 
-        while(this.HasNext())
-            result.add(this.Next());
+        while(it.HasNext())
+            result.add(it.Next());
 
         return result;
     }
@@ -105,7 +112,7 @@ export abstract class ForwardIterator<T>
     //Private methods
     private PromiseAllConcurrencyLimited(maxConcurrency: number): Promise<ExtractPromiseType<T>[]>
     {
-        const self = this;
+        const it = this.CreateInstance();
         return new Promise( (resolve, reject) => {
             let nRunning = 0;
             let index = 0;
@@ -131,17 +138,34 @@ export abstract class ForwardIterator<T>
 
             function Schedule()
             {
-                while((nRunning < maxConcurrency) && self.HasNext())
+                while((nRunning < maxConcurrency) && it.HasNext())
                 {
                     nRunning++;
-                    Run(index++, self.Next());
+                    Run(index++, it.Next());
                 }
 
-                if(!self.HasNext() && (nRunning == 0))
+                if(!it.HasNext() && (nRunning == 0))
                     resolve(results);
             }
 
             Schedule();
         });
     }
+
+    private ReduceImpl<U>( it: Enumerator<T>, func: (accumulator: U, currentValue: T) => U, initialValue: U )
+    {
+        let accumulator = initialValue;
+        while(it.HasNext())
+            accumulator = func(accumulator, it.Next());
+
+        return accumulator;
+    }
+
+    //Support for standard iterators
+    *[Symbol.iterator]()
+    {
+        const instance = this.CreateInstance();
+        while(instance.HasNext())
+            yield instance.Next();
+    };
 }

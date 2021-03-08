@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { ForwardIterator } from "./ForwardIterator";
+import { Enumerator } from "./Enumerator";
 
-export class ArrayIterator<T> extends ForwardIterator<T>
+export class ArrayIterator<T> extends Enumerator<T>
 {
     constructor(private array: T[])
     {

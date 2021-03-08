@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,11 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { ForwardIterator } from "./ForwardIterator";
+import { Enumerator } from "./Enumerator";
+import { EnumeratorBuilder } from "./EnumeratorBuilder";
 
-export class FlatteningIterator<T> extends ForwardIterator<T>
+export class FlatteningIterator<T> extends Enumerator<T>
 {
-    constructor(private nestedIterator: ForwardIterator<ForwardIterator<T>>)
+    constructor(private nestedIterator: Enumerator<EnumeratorBuilder<T>>)
     {
         super();
 
@@ -48,14 +49,14 @@ export class FlatteningIterator<T> extends ForwardIterator<T>
 
     //Private members
     private hasCurrent: boolean;
-    private current!: ForwardIterator<T>;
+    private current!: Enumerator<T>;
 
     //Private methods
     private IterateToNext()
     {
         if(this.nestedIterator.HasNext())
         {
-            this.current = this.nestedIterator.Next();
+            this.current = this.nestedIterator.Next().CreateInstance();
             this.hasCurrent = true;
         }
         else
@@ -63,15 +64,15 @@ export class FlatteningIterator<T> extends ForwardIterator<T>
     }
 }
 
-declare module "./ForwardIterator"
+declare module "./EnumeratorBuilder"
 {
-    interface ForwardIterator<T>
+    interface EnumeratorBuilder<T>
     {
-        Flatten: <T>(this: ForwardIterator<ForwardIterator<T>>) => ForwardIterator<T>;
+        Flatten: <T>(this: EnumeratorBuilder<EnumeratorBuilder<T>>) => EnumeratorBuilder<T>;
     }
 }
 
-ForwardIterator.prototype.Flatten = function<T>(this: ForwardIterator<ForwardIterator<T>>)
+EnumeratorBuilder.prototype.Flatten = function<T>(this: EnumeratorBuilder<EnumeratorBuilder<T>>)
 {
-    return new FlatteningIterator<T>(this);
+    return new EnumeratorBuilder(() => new FlatteningIterator<T>(this.CreateInstance()));
 }

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -63,20 +63,21 @@ export class Injector
 
     public Resolve<T>(token: InjectionToken<T>, resolutionStrategy: ResolutionStrategy = ResolutionStrategy.Upwards): T
     {
+        const result = this.TryResolve(token, resolutionStrategy);
+        if(result === undefined)
+            throw new Error("Unknown injectable: " + token);
+
+        return result;
+    }
+
+    public TryResolve<T>(token: InjectionToken<T>, resolutionStrategy: ResolutionStrategy = ResolutionStrategy.Upwards): T | undefined
+    {
+        let resolved;
         if(resolutionStrategy == ResolutionStrategy.ParentUpwards)
-            return this.TryResolveParent(token);
-
-        let instance = this.instances.get(token);
-        if(instance === undefined)
-        {
-            const provider = this.providers.get(token);
-            if(provider === undefined)
-                return this.TryResolveParent(token);
-
-            instance = this.CreateInstance(provider);
-            this.instances.set(token, instance);
-        }
-        return instance as unknown as T;
+            resolved = this.TryResolveParent(token);
+        else
+            resolved = this.TryResolveSelf(token);
+        return resolved;
     }
 
     public ResolveInjections<T>(target: Instantiatable<T>): any
@@ -91,14 +92,29 @@ export class Injector
     private providers: Map<InjectionToken<any>, InjectionProvider<any>>;
 
     //Private methods
-    private TryResolveParent<T>(token: InjectionToken<T>)
+    private TryResolveSelf<T>(token: InjectionToken<T>): T | undefined
+    {
+        let instance = this.instances.get(token);
+        if(instance === undefined)
+        {
+            const provider = this.providers.get(token);
+            if(provider === undefined)
+                return this.TryResolveParent(token);
+
+            instance = this.CreateInstance(provider);
+            this.instances.set(token, instance);
+        }
+        return instance as unknown as T;
+    }
+
+    private TryResolveParent<T>(token: InjectionToken<T>): T | undefined
     {
         let parent = this.parent;
         if(typeof parent === "function")
             parent = parent();
 
         if(parent === null)
-            throw new Error("Unknown injectable: " + token);
-        return parent.Resolve(token, ResolutionStrategy.Upwards);
+            return undefined;
+        return parent.TryResolveSelf(token);
     }
 }

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,11 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { ForwardIterator } from "./ForwardIterator";
+import { Enumerator } from "./Enumerator";
+import { EnumeratorBuilder } from "./EnumeratorBuilder";
 
-export class MapIterator<InputType, OutputType> extends ForwardIterator<OutputType>
+export class MapIterator<InputType, OutputType> extends Enumerator<OutputType>
 {
-    constructor(private baseIterator: ForwardIterator<InputType>, private func: (input: InputType) => OutputType)
+    constructor(private baseIterator: Enumerator<InputType>, private func: (input: InputType) => OutputType)
     {
         super();
     }
@@ -37,15 +38,15 @@ export class MapIterator<InputType, OutputType> extends ForwardIterator<OutputTy
     }
 }
 
-declare module "./ForwardIterator"
+declare module "./EnumeratorBuilder"
 {
-    interface ForwardIterator<T>
+    interface EnumeratorBuilder<T>
     {
-        Map: <T, U>(this: ForwardIterator<T>, func: (input: T) => U) => ForwardIterator<U>;
+        Map: <T, U>(this: EnumeratorBuilder<T>, func: (input: T) => U) => EnumeratorBuilder<U>;
     }
 }
 
-ForwardIterator.prototype.Map = function<T, U>(this: ForwardIterator<T>, func: (input: T) => U)
+EnumeratorBuilder.prototype.Map = function<T, U>(this: EnumeratorBuilder<T>, func: (input: T) => U)
 {
-    return new MapIterator<T, U>(this, func);
+    return new EnumeratorBuilder(() => new MapIterator<T, U>(this.CreateInstance(), func));
 }

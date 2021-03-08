@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { ForwardIterator } from "./Iterators/ForwardIterator";
 import { ArrayIterator } from "./Iterators/ArrayIterator";
 import { HierarchicalComparator } from "./EqualsAny";
+import { EnumeratorBuilder } from "./Iterators/EnumeratorBuilder";
 
 export {};
 
@@ -30,9 +30,9 @@ declare global
         DeepClone: <T>(this: T[]) => T[];
         Equals: <T>(this: T[], other: T[]) => boolean;
         IsEmpty: <T>(this: T[]) => boolean;
-        OrderBy: <T>(this: T[], selector: (element: T) => number) => T[];
+        OrderBy: <T>(this: T[], selector: (element: T) => number | string, ascending: boolean) => T[];
         Remove: <T>(this: T[], index: number) => void;
-        Values: <T>(this: T[]) => ForwardIterator<T>;
+        Values: <T>(this: T[]) => EnumeratorBuilder<T>;
     }
 }
 
@@ -81,9 +81,15 @@ Array.prototype.IsEmpty = function<T>(this: Array<T>)
     return this.length === 0;
 }
 
-Array.prototype.OrderBy = function<T>(this: Array<T>, selector: (element: T) => number)
+Array.prototype.OrderBy = function<T>(this: Array<T>, selector: (element: T) => number | string, ascending: boolean = true)
 {
-    return this.sort( (a,b) => selector(a) - selector(b) );
+    return this.sort( (a,b) => {
+        const sa = selector(a);
+        const sb = selector(b);
+
+        const result = sa.toString().localeCompare(sb.toString());
+        return ascending ? result : -result;
+    });
 }
 
 Array.prototype.Remove = function<T>(this: Array<T>, index: number)
@@ -93,5 +99,5 @@ Array.prototype.Remove = function<T>(this: Array<T>, index: number)
 
 Array.prototype.Values = function<T>(this: T[])
 {
-    return new ArrayIterator(this);
+    return new EnumeratorBuilder(() => new ArrayIterator(this));
 }

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -37,6 +37,23 @@ export class Subject<T> extends Observable<T>
     }
 
     //Public methods
+    public async First(): Promise<T>
+    {
+        let subscription: Subscription | null = null;
+        const promise = new Promise<T>( resolve =>
+        {
+            subscription = this.Subscribe(
+            {
+                next: resolve
+            });
+        });
+        
+        const result = await promise;
+        subscription!.Unsubscribe();
+
+        return result;
+    }
+
     public Next(data: T)
     {
         for (const key in this.subscriptions)

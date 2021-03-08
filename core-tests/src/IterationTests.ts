@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -42,4 +42,14 @@ It("Flattening", () => {
     ];
 
     Expect( input.Values().Map(x => x.Values() ).Flatten().ToArray() ).Equals( [1, 2, 3, 4, 5, 6, 7, 8, 9] );
+});
+
+It("Standard iterator", () => {
+    const input = [1, 2, 3];
+
+    const found = [];
+    for (const value of input.Values())
+        found.push(value);
+
+    Expect(found).Equals(input);
 });

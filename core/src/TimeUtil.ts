@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,13 @@
 export const TimeUtil = new class
 {
     //Public methods
+    public Delay(ms: number)
+    {
+        return new Promise( resolve => {
+            setTimeout(resolve, ms);
+        });
+    }
+
     public TimeToString(time: number, includeHours = false): string
     {
         if(time < 0)

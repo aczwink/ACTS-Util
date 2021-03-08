@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,11 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { ForwardIterator } from "./ForwardIterator";
+import { Enumerator } from "./Enumerator";
+import { EnumeratorBuilder } from "./EnumeratorBuilder";
 
-export class FilterIterator<InputType, OutputType> extends ForwardIterator<OutputType>
+export class FilterIterator<InputType, OutputType> extends Enumerator<OutputType>
 {
-    constructor(private baseIterator: ForwardIterator<InputType>, private filter: (value: InputType) => boolean)
+    constructor(private baseIterator: Enumerator<InputType>, private filter: (value: InputType) => boolean)
     {
         super();
 
@@ -69,15 +70,15 @@ export class FilterIterator<InputType, OutputType> extends ForwardIterator<Outpu
     }
 }
 
-declare module "./ForwardIterator"
+declare module "./EnumeratorBuilder"
 {
-    interface ForwardIterator<T>
+    interface EnumeratorBuilder<T>
     {
-        Filter: <OutputType = T>(this: ForwardIterator<T>, filter: (value: T) => boolean) => ForwardIterator<OutputType>;
+        Filter: <OutputType = T>(this: EnumeratorBuilder<T>, filter: (value: T) => boolean) => EnumeratorBuilder<OutputType>;
     }
 }
 
-ForwardIterator.prototype.Filter = function<InputType extends OutputType, OutputType>(this: ForwardIterator<InputType>, filter: (value: InputType) => boolean)
+EnumeratorBuilder.prototype.Filter = function<InputType extends OutputType, OutputType>(this: EnumeratorBuilder<InputType>, filter: (value: InputType) => boolean)
 {
-    return new FilterIterator<InputType, OutputType>(this, filter);
+    return new EnumeratorBuilder(() => new FilterIterator<InputType, OutputType>(this.CreateInstance(), filter));
 }

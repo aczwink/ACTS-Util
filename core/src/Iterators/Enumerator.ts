@@ -16,17 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { EnumeratorBuilder } from "./EnumeratorBuilder";
+import { Dictionary } from "../Dictionary";
 
-declare module "./EnumeratorBuilder"
+export abstract class Enumerator<T>
 {
-    interface EnumeratorBuilder<T>
+    //Abstract
+    abstract HasNext(): boolean;
+    abstract Next(): T;
+
+    //Public methods
+    public First()
     {
-        Sum: (this: EnumeratorBuilder<number>) => number;
+        return this.Next();
     }
-}
 
-EnumeratorBuilder.prototype.Sum = function(this: EnumeratorBuilder<number>)
-{
-    return this.Reduce( (x, y) => x+y, 0);
+    public ForEach( func: (value: T) => void)
+    {
+        while(this.HasNext())
+            func(this.Next());
+    }
 }

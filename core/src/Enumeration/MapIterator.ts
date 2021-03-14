@@ -16,14 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Enumerator } from "./Enumerator";
+import { IEnumerator } from "./Enumerator";
 import { EnumeratorBuilder } from "./EnumeratorBuilder";
 
-export class MapIterator<InputType, OutputType> extends Enumerator<OutputType>
+export class MapIterator<InputType, OutputType> implements IEnumerator<OutputType>
 {
-    constructor(private baseIterator: Enumerator<InputType>, private func: (input: InputType) => OutputType)
+    constructor(private baseIterator: IEnumerator<InputType>, private func: (input: InputType) => OutputType)
     {
-        super();
     }
 
     //Public methods

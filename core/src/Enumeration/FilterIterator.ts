@@ -16,15 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Enumerator } from "./Enumerator";
+import { IEnumerator } from "./Enumerator";
 import { EnumeratorBuilder } from "./EnumeratorBuilder";
 
-export class FilterIterator<InputType, OutputType> extends Enumerator<OutputType>
+export class FilterIterator<InputType, OutputType> implements IEnumerator<OutputType>
 {
-    constructor(private baseIterator: Enumerator<InputType>, private filter: (value: InputType) => boolean)
+    constructor(private baseIterator: IEnumerator<InputType>, private filter: (value: InputType) => boolean)
     {
-        super();
-
         this.hasNextValue = false;
     }
 
@@ -75,10 +73,16 @@ declare module "./EnumeratorBuilder"
     interface EnumeratorBuilder<T>
     {
         Filter: <OutputType = T>(this: EnumeratorBuilder<T>, filter: (value: T) => boolean) => EnumeratorBuilder<OutputType>;
+        OfType: <OutputType extends Function>(this: EnumeratorBuilder<T>, constructor: OutputType) => EnumeratorBuilder<OutputType>;
     }
 }
 
 EnumeratorBuilder.prototype.Filter = function<InputType extends OutputType, OutputType>(this: EnumeratorBuilder<InputType>, filter: (value: InputType) => boolean)
 {
     return new EnumeratorBuilder(() => new FilterIterator<InputType, OutputType>(this.CreateInstance(), filter));
+}
+
+EnumeratorBuilder.prototype.OfType = function<InputType extends OutputType, OutputType extends Function>(this: EnumeratorBuilder<InputType>, constructor: OutputType)
+{
+    return this.Filter<OutputType>( x => x instanceof constructor);
 }

@@ -17,13 +17,13 @@
  * */
 
 import { Dictionary } from "../Dictionary";
-import { Enumerator } from "./Enumerator";
+import { IEnumerator } from "./Enumerator";
 
 type ExtractPromiseType<T> = T extends Promise<infer U> ? U : T;
 
 export class EnumeratorBuilder<T>
 {
-    constructor(private iteratorInstantiator: () => Enumerator<T>)
+    constructor(private iteratorInstantiator: () => IEnumerator<T>)
     {
     }
 
@@ -50,10 +50,22 @@ export class EnumeratorBuilder<T>
         return this.iteratorInstantiator();
     }
 
+    public First()
+    {
+        const it = this.CreateInstance();
+        return it.Next();
+    }
+
+    public ForEach( func: (value: T) => void)
+    {
+        const it = this.CreateInstance();
+        while(it.HasNext())
+            func(it.Next());
+    }
+
     public OrderBy( selector: (element: T) => number )
     {
-        const array = this.ToArray().sort( (a,b) => selector(a) - selector(b) );
-        return array.Values();
+        return this.ToArray().OrderBy(selector).Values();
     }
 
     public PromiseAll(maxConcurrency: number = Number.POSITIVE_INFINITY): Promise<ExtractPromiseType<T>[]>
@@ -152,7 +164,7 @@ export class EnumeratorBuilder<T>
         });
     }
 
-    private ReduceImpl<U>( it: Enumerator<T>, func: (accumulator: U, currentValue: T) => U, initialValue: U )
+    private ReduceImpl<U>( it: IEnumerator<T>, func: (accumulator: U, currentValue: T) => U, initialValue: U )
     {
         let accumulator = initialValue;
         while(it.HasNext())

@@ -17,9 +17,8 @@
  * */
 import { HierarchicalComparator } from "./EqualsAny";
 import { Subject } from "./Observables/Subject";
-import { Enumerator } from "./Iterators/Enumerator";
 import { KeyValuePair } from "./KeyValuePair";
-import { EnumeratorBuilder } from "./Iterators/EnumeratorBuilder";
+import { EnumeratorBuilder } from "./Enumeration/EnumeratorBuilder";
 
 export {};
 
@@ -35,6 +34,7 @@ declare global
         DeepClone: <T>(this: T) => T;
         Entries: <T extends object>(this: T) => EnumeratorBuilder<KeyValuePair<keyof T, T[keyof T]>>;
         Equals: <T>(this: T, other: T) => boolean;
+        IsEmpty: <T>(this: T) => boolean;
         IsObject: (value: any) => boolean;
         ObserveProperties: <T>(this: T) => ObservableObject<T>;
         OwnKeys: <T>(this: T) => EnumeratorBuilder<keyof T>;
@@ -84,6 +84,11 @@ Object.prototype.Equals = function<T>(this: T, other: T)
 {
     const cmp = new HierarchicalComparator();
     return cmp.EqualsObject(this, other);
+}
+
+Object.prototype.IsEmpty = function<T>(this: T)
+{
+    return Object.keys(this).length === 0;
 }
 
 Object.prototype.IsObject = function(value: any)

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -27,13 +27,30 @@ import { Lock } from "./Lock";
 import { MySQLPoolConnection } from "./db/MySQLPoolConnection";
 import { LockedProperty } from "./LockedProperty";
 import { MySQLConnection } from "./db/MySQLConnection";
+import { GlobalInjector, Injectable } from "./api/GlobalInjector";
+import { API } from "./api/_namespace";
+import { HTTPEndPoint, HTTPEndPointProperties } from "./http/HTTP";
+import { HTTP_APILoader } from "./http/HTTP_APILoader";
+import { HTTPRequestHandler, HTTPResultData } from "./http/HTTPRequestHandler";
+import { HTTPRequest } from "./http/HTTPRequest";
+import { Factory } from "./http/Factory";
 
 //Exports
 export {
+    API,
     DirectMySQLConnection,
     DirectoryEntry,
     EncryptedFileSystem,
+    Factory,
     FileSystem,
+    GlobalInjector,
+    HTTP_APILoader,
+    HTTPEndPoint,
+    HTTPEndPointProperties,
+    HTTPRequest,
+    HTTPRequestHandler,
+    HTTPResultData,
+    Injectable,
     Lock,
     LockedProperty,
     MySQLConnection,

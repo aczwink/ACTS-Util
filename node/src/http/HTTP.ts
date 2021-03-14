@@ -16,23 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Dictionary } from "../Dictionary";
+import { RegisterAPIEndPoint } from "../api/APILoader";
 
-export abstract class Enumerator<T>
+type HTTPMethod = "GET" | "POST";
+
+export interface HTTPEndPointProperties
 {
-    //Abstract
-    abstract HasNext(): boolean;
-    abstract Next(): T;
+    method: HTTPMethod;
+    route: string;
+}
 
-    //Public methods
-    public First()
+export function HTTPEndPoint(properties: HTTPEndPointProperties)
+{
+    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
     {
-        return this.Next();
-    }
-
-    public ForEach( func: (value: T) => void)
-    {
-        while(this.HasNext())
-            func(this.Next());
-    }
+        RegisterAPIEndPoint(targetClass, methodName, properties);
+    };
 }

@@ -16,28 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Enumerator } from "./Enumerator";
-
-export class ArrayIterator<T> extends Enumerator<T>
+export interface IEnumerator<T>
 {
-    constructor(private array: T[])
-    {
-        super();
-        
-        this.index = 0;
-    }
-
-    //Public methods
-    public HasNext(): boolean
-    {
-        return this.index < this.array.length;
-    }
-
-    public Next(): T
-    {
-        return this.array[this.index++];
-    }
-
-    //Private members
-    private index: number;
+    //Abstract
+    HasNext(): boolean;
+    Next(): T;
 }

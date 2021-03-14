@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { ArrayIterator } from "./Iterators/ArrayIterator";
+import { ArrayIterator } from "./Enumeration/ArrayIterator";
 import { HierarchicalComparator } from "./EqualsAny";
-import { EnumeratorBuilder } from "./Iterators/EnumeratorBuilder";
+import { EnumeratorBuilder } from "./Enumeration/EnumeratorBuilder";
 
 export {};
 
@@ -30,11 +30,25 @@ declare global
         DeepClone: <T>(this: T[]) => T[];
         Equals: <T>(this: T[], other: T[]) => boolean;
         IsEmpty: <T>(this: T[]) => boolean;
-        OrderBy: <T>(this: T[], selector: (element: T) => number | string, ascending: boolean) => T[];
+        OrderBy: <T>(this: T[], selector: (element: T) => number | string) => T[];
+        OrderByDescending: <T>(this: T[], selector: (element: T) => number | string) => T[];
         Remove: <T>(this: T[], index: number) => void;
         Values: <T>(this: T[]) => EnumeratorBuilder<T>;
     }
 }
+
+
+function SortArray<T>(array: Array<T>, selector: (element: T) => number | string, ascending: boolean)
+{
+    return array.sort( (a,b) => {
+        const sa = selector(a);
+        const sb = selector(b);
+
+        const result = sa.toString().localeCompare(sb.toString());
+        return ascending ? result : -result;
+    });
+}
+
 
 Array.prototype.Clone = function<T>(this: T[])
 {
@@ -81,15 +95,14 @@ Array.prototype.IsEmpty = function<T>(this: Array<T>)
     return this.length === 0;
 }
 
-Array.prototype.OrderBy = function<T>(this: Array<T>, selector: (element: T) => number | string, ascending: boolean = true)
+Array.prototype.OrderBy = function<T>(this: Array<T>, selector: (element: T) => number | string)
 {
-    return this.sort( (a,b) => {
-        const sa = selector(a);
-        const sb = selector(b);
+    return SortArray(this, selector, true);
+}
 
-        const result = sa.toString().localeCompare(sb.toString());
-        return ascending ? result : -result;
-    });
+Array.prototype.OrderByDescending = function<T>(this: Array<T>, selector: (element: T) => number | string)
+{
+    return SortArray(this, selector, false);
 }
 
 Array.prototype.Remove = function<T>(this: Array<T>, index: number)

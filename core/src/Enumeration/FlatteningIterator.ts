@@ -16,15 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Enumerator } from "./Enumerator";
+import { IEnumerator } from "./Enumerator";
 import { EnumeratorBuilder } from "./EnumeratorBuilder";
 
-export class FlatteningIterator<T> extends Enumerator<T>
+export class FlatteningIterator<T> implements IEnumerator<T>
 {
-    constructor(private nestedIterator: Enumerator<EnumeratorBuilder<T>>)
+    constructor(private nestedIterator: IEnumerator<EnumeratorBuilder<T>>)
     {
-        super();
-
         this.hasCurrent = false;
     }
     
@@ -49,7 +47,7 @@ export class FlatteningIterator<T> extends Enumerator<T>
 
     //Private members
     private hasCurrent: boolean;
-    private current!: Enumerator<T>;
+    private current!: IEnumerator<T>;
 
     //Private methods
     private IterateToNext()

@@ -65,7 +65,16 @@ export class EnumeratorBuilder<T>
 
     public OrderBy( selector: (element: T) => number )
     {
-        return this.ToArray().OrderBy(selector).Values();
+        const result = this.ToArray();
+        result.SortBy(selector);
+        return result.Values();
+    }
+
+    public OrderByDescending( selector: (element: T) => number )
+    {
+        const result = this.ToArray();
+        result.SortByDescending(selector);
+        return result.Values();
     }
 
     public PromiseAll(maxConcurrency: number = Number.POSITIVE_INFINITY): Promise<ExtractPromiseType<T>[]>
@@ -78,6 +87,13 @@ export class EnumeratorBuilder<T>
     public Reduce<U>( func: (accumulator: U, currentValue: T) => U, initialValue: U )
     {
         return this.ReduceImpl(this.CreateInstance(), func, initialValue);
+    }
+
+    public Sorted(sorter: (a: T, b: T) => number)
+    {
+        const tmp = this.ToArray();
+        tmp.sort(sorter);
+        return tmp.Values();
     }
 
     public ToArray()

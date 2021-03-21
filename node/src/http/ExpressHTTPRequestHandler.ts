@@ -25,6 +25,7 @@ import { HTTPEndPointProperties } from "./HTTP";
 import { HTTPRequest } from "./HTTPRequest";
 import { RequestListener } from "http";
 import { Readable } from "stream";
+import { Dictionary } from "acts-util-core";
 
 export class ExpressHTTPRequestHandler implements HTTPRequestHandler
 {
@@ -61,11 +62,19 @@ export class ExpressHTTPRequestHandler implements HTTPRequestHandler
     //Private members
     private app: express.Express;
 
+    //Private methods
+    private ParseQuery(dict: any)
+    {
+        if("jsondata" in dict)
+            return JSON.parse(dict.jsondata);
+        return dict;
+    }
+
     //Event handlers
     private async OnRequest(handler: (req: HTTPRequest<any, any>) => Promise<HTTPResult>, req: express.Request, res: express.Response)
     {
         const result = await handler({
-            data: req.body.IsEmpty() ? req.query : req.body,
+            data: req.body.IsEmpty() ? this.ParseQuery(req.query) : req.body,
             headers: req.headers,
             ip: req.ip,
             routePath: req.route.path,

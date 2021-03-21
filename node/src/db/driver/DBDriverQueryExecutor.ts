@@ -16,20 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { RegisterAPIEndPoint } from "../api/APILoader";
+export type SQLArgType = boolean | number | string | null
+    | number[] | string[]; /* id-array */
 
-type HTTPMethod = "GET" | "POST" | "PUT";
-
-export interface HTTPEndPointProperties
+export interface DBDriverQueryExecutor
 {
-    method: HTTPMethod;
-    route: string;
-}
-
-export function HTTPEndPoint(properties: HTTPEndPointProperties)
-{
-    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
-    {
-        RegisterAPIEndPoint(targetClass, methodName, properties);
-    };
+    Query(query: string, args?: SQLArgType[] | undefined): Promise<any>
 }

@@ -21,12 +21,8 @@ import { OSFileSystem } from "./fs/OSFileSystem";
 import { VirtualRootFileSystem } from "./fs/VirtualRootFileSystem";
 import { WebDAVFileSystem } from "./fs/WebDAVFileSystem";
 import { Promisify } from "./fs/Util";
-import { DirectMySQLConnection } from "./db/DirectMySQLConnection";
-import { MySQLConnectionPool } from "./db/MySQLConnectionPool";
 import { Lock } from "./Lock";
-import { MySQLPoolConnection } from "./db/MySQLPoolConnection";
 import { LockedProperty } from "./LockedProperty";
-import { MySQLConnection } from "./db/MySQLConnection";
 import { GlobalInjector, Injectable } from "./api/GlobalInjector";
 import { API } from "./api/_namespace";
 import { HTTPEndPoint, HTTPEndPointProperties } from "./http/HTTP";
@@ -34,11 +30,18 @@ import { HTTP_APILoader } from "./http/HTTP_APILoader";
 import { HTTPRequestHandler, HTTPResultData } from "./http/HTTPRequestHandler";
 import { HTTPRequest } from "./http/HTTPRequest";
 import { Factory } from "./http/Factory";
+import { DBFactory } from "./db/DBFactory";
+import { DBResource } from "./db/driver/DBDriverFactory";
+import { DBQueryExecutor } from "./db/DBQueryExecutor";
+import { DBConnectionPool } from "./db/DBConnectionPool";
 
 //Exports
 export {
     API,
-    DirectMySQLConnection,
+    DBQueryExecutor,
+    DBConnectionPool,
+    DBFactory,
+    DBResource,
     DirectoryEntry,
     EncryptedFileSystem,
     Factory,
@@ -53,9 +56,6 @@ export {
     Injectable,
     Lock,
     LockedProperty,
-    MySQLConnection,
-    MySQLConnectionPool,
-    MySQLPoolConnection,
     OSFileSystem,
     Promisify,
     VirtualRootFileSystem,

@@ -22,4 +22,37 @@ import { HTTPResult } from "./HTTPRequestHandler";
 
 export class HTTP_APILoader extends APILoader<HTTPRequest<any>, HTTPResult, HTTPEndPointProperties>
 {
+    public GetEndPointSetups()
+    {
+        const setups = super.GetEndPointSetups();
+        setups.sort((a, b) => {
+            const ps1 = a.properties.route.split("/");
+            const ps2 = b.properties.route.split("/");
+
+            for(let i = 0; i < Math.max(ps1.length, ps2.length); i++)
+            {
+                if(ps1[i] === undefined)
+                    return -1;
+                else if(ps2[i] === undefined)
+                    return 1;
+
+                if(ps1[i].startsWith(":") && ps2[i].startsWith(":"))
+                    continue;
+                if(ps1[i].startsWith(":"))
+                    return 1;
+                if(ps2[i].startsWith(":"))
+                    return -1;
+                const diff = ps1[i].localeCompare(ps2[i]);
+                if(diff != 0)
+                    return diff;
+            }
+
+            return 0;
+        });
+
+        //console.log("sorted");
+        //console.log(setups.map(s => s.properties.route));
+
+        return setups;
+    }
 }

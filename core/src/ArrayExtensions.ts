@@ -30,9 +30,9 @@ declare global
         DeepClone: <T>(this: T[]) => T[];
         Equals: <T>(this: T[], other: T[]) => boolean;
         IsEmpty: <T>(this: T[]) => boolean;
-        OrderBy: <T>(this: T[], selector: (element: T) => number | string) => T[];
-        OrderByDescending: <T>(this: T[], selector: (element: T) => number | string) => T[];
         Remove: <T>(this: T[], index: number) => void;
+        SortBy: <T>(this: T[], selector: (element: T) => number | string) => void;
+        SortByDescending: <T>(this: T[], selector: (element: T) => number | string) => void;
         Values: <T>(this: T[]) => EnumeratorBuilder<T>;
     }
 }
@@ -95,19 +95,19 @@ Array.prototype.IsEmpty = function<T>(this: Array<T>)
     return this.length === 0;
 }
 
-Array.prototype.OrderBy = function<T>(this: Array<T>, selector: (element: T) => number | string)
+Array.prototype.Remove = function<T>(this: Array<T>, index: number)
+{
+    this.splice(index, 1);
+}
+
+Array.prototype.SortBy = function<T>(this: Array<T>, selector: (element: T) => number | string)
 {
     return SortArray(this, selector, true);
 }
 
-Array.prototype.OrderByDescending = function<T>(this: Array<T>, selector: (element: T) => number | string)
+Array.prototype.SortByDescending = function<T>(this: Array<T>, selector: (element: T) => number | string)
 {
     return SortArray(this, selector, false);
-}
-
-Array.prototype.Remove = function<T>(this: Array<T>, index: number)
-{
-    this.splice(index, 1);
 }
 
 Array.prototype.Values = function<T>(this: T[])

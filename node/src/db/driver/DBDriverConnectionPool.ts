@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,23 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import mysql from "mysql";
-import { MySQLConnection } from "./MySQLConnection";
 
-export class DirectMySQLConnection extends MySQLConnection
+import { DBResource } from "./DBDriverFactory";
+import { DBDriverQueryExecutor } from "./DBDriverQueryExecutor";
+
+export interface DBDriverConnectionPool
 {
-	constructor(config: mysql.ConnectionConfig)
-	{
-		const conn = mysql.createConnection(config);
-		super(conn);
-		this.conn = conn;
-	}
-
-	public Close()
-	{
-		this.conn.end();
-	}
-
-	//Private methods
-	private conn: mysql.Connection;
+    GetFreeConnection(): Promise<DBResource<DBDriverQueryExecutor>>;
 }

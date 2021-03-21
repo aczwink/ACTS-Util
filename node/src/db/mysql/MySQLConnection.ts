@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,14 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import mysql from "mysql";
-
-interface InsertResult
-{
-	/**
-	 * The id from auto increment.
-	 */
-	insertId: number;
-}
+import { SQLArgType } from "../driver/DBDriverQueryExecutor";
 
 interface UpdateResult
 {
@@ -35,14 +28,6 @@ interface UpdateResult
 	 * The number of rows that were not only affected but actually changed.
 	 */
 	changedRows: number;
-}
-
-type MySQLArgType = boolean | number | string | null
-	| number[] | string[]; /* id-array */
-
-interface MySQLResult
-{
-	[key: string]: any;
 }
 
 export class MySQLConnection
@@ -68,37 +53,7 @@ export class MySQLConnection
 		});
 	}
 
-	public DeleteRows(tableName: string, condition: string, ...parameters: MySQLArgType[])
-	{
-		return this.Query("DELETE FROM " + tableName + " WHERE " + condition, parameters);
-	}
-
-	public InsertRow(table: string, values: any): Promise<InsertResult>
-	{
-		const keys = [];
-		const questionMarks = [];
-		const queryArgs = [];
-		for (const key in values)
-		{
-			if (values.hasOwnProperty(key))
-			{
-				keys.push(key);
-				const value = values[key];
-
-				if(value === "NOW()")
-					questionMarks.push(value);
-				else
-				{
-					questionMarks.push("?");
-					queryArgs.push(value);
-				}
-			}
-		}
-		let query = "INSERT INTO " + table + " (" + keys.join(",") + ") VALUES (" + questionMarks.join(",") + ")";
-		return this.Query(query, queryArgs);
-	}
-
-    public Query( query: string, args?: MySQLArgType[] ): Promise<any>
+    public Query( query: string, args?: SQLArgType[] ): Promise<any>
 	{
 		return new Promise<any>( ( resolve, reject ) => {
 			this.connection.query( query, args, ( err, rows ) => {
@@ -121,17 +76,6 @@ export class MySQLConnection
 		});
 	}
 
-	public Select<T = MySQLResult>(query: string, ...args: MySQLArgType[]): Promise<T[]>
-	{
-		return this.Query(query, args);
-	}
-
-	public async SelectOne<T = MySQLResult>(query: string, ...args: MySQLArgType[]): Promise<T | undefined>
-	{
-		const result = await this.Query(query, args);
-		return result[0];
-	}
-
 	public StartTransaction()
 	{
 		return new Promise( (resolve, reject) => {
@@ -144,7 +88,7 @@ export class MySQLConnection
 		});
 	}
 
-	public UpdateRows(table: string, values: any, condition: string, ...args: MySQLArgType[]): Promise<UpdateResult>
+	public UpdateRows(table: string, values: any, condition: string, ...args: SQLArgType[]): Promise<UpdateResult>
 	{
         const setters = [];
         const setterArgs = [];

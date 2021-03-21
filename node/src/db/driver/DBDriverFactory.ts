@@ -1,6 +1,7 @@
+import { DBDriverConnectionPool } from "./DBDriverConnectionPool";
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,19 +16,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import mysql from "mysql";
 
-import { MySQLConnection } from "./MySQLConnection";
+import { DBDriverQueryExecutor } from "./DBDriverQueryExecutor";
 
-export class MySQLPoolConnection extends MySQLConnection
+export interface DBResource<T>
 {
-	constructor(private poolConnection: mysql.PoolConnection)
-	{
-		super(poolConnection);
-	}
+    value: T;
+    Close: () => void;
+}
 
-    public Release()
-	{
-		this.poolConnection.release();
-	}
+export interface ConnectionConfig
+{
+    host: string;
+    user: string;
+    password: string;
+}
+
+export interface PoolConfig extends ConnectionConfig
+{
+}
+
+export interface DBDriverFactory
+{
+    CreateConnection(config: ConnectionConfig): Promise<DBResource<DBDriverQueryExecutor>>;
+    CreateConnectionPool(config: PoolConfig): Promise<DBResource<DBDriverConnectionPool>>;
 }

@@ -34,14 +34,16 @@ import { DBFactory } from "./db/DBFactory";
 import { DBResource } from "./db/driver/DBDriverFactory";
 import { DBQueryExecutor } from "./db/DBQueryExecutor";
 import { DBConnectionPool } from "./db/DBConnectionPool";
+import { DBTransactionalQueryExecutor } from "./db/DBTransactionalQueryExecutor";
 
 //Exports
 export {
     API,
-    DBQueryExecutor,
     DBConnectionPool,
     DBFactory,
     DBResource,
+    DBQueryExecutor,
+    DBTransactionalQueryExecutor,
     DirectoryEntry,
     EncryptedFileSystem,
     Factory,

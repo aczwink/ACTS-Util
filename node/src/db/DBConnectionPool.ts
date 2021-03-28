@@ -20,6 +20,7 @@ import { DBDriverConnectionPool } from "./driver/DBDriverConnectionPool";
 import { DBResource } from "./driver/DBDriverFactory";
 import { DBQueryExecutor } from "./DBQueryExecutor";
 import { SQLArgType } from "./driver/DBDriverQueryExecutor";
+import { DBTransactionalQueryExecutor } from "./DBTransactionalQueryExecutor";
 
 export class DBConnectionPool
 {
@@ -43,13 +44,13 @@ export class DBConnectionPool
         });
     }
 
-    public async GetFreeConnection(): Promise<DBResource<DBQueryExecutor>>
+    public async GetFreeConnection(): Promise<DBResource<DBTransactionalQueryExecutor>>
     {
         const conn = await this.pool.GetFreeConnection();
 
         return {
             Close: conn.Close,
-            value: new DBQueryExecutor(conn.value)
+            value: new DBTransactionalQueryExecutor(conn.value)
         };
     }
 }

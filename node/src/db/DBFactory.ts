@@ -1,5 +1,3 @@
-import { DBQueryExecutor } from "./DBQueryExecutor";
-import { DBConnectionPool } from "./DBConnectionPool";
 /**
  * ACTS-Util
  * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
@@ -17,9 +15,11 @@ import { DBConnectionPool } from "./DBConnectionPool";
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-
+import { DBQueryExecutor } from "./DBQueryExecutor";
+import { DBConnectionPool } from "./DBConnectionPool";
 import { ConnectionConfig, DBDriverFactory, DBResource, PoolConfig } from "./driver/DBDriverFactory";
 import { MySQLFactory } from "./mysql/MySQLFactory";
+import { DBTransactionalQueryExecutor } from "./DBTransactionalQueryExecutor";
 
 type DBType = "mysql";
 
@@ -28,7 +28,7 @@ interface ConnectionConfigWithType extends ConnectionConfig
     type: DBType;
 }
 
-interface PoolConfigWithType extends PoolConfig
+export interface PoolConfigWithType extends PoolConfig
 {
     type: DBType;
 }
@@ -36,14 +36,14 @@ interface PoolConfigWithType extends PoolConfig
 export class DBFactory
 {
     //Public methods
-    public async CreateConnection(config: ConnectionConfigWithType): Promise<DBResource<DBQueryExecutor>>
+    public async CreateConnection(config: ConnectionConfigWithType): Promise<DBResource<DBTransactionalQueryExecutor>>
     {
         const driverFactory = this.GetDriverFactory(config.type);
         const conn = await driverFactory.CreateConnection(config);
 
         return {
             Close: conn.Close,
-            value: new DBQueryExecutor(conn.value)
+            value: new DBTransactionalQueryExecutor(conn.value)
         };
     }
     

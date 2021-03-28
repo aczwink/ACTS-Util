@@ -16,21 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import mysql from "mysql";
-import { SQLArgType } from "../driver/DBDriverQueryExecutor";
+import { DBDriverTransactionalQueryExecutor, SQLArgType } from "../driver/DBDriverQueryExecutor";
 
-interface UpdateResult
-{
-	/**
-	 * The number of rows that met the update condition.
-	 */
-	affectedRows: number;
-	/**
-	 * The number of rows that were not only affected but actually changed.
-	 */
-	changedRows: number;
-}
-
-export class MySQLConnection
+export class MySQLConnection implements DBDriverTransactionalQueryExecutor
 {
 	constructor(private connection: mysql.Connection)
 	{
@@ -39,7 +27,7 @@ export class MySQLConnection
 	//Public methods
 	public Commit()
 	{
-		return new Promise( ( resolve, reject ) => {
+		return new Promise<void>( ( resolve, reject ) => {
 			this.connection.commit( err => {
 				if (err)
 				{
@@ -66,7 +54,7 @@ export class MySQLConnection
 
 	public Rollback()
 	{
-		return new Promise( ( resolve, reject ) => {
+		return new Promise<void>( ( resolve, reject ) => {
 			this.connection.rollback(err => {
 				if(err)
 					reject(err);
@@ -78,7 +66,7 @@ export class MySQLConnection
 
 	public StartTransaction()
 	{
-		return new Promise( (resolve, reject) => {
+		return new Promise<void>( (resolve, reject) => {
 			this.connection.beginTransaction( err => {
 				if (err)
 					reject(err);
@@ -86,29 +74,5 @@ export class MySQLConnection
 					resolve();
 			});
 		});
-	}
-
-	public UpdateRows(table: string, values: any, condition: string, ...args: SQLArgType[]): Promise<UpdateResult>
-	{
-        const setters = [];
-        const setterArgs = [];
-		for (const key in values)
-		{
-			if (values.hasOwnProperty(key))
-			{
-				let value = values[key];
-				if(value === "NOW()")
-				{
-					setters.push(key + " = " + value);
-				}
-				else
-				{
-					setters.push(key + " = ?");
-					setterArgs.push(value);
-				}
-			}
-		}
-		const query = "UPDATE " + table + " SET " + setters.join(", ") + " WHERE " + condition;
-		return this.Query(query, setterArgs.concat(args));
 	}
 }

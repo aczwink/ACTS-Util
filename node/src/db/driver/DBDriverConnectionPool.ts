@@ -17,9 +17,9 @@
  * */
 
 import { DBResource } from "./DBDriverFactory";
-import { DBDriverQueryExecutor } from "./DBDriverQueryExecutor";
+import { DBDriverTransactionalQueryExecutor } from "./DBDriverQueryExecutor";
 
 export interface DBDriverConnectionPool
 {
-    GetFreeConnection(): Promise<DBResource<DBDriverQueryExecutor>>;
+    GetFreeConnection(): Promise<DBResource<DBDriverTransactionalQueryExecutor>>;
 }

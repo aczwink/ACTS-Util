@@ -19,16 +19,23 @@ import mysql from "mysql";
 
 import { MySQLConnectionPool } from "./MySQLConnectionPool";
 import { ConnectionConfig, DBDriverFactory, DBResource, PoolConfig } from "../driver/DBDriverFactory";
-import { DBDriverQueryExecutor } from "../driver/DBDriverQueryExecutor";
+import { DBDriverQueryExecutor, DBDriverTransactionalQueryExecutor } from "../driver/DBDriverQueryExecutor";
 import { MySQLConnection } from "./MySQLConnection";
 import { DBDriverConnectionPool } from "../driver/DBDriverConnectionPool";
 
 export class MySQLFactory implements DBDriverFactory
 {
 	//Public methods
-	public async CreateConnection(config: ConnectionConfig): Promise<DBResource<DBDriverQueryExecutor>>
+	public async CreateConnection(config: ConnectionConfig): Promise<DBResource<DBDriverTransactionalQueryExecutor>>
 	{
-		const mysqlConn = mysql.createConnection(config);
+		const mysqlConn = mysql.createConnection({
+			host: config.host,
+			user: config.username,
+			password: config.password,
+			database: config.defaultDatabase,
+			charset: "utf8mb4",
+			dateStrings: true,
+		});
 		const conn = new MySQLConnection(mysqlConn);
 
 		await this.CheckConfig(conn);
@@ -41,7 +48,15 @@ export class MySQLFactory implements DBDriverFactory
 
     public async CreateConnectionPool(config: PoolConfig): Promise<DBResource<DBDriverConnectionPool>>
     {
-        const pool = new MySQLConnectionPool(config);
+        const pool = new MySQLConnectionPool({
+			host: config.host,
+			user: config.username,
+			password: config.password,
+			database: config.defaultDatabase,
+			charset: "utf8mb4",
+			dateStrings: true,
+			connectionLimit: config.maxNumberOfConnections
+		});
 
         const conn = await pool.GetFreeConnection();
         await this.CheckConfig(conn.value);

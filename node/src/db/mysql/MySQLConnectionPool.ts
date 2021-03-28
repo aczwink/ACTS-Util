@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import mysql from "mysql";
-import { DBDriverQueryExecutor } from "../driver/DBDriverQueryExecutor";
+import { DBDriverTransactionalQueryExecutor } from "../driver/DBDriverQueryExecutor";
 import { DBResource } from "../driver/DBDriverFactory";
 import { MySQLConnection } from "./MySQLConnection";
 import { DBDriverConnectionPool } from "../driver/DBDriverConnectionPool";
@@ -34,7 +34,7 @@ export class MySQLConnectionPool implements DBDriverConnectionPool
 		this.pool.end();
 	}
 	
-	public async GetFreeConnection(): Promise<DBResource<DBDriverQueryExecutor>>
+	public async GetFreeConnection(): Promise<DBResource<DBDriverTransactionalQueryExecutor>>
 	{
 		let promise = new Promise<mysql.PoolConnection>( (resolve, reject) => {
 			this.pool.getConnection(function(err, connection)

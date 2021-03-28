@@ -56,6 +56,14 @@ export class EnumeratorBuilder<T>
         return it.Next();
     }
 
+    public FirstOrUndefined()
+    {
+        const it = this.CreateInstance();
+        if(it.HasNext())
+            return it.Next();
+        return undefined;
+    }
+
     public ForEach( func: (value: T) => void)
     {
         const it = this.CreateInstance();

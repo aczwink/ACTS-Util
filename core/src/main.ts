@@ -23,10 +23,11 @@ import "./ObjectExtensions";
 import "./SetExtensions";
 import "./StringExtensions";
 
+import "./Enumeration/BoolEnumeratorExtensions";
 import "./Enumeration/FilterIterator";
 import "./Enumeration/FlatteningIterator";
 import "./Enumeration/MapIterator";
-import "./Enumeration/NumberForwardIteratorExtensions";
+import "./Enumeration/NumberEnumeratorExtensions";
 
 import { Dictionary } from "./Dictionary";
 import { MulticastObservable } from "./Observables/MulticastObservable";

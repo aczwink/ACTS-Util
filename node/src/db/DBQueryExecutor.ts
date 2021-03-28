@@ -31,6 +31,18 @@ interface InsertResult
 	insertId: number;
 }
 
+interface UpdateResult
+{
+	/**
+	 * The number of rows that met the update condition.
+	 */
+	affectedRows: number;
+	/**
+	 * The number of rows that were not only affected but actually changed.
+	 */
+	changedRows: number;
+}
+
 export class DBQueryExecutor implements DBDriverQueryExecutor
 {
     constructor(private dbConn: DBDriverQueryExecutor)
@@ -82,5 +94,29 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
     public Query(query: string, args?: SQLArgType[]): Promise<any>
     {
       return this.dbConn.Query(query, args);
-    }
+	}
+	
+	public UpdateRows(table: string, values: any, condition: string, ...args: SQLArgType[]): Promise<UpdateResult>
+	{
+        const setters = [];
+        const setterArgs = [];
+		for (const key in values)
+		{
+			if (values.hasOwnProperty(key))
+			{
+				let value = values[key];
+				if(value === "NOW()")
+				{
+					setters.push(key + " = " + value);
+				}
+				else
+				{
+					setters.push(key + " = ?");
+					setterArgs.push(value);
+				}
+			}
+		}
+		const query = "UPDATE " + table + " SET " + setters.join(", ") + " WHERE " + condition;
+		return this.Query(query, setterArgs.concat(args));
+	}
 }

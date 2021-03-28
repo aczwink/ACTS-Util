@@ -16,17 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-export type SQLArgType = boolean | number | string | null
-    | number[] | string[]; /* id-array */
+import { DBQueryExecutor } from "./DBQueryExecutor";
+import { DBDriverTransactionalQueryExecutor } from "./driver/DBDriverQueryExecutor";
 
-export interface DBDriverQueryExecutor
+export class DBTransactionalQueryExecutor extends DBQueryExecutor implements DBDriverTransactionalQueryExecutor
 {
-    Query(query: string, args?: SQLArgType[] | undefined): Promise<any>
-}
+    constructor(private dbTransactionalConn: DBDriverTransactionalQueryExecutor)
+    {
+        super(dbTransactionalConn);
+    }
 
-export interface DBDriverTransactionalQueryExecutor extends DBDriverQueryExecutor
-{
-    Commit(): Promise<void>;
-    Rollback(): Promise<void>;
-    StartTransaction(): Promise<void>;
+    //Public methods
+    public Commit()
+    {
+        return this.dbTransactionalConn.Commit();
+    }
+
+    public Rollback()
+    {
+        return this.dbTransactionalConn.Rollback();
+    }
+
+    public StartTransaction()
+    {
+        return this.dbTransactionalConn.StartTransaction();
+    }
 }

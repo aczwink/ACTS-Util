@@ -1,4 +1,3 @@
-import { DBDriverConnectionPool } from "./DBDriverConnectionPool";
 /**
  * ACTS-Util
  * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
@@ -16,8 +15,8 @@ import { DBDriverConnectionPool } from "./DBDriverConnectionPool";
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-
-import { DBDriverQueryExecutor } from "./DBDriverQueryExecutor";
+import { DBDriverConnectionPool } from "./DBDriverConnectionPool";
+import { DBDriverTransactionalQueryExecutor } from "./DBDriverQueryExecutor";
 
 export interface DBResource<T>
 {
@@ -28,16 +27,18 @@ export interface DBResource<T>
 export interface ConnectionConfig
 {
     host: string;
-    user: string;
+    username: string;
     password: string;
+    defaultDatabase?: string;
 }
 
 export interface PoolConfig extends ConnectionConfig
 {
+    maxNumberOfConnections?: number;
 }
 
 export interface DBDriverFactory
 {
-    CreateConnection(config: ConnectionConfig): Promise<DBResource<DBDriverQueryExecutor>>;
+    CreateConnection(config: ConnectionConfig): Promise<DBResource<DBDriverTransactionalQueryExecutor>>;
     CreateConnectionPool(config: PoolConfig): Promise<DBResource<DBDriverConnectionPool>>;
 }

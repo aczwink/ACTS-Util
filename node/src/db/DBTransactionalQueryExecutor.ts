@@ -27,6 +27,11 @@ export class DBTransactionalQueryExecutor extends DBQueryExecutor implements DBD
     }
 
     //Public methods
+    public async Escape(value: string): Promise<string>
+    {
+        return this.dbTransactionalConn.Escape(value);
+    }
+
     public Commit()
     {
         return this.dbTransactionalConn.Commit();

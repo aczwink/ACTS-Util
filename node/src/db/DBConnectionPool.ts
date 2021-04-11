@@ -33,6 +33,15 @@ export class DBConnectionPool
     {
         const pool = this;
         return new DBQueryExecutor({
+            async Escape(value: string)
+            {
+                const conn = await pool.GetFreeConnection();
+                const reuslt = conn.value.Escape(value);
+                conn.Close();
+
+                return reuslt;
+            },
+
             async Query(query: string, args?: SQLArgType[]): Promise<any>
             {
                 const conn = await pool.GetFreeConnection();

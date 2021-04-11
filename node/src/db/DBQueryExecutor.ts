@@ -49,7 +49,12 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
     {
     }
 
-    //Public methods
+	//Public methods
+	public async Escape(value: string): Promise<string>
+	{
+		return this.dbConn.Escape(value);
+	}
+
     public DeleteRows(tableName: string, condition: string, ...parameters: SQLArgType[])
 	{
 		return this.Query("DELETE FROM " + tableName + " WHERE " + condition, parameters);

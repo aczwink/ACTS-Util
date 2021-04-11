@@ -44,7 +44,11 @@ function SortArray<T>(array: Array<T>, selector: (element: T) => number | string
         const sa = selector(a);
         const sb = selector(b);
 
-        const result = sa.toString().localeCompare(sb.toString());
+        let result;
+        if((typeof sa === "number") && (typeof sb === "number"))
+            result = sa - sb;
+        else
+            result = sa.toString().localeCompare(sb.toString());
         return ascending ? result : -result;
     });
 }

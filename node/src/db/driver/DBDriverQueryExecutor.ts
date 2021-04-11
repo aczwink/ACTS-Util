@@ -21,6 +21,7 @@ export type SQLArgType = boolean | number | string | null
 
 export interface DBDriverQueryExecutor
 {
+    Escape(value: string): Promise<string>;
     Query(query: string, args?: SQLArgType[] | undefined): Promise<any>
 }
 

@@ -25,6 +25,11 @@ export class MySQLConnection implements DBDriverTransactionalQueryExecutor
 	}
 
 	//Public methods
+	public async Escape(value: string): Promise<string>
+	{
+		return this.connection.escape(value);
+	}
+
 	public Commit()
 	{
 		return new Promise<void>( ( resolve, reject ) => {

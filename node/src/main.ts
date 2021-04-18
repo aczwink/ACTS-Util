@@ -35,6 +35,7 @@ import { DBResource } from "./db/driver/DBDriverFactory";
 import { DBQueryExecutor } from "./db/DBQueryExecutor";
 import { DBConnectionPool } from "./db/DBConnectionPool";
 import { DBTransactionalQueryExecutor } from "./db/DBTransactionalQueryExecutor";
+import { HTTPRequestSender } from "./http/HTTPRequestSender";
 
 //Exports
 export {
@@ -54,6 +55,7 @@ export {
     HTTPEndPointProperties,
     HTTPRequest,
     HTTPRequestHandler,
+    HTTPRequestSender,
     HTTPResultData,
     Injectable,
     Lock,

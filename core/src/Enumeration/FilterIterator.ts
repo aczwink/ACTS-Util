@@ -73,6 +73,7 @@ declare module "./EnumeratorBuilder"
     interface EnumeratorBuilder<T>
     {
         Filter: <OutputType = T>(this: EnumeratorBuilder<T>, filter: (value: T) => boolean) => EnumeratorBuilder<OutputType>;
+        FilterAsync: <OutputType = T>(this: EnumeratorBuilder<T>, predicate: (value: T) => Promise<boolean>) => Promise<EnumeratorBuilder<OutputType>>;
         OfType: <OutputType extends Function>(this: EnumeratorBuilder<T>, constructor: OutputType) => EnumeratorBuilder<OutputType>;
     }
 }
@@ -80,6 +81,12 @@ declare module "./EnumeratorBuilder"
 EnumeratorBuilder.prototype.Filter = function<InputType extends OutputType, OutputType>(this: EnumeratorBuilder<InputType>, filter: (value: InputType) => boolean)
 {
     return new EnumeratorBuilder(() => new FilterIterator<InputType, OutputType>(this.CreateInstance(), filter));
+}
+
+EnumeratorBuilder.prototype.FilterAsync = async function<InputType extends OutputType, OutputType>(this: EnumeratorBuilder<InputType>, predicate: (value: InputType) => Promise<boolean>)
+{
+    const bools = await this.Map(predicate).PromiseAll();
+    return this.ToArray().filter( (_, i) => bools[i]).Values();
 }
 
 EnumeratorBuilder.prototype.OfType = function<InputType extends OutputType, OutputType extends Function>(this: EnumeratorBuilder<InputType>, constructor: OutputType)

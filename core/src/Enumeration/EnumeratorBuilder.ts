@@ -71,6 +71,25 @@ export class EnumeratorBuilder<T>
             func(it.Next());
     }
 
+    public Distinct( selector: (element: T) => (number | string | (number | string)[]) )
+    {
+        const map = new Map<number | string, T>();
+
+        const it = this.CreateInstance();
+        while(it.HasNext())
+        {
+            const elem = it.Next();
+            let k = selector(elem);
+            if(Array.isArray(k))
+                k = "[" + k.join(",") + "]";
+
+            if(!map.has(k))
+                map.set(k, elem);
+        }
+
+        return map.Values();
+    }
+
     public OrderBy( selector: (element: T) => number )
     {
         const result = this.ToArray();
@@ -131,11 +150,6 @@ export class EnumeratorBuilder<T>
 
     public ToSet()
     {
-        for (const a of this)
-        {
-            
-        }
-
         const it = this.CreateInstance();
         const result = new Set<T>();
 

@@ -27,6 +27,7 @@ declare global
     interface Map<K, V>
     {
         Entries: (this: Map<K, V>) => EnumeratorBuilder<KeyValuePair<K, V>>;
+        Values: (this: Map<K, V>) => EnumeratorBuilder<V>;
     }
 }
 
@@ -36,4 +37,9 @@ Map.prototype.Entries = function<K, V>(this: Map<K, V>)
         key: kv[0],
         value: kv[1]
     }));
+}
+
+Map.prototype.Values = function<K, V>(this: Map<K, V>)
+{
+    return new EnumeratorBuilder( () => new SymbolIteratorEnumerator(this.values()) );
 }

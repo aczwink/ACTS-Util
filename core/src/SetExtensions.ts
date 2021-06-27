@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
  * */
 
 import { HierarchicalComparator } from "./EqualsAny";
+import { EnumeratorBuilder } from "./Enumeration/EnumeratorBuilder";
+import { SymbolIteratorEnumerator } from "./Enumeration/SymbolIteratorEnumerator";
 
 export {};
 
@@ -26,6 +28,7 @@ declare global
     {
         Equals: <T>(this: Set<T>, other: Set<T>) => boolean;
         ToArray: <T>(this: Set<T>) => T[];
+        Values: <T>(this: Set<T>) => EnumeratorBuilder<T>;
     }
 }
 
@@ -38,4 +41,9 @@ Set.prototype.Equals = function<T>(this: Set<T>, other: Set<T>)
 Set.prototype.ToArray = function<T>(this: Set<T>)
 {
     return [...this];
+}
+
+Set.prototype.Values = function<T>(this: Set<T>)
+{
+    return new EnumeratorBuilder( () => new SymbolIteratorEnumerator(this.values()) );
 }

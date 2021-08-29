@@ -40,6 +40,11 @@ export class EnumeratorBuilder<T>
         return it.HasNext();
     }
 
+    public Concat(tail: EnumeratorBuilder<T>)
+    {
+        return (this.ToArray().concat(tail.ToArray())).Values();
+    }
+
     public Count()
     {
         return this.Reduce((sum, _) => sum+1, 0);
@@ -48,6 +53,25 @@ export class EnumeratorBuilder<T>
     public CreateInstance()
     {
         return this.iteratorInstantiator();
+    }
+
+    public Distinct( selector: (element: T) => (number | string | (number | string)[]) )
+    {
+        const map = new Map<number | string, T>();
+
+        const it = this.CreateInstance();
+        while(it.HasNext())
+        {
+            const elem = it.Next();
+            let k = selector(elem);
+            if(Array.isArray(k))
+                k = "[" + k.join(",") + "]";
+
+            if(!map.has(k))
+                map.set(k, elem);
+        }
+
+        return map.Values();
     }
 
     public First()
@@ -71,33 +95,60 @@ export class EnumeratorBuilder<T>
             func(it.Next());
     }
 
-    public Distinct( selector: (element: T) => (number | string | (number | string)[]) )
+    public GroupAdjacent( selector: (value: T) => string )
     {
-        const map = new Map<number | string, T>();
+        const result = [];
+        let currentGroup: T[] = [];
 
         const it = this.CreateInstance();
         while(it.HasNext())
         {
-            const elem = it.Next();
-            let k = selector(elem);
-            if(Array.isArray(k))
-                k = "[" + k.join(",") + "]";
-
-            if(!map.has(k))
-                map.set(k, elem);
+            const next = it.Next();
+            if( (currentGroup.length === 0) || (selector(currentGroup[0]) === selector(next)) )
+                currentGroup.push(next);
+            else
+            {
+                result.push(currentGroup);
+                currentGroup = [ next ];
+            }
         }
 
-        return map.Values();
+        if(currentGroup.length > 0)
+            result.push(currentGroup);
+
+        return result.Values();
     }
 
-    public OrderBy( selector: (element: T) => number )
+    public GroupBy<U extends number | string>( selector: (value: T) => U )
+    {
+        const grouped = new Map<U, T[]>();
+
+        const it = this.CreateInstance();
+        while(it.HasNext())
+        {
+            const next = it.Next();
+            const key = selector(next);
+
+            let arr = grouped.get(key);
+            if(arr === undefined)
+            {
+                arr = [];
+                grouped.set(key, arr);
+            }
+            arr.push(next);
+        }
+
+        return grouped.Entries();
+    }
+
+    public OrderBy( selector: (element: T) => number | string )
     {
         const result = this.ToArray();
         result.SortBy(selector);
         return result.Values();
     }
 
-    public OrderByDescending( selector: (element: T) => number )
+    public OrderByDescending( selector: (element: T) => number | string )
     {
         const result = this.ToArray();
         result.SortByDescending(selector);
@@ -114,6 +165,16 @@ export class EnumeratorBuilder<T>
     public Reduce<U>( func: (accumulator: U, currentValue: T) => U, initialValue: U )
     {
         return this.ReduceImpl(this.CreateInstance(), func, initialValue);
+    }
+
+    public Skip(count: number)
+    {
+        return new EnumeratorBuilder<T>( () => {
+            const it = this.CreateInstance();
+            while(count-- > 0)
+                it.Next();
+            return it;
+        });
     }
 
     public Sorted(sorter: (a: T, b: T) => number)
@@ -143,6 +204,20 @@ export class EnumeratorBuilder<T>
         {
             const next = it.Next();
             result[keySelector(next)] = valueSelector(next);
+        }
+
+        return result;
+    }
+
+    public ToMap<K, U>( keySelector: (value: T) => K, valueSelector: (value: T) => U)
+    {
+        const result = new Map<K, U>();
+
+        const it = this.CreateInstance();
+        while(it.HasNext())
+        {
+            const next = it.Next();
+            result.set(keySelector(next), valueSelector(next));
         }
 
         return result;

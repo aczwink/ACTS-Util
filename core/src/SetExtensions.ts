@@ -27,6 +27,7 @@ declare global
     interface Set<T>
     {
         Equals: <T>(this: Set<T>, other: Set<T>) => boolean;
+        Intersect: <T>(this: Set<T>, other: Set<T>) => Set<T>;
         ToArray: <T>(this: Set<T>) => T[];
         Values: <T>(this: Set<T>) => EnumeratorBuilder<T>;
     }
@@ -36,6 +37,11 @@ Set.prototype.Equals = function<T>(this: Set<T>, other: Set<T>)
 {
     const cmp = new HierarchicalComparator();
     return cmp.EqualsSet(this, other);
+}
+
+Set.prototype.Intersect = function<T>(this: Set<T>, other: Set<T>)
+{
+    return this.Values().Filter(x => other.has(x)).ToSet();
 }
 
 Set.prototype.ToArray = function<T>(this: Set<T>)

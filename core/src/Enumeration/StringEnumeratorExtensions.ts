@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,22 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { RegisterAPIEndPoint } from "../api/APILoader";
-import multer from "multer";
+import { EnumeratorBuilder } from "./EnumeratorBuilder";
 
-type HTTPMethod = "DELETE" | "GET" | "POST" | "PUT";
-
-export interface HTTPEndPointProperties
+declare module "./EnumeratorBuilder"
 {
-    method: HTTPMethod;
-    route: string;
-    files?: multer.Field[];
+    interface EnumeratorBuilder<T>
+    {
+        Join: (this: EnumeratorBuilder<string>, separator: string) => string;
+    }
 }
 
-export function HTTPEndPoint(properties: HTTPEndPointProperties)
+EnumeratorBuilder.prototype.Join = function(this: EnumeratorBuilder<string>, separator: string)
 {
-    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
-    {
-        RegisterAPIEndPoint(targetClass, methodName, properties);
-    };
+    return this.ToArray().join(separator);
 }

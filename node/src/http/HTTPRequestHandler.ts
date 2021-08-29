@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import http from "http";
+import multer from "multer";
 
 import { ConfiguredAPIEndPoint } from "../api/APILoader";
 import { HTTPEndPointProperties } from "./HTTP";
@@ -41,4 +42,5 @@ export interface HTTPRequestHandler
     RegisterRoute(properties: HTTPEndPointProperties, handler: (arg: HTTPRequest<any>) => Promise<HTTPResult>): void;
     RegisterRouteSetup(routeSetup: ConfiguredAPIEndPoint<HTTPRequest<any>, HTTPResult, HTTPEndPointProperties>): void;
     RegisterRouteSetups(routeSetups: ConfiguredAPIEndPoint<HTTPRequest<any>, HTTPResult, HTTPEndPointProperties>[]): void;
+    RegisterUpload(_multer: multer.Multer): void;
 }

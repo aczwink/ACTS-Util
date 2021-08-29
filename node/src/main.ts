@@ -36,10 +36,12 @@ import { DBQueryExecutor } from "./db/DBQueryExecutor";
 import { DBConnectionPool } from "./db/DBConnectionPool";
 import { DBTransactionalQueryExecutor } from "./db/DBTransactionalQueryExecutor";
 import { HTTPRequestSender } from "./http/HTTPRequestSender";
+import { CreateTempDir } from "./fs/Temp";
 
 //Exports
 export {
     API,
+    CreateTempDir,
     DBConnectionPool,
     DBFactory,
     DBResource,

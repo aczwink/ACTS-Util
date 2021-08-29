@@ -17,12 +17,21 @@
  * */
 
 import { IncomingHttpHeaders } from "http";
+import { Dictionary } from "acts-util-core";
 
 export interface HTTPRequest<DataType, RouteParamsType = undefined>
 {
     data: DataType;
+    files: Dictionary<Express.Multer.File[]>;
     headers: IncomingHttpHeaders;
     ip: string;
     routePath: string;
     routeParams: RouteParamsType;
+}
+
+export interface HTTPResponse
+{
+    statusCode: number;
+    headers: IncomingHttpHeaders;
+    data: Buffer;
 }

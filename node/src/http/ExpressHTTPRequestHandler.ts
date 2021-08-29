@@ -25,7 +25,7 @@ import { HTTPEndPointProperties } from "./HTTP";
 import { HTTPRequest } from "./HTTPRequest";
 import { RequestListener } from "http";
 import { Readable } from "stream";
-import { Dictionary } from "acts-util-core";
+import multer from "multer";
 
 export class ExpressHTTPRequestHandler implements HTTPRequestHandler
 {
@@ -46,7 +46,13 @@ export class ExpressHTTPRequestHandler implements HTTPRequestHandler
     //Public methods
     public RegisterRoute(properties: HTTPEndPointProperties, handler: (arg: HTTPRequest<any>) => Promise<HTTPResult>): void
     {
-        (this.app as any)[properties.method.toLowerCase()](properties.route, this.OnRequest.bind(this, handler));
+        if(properties.files === undefined)
+            (this.app as any)[properties.method.toLowerCase()](properties.route, this.OnRequest.bind(this, handler));
+        else
+        {
+            const uploadFiles = this.multer!.fields(properties.files);
+            (this.app as any)[properties.method.toLowerCase()](properties.route, uploadFiles, this.OnRequest.bind(this, handler));
+        }
     }
 
     public RegisterRouteSetup(routeSetup: ConfiguredAPIEndPoint<HTTPRequest<any>, HTTPResult, HTTPEndPointProperties>): void
@@ -59,8 +65,14 @@ export class ExpressHTTPRequestHandler implements HTTPRequestHandler
         routeSetups.forEach(this.RegisterRouteSetup.bind(this));
     }
 
+    public RegisterUpload(_multer: multer.Multer)
+    {
+        this.multer = _multer;
+    }
+
     //Private members
     private app: express.Express;
+    private multer?: multer.Multer;
 
     //Private methods
     private ParseQuery(dict: any)
@@ -74,11 +86,12 @@ export class ExpressHTTPRequestHandler implements HTTPRequestHandler
     private async OnRequest(handler: (req: HTTPRequest<any, any>) => Promise<HTTPResult>, req: express.Request, res: express.Response)
     {
         const result = await handler({
-            data: req.body.IsEmpty() ? this.ParseQuery(req.query) : req.body,
+            data: ("IsEmpty" in req.body) && req.body.IsEmpty() ? this.ParseQuery(req.query) : req.body,
             headers: req.headers,
             ip: req.ip,
             routePath: req.route.path,
-            routeParams: req.params
+            routeParams: req.params,
+            files: req.files as any
         });
 
         if(result.statusCode !== undefined)

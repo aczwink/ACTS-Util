@@ -75,6 +75,7 @@ declare module "./EnumeratorBuilder"
         Filter: <OutputType = T>(this: EnumeratorBuilder<T>, filter: (value: T) => boolean) => EnumeratorBuilder<OutputType>;
         FilterAsync: <OutputType = T>(this: EnumeratorBuilder<T>, predicate: (value: T) => Promise<boolean>) => Promise<EnumeratorBuilder<OutputType>>;
         NotNull: (this: EnumeratorBuilder<T | null>) => EnumeratorBuilder<Exclude<T, null>>;
+        NotUndefined: (this: EnumeratorBuilder<T | undefined>) => EnumeratorBuilder<Exclude<T, undefined>>;
         OfType: <OutputType extends Function>(this: EnumeratorBuilder<T>, constructor: OutputType) => EnumeratorBuilder<OutputType>;
     }
 }
@@ -93,6 +94,11 @@ EnumeratorBuilder.prototype.FilterAsync = async function<InputType extends Outpu
 EnumeratorBuilder.prototype.NotNull = function<T>(this: EnumeratorBuilder<T | null>)
 {
     return this.Filter<Exclude<T, null>>( x => x !== null);
+}
+
+EnumeratorBuilder.prototype.NotUndefined = function<T>(this: EnumeratorBuilder<T | undefined>)
+{
+    return this.Filter<Exclude<T, undefined>>( x => x !== undefined);
 }
 
 EnumeratorBuilder.prototype.OfType = function<InputType extends OutputType, OutputType extends Function>(this: EnumeratorBuilder<InputType>, constructor: OutputType)

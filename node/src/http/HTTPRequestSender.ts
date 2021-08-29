@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import http from "http";
+import { HTTPResponse } from "./HTTPRequest";
 
 
 export class HTTPRequestSender
@@ -29,17 +30,19 @@ export class HTTPRequestSender
             request.headers["Content-Type"] = "application/json";
 
         const response = await this.SendRequest(request, data === undefined ? undefined : Buffer.from(JSON.stringify(data), "utf-8"));
-        return JSON.parse(response.toString("utf-8")) as ResultType;
+        if(response.statusCode !== 200)
+            throw new Error(response.toString());
+        return JSON.parse(response.data.toString("utf-8")) as ResultType;
     }
 
-    public SendRequest(request: http.RequestOptions, data?: Buffer)
+    public SendRequest(request: http.RequestOptions, data?: Buffer): Promise<HTTPResponse>
     {
         if(request.headers === undefined)
             request.headers = {};
         if((request.headers["Content-Length"] === undefined) && (data !== undefined))
             request.headers["Content-Length"] = Buffer.byteLength(data);
             
-        return new Promise<Buffer>( (resolve, reject) =>
+        return new Promise<HTTPResponse>( (resolve, reject) =>
         {
             const req = http.request(request, this.OnRequestIssued.bind(this, resolve, reject));
             req.on('error', reject);
@@ -50,17 +53,18 @@ export class HTTPRequestSender
     }
 
     //Event handlers
-    private OnRequestIssued(resolve: (value?: Buffer) => void, reject: (reason?: any) => void, res: http.IncomingMessage)
-    {
-        if (res.statusCode! < 200 || res.statusCode! >= 300)
-            return reject(new Error('statusCode=' + res.statusCode));
-        
+    private OnRequestIssued(resolve: (value: HTTPResponse) => void, reject: (reason: HTTPResponse) => void, res: http.IncomingMessage)
+    {        
         const body: Buffer[] = [];
         res.on('data', chunk => body.push(chunk));
         
         res.on('end', function()
         {
-            resolve(Buffer.concat(body));
+            resolve({
+                data: Buffer.concat(body),
+                headers: res.headers,
+                statusCode: res.statusCode!
+            });
         });
     }
 }

@@ -1,6 +1,7 @@
+
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,23 +16,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { Expect, It } from "acts-util-test";
 
-import { RegisterAPIEndPoint } from "../api/APILoader";
-import multer from "multer";
+It("Flatten with first element being empty", () => {
+    const input = [
+        [],
+        [1]
+    ];
 
-type HTTPMethod = "DELETE" | "GET" | "POST" | "PUT";
-
-export interface HTTPEndPointProperties
-{
-    method: HTTPMethod;
-    route: string;
-    files?: multer.Field[];
-}
-
-export function HTTPEndPoint(properties: HTTPEndPointProperties)
-{
-    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
-    {
-        RegisterAPIEndPoint(targetClass, methodName, properties);
-    };
-}
+    Expect(input.Values().Map(x => x.Values()).Flatten().Sum()).Equals(1);
+});

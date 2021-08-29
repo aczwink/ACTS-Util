@@ -20,6 +20,7 @@ import "./FunctionExtensions";
 import "./MapExtensions";
 import "./NumberExtensions";
 import "./ObjectExtensions";
+import "./RegExpExtensions";
 import "./SetExtensions";
 import "./StringExtensions";
 
@@ -28,6 +29,7 @@ import "./Enumeration/FilterIterator";
 import "./Enumeration/FlatteningIterator";
 import "./Enumeration/MapIterator";
 import "./Enumeration/NumberEnumeratorExtensions";
+import "./Enumeration/StringEnumeratorExtensions";
 
 import { Dictionary } from "./Dictionary";
 import { MulticastObservable } from "./Observables/MulticastObservable";

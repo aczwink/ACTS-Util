@@ -55,6 +55,11 @@ export class FlatteningIterator<T> implements IEnumerator<T>
         if(this.nestedIterator.HasNext())
         {
             this.current = this.nestedIterator.Next().CreateInstance();
+            if(!this.current.HasNext())
+            {
+                this.IterateToNext();
+                return;
+            }
             this.hasCurrent = true;
         }
         else

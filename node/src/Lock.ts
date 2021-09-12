@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,7 @@ export class Lock
             if(result !== null)
                 return result;
 
-            await new Promise( resolve => {
+            await new Promise<void>( resolve => {
                 const removeThenResolve = () => {
                     this.eventEmitter.removeListener("release", removeThenResolve);
                     return resolve();

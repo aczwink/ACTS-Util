@@ -77,8 +77,6 @@ export class ExpressHTTPRequestHandler implements HTTPRequestHandler
     //Private methods
     private ParseQuery(dict: any)
     {
-        if("jsondata" in dict)
-            return JSON.parse(dict.jsondata);
         return dict;
     }
 

@@ -77,6 +77,25 @@ export class ExpressHTTPRequestHandler implements HTTPRequestHandler
     //Private methods
     private ParseQuery(dict: any)
     {
+        function isNumeric(str: string)
+        {
+            str = str.trim();
+            if(str.length === 0)
+                return false;
+            return !isNaN(parseFloat(str));
+        }
+
+        for (const key in dict)
+        {
+            if (Object.prototype.hasOwnProperty.call(dict, key))
+            {
+                const value = dict[key];
+
+                if(isNumeric(value))
+                    dict[key] = parseFloat(value);
+                
+            }
+        }
         return dict;
     }
 

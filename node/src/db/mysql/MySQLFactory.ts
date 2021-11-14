@@ -22,6 +22,7 @@ import { ConnectionConfig, DBDriverFactory, DBResource, PoolConfig } from "../dr
 import { DBDriverQueryExecutor, DBDriverTransactionalQueryExecutor } from "../driver/DBDriverQueryExecutor";
 import { MySQLConnection } from "./MySQLConnection";
 import { DBDriverConnectionPool } from "../driver/DBDriverConnectionPool";
+import { MySQLQueryBuilder } from "./MySQLQueryBuilder";
 
 export class MySQLFactory implements DBDriverFactory
 {
@@ -66,7 +67,12 @@ export class MySQLFactory implements DBDriverFactory
             Close: pool.Close.bind(pool),
             value: pool
         };
-    }
+	}
+	
+	public CreateQueryBuilder()
+	{
+		return new MySQLQueryBuilder;
+	}
 
     //Private methods
     private async CheckConfig(connection: DBDriverQueryExecutor)

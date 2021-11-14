@@ -17,6 +17,7 @@
  * */
 import { DBDriverConnectionPool } from "./DBDriverConnectionPool";
 import { DBDriverTransactionalQueryExecutor } from "./DBDriverQueryExecutor";
+import { DBQueryBuilder } from "./DBQueryBuilder";
 
 export interface DBResource<T>
 {
@@ -39,6 +40,7 @@ export interface PoolConfig extends ConnectionConfig
 
 export interface DBDriverFactory
 {
+    CreateQueryBuilder(): DBQueryBuilder;
     CreateConnection(config: ConnectionConfig): Promise<DBResource<DBDriverTransactionalQueryExecutor>>;
     CreateConnectionPool(config: PoolConfig): Promise<DBResource<DBDriverConnectionPool>>;
 }

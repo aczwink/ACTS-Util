@@ -91,7 +91,9 @@ export class ExpressHTTPRequestHandler implements HTTPRequestHandler
             {
                 const value = dict[key];
 
-                if(isNumeric(value))
+                if(value === "null")
+                    dict[key] = null;
+                else if(isNumeric(value))
                     dict[key] = parseFloat(value);
                 
             }

@@ -58,6 +58,11 @@ export class DBFactory
         };
     }
 
+    public CreateQueryBuilder(type: DBType)
+    {
+        return this.GetDriverFactory(type).CreateQueryBuilder();
+    }
+
     //Private methods
     private GetDriverFactory(type: DBType): DBDriverFactory
     {

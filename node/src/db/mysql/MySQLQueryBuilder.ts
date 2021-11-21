@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Column, CombinedCondition, DBQueryBuilder, DBTable, Join, JoinConditionWithConstant, JoinConditionWithTable, LeafCondition, SpecialColumn } from "../driver/DBQueryBuilder";
+import { Column, CombinedCondition, DBQueryBuilder, DBTable, Grouping, Join, JoinConditionWithConstant, JoinConditionWithTable, LeafCondition, SpecialColumn } from "../driver/DBQueryBuilder";
 
 interface JoinWithTable
 {
@@ -30,8 +30,9 @@ export class MySQLQueryBuilder implements DBQueryBuilder
         this.tableCounter = 0;
         this.conditions = [];
         this.columns = [];
-        this.primaryTable = null;
+        this.groupings = [];
         this.joins = [];
+        this.primaryTable = null;
     }
 
     //Public members
@@ -42,6 +43,11 @@ export class MySQLQueryBuilder implements DBQueryBuilder
     public AddCondition(condition: LeafCondition | CombinedCondition): void
     {
         this.conditions.push(condition);
+    }
+
+    public AddGrouping(grouping: Grouping): void
+    {
+        this.groupings.push(grouping);
     }
 
     public AddJoin(join: Join): DBTable
@@ -66,6 +72,7 @@ export class MySQLQueryBuilder implements DBQueryBuilder
             `FROM ${this.primaryTable.name} ${this.primaryTable.id}`,
             joins,
             `WHERE ${this.CreateWhereSQL()}`,
+            this.groupings.IsEmpty() ? "" : ("GROUP BY " + this.GroupingsToSQL()),
             this.limit === undefined ? "" : ("LIMIT " + this.limit),
             this.offset === undefined ? "" : ("OFFSET " + this.offset),
         ].Values().Map(line => line.trim()).Filter(line => line.length > 0).Join("\n");
@@ -93,15 +100,23 @@ export class MySQLQueryBuilder implements DBQueryBuilder
     private tableCounter: number;
     private conditions: (LeafCondition | CombinedCondition)[];
     private columns: string[];
-    private primaryTable: DBTable | null;
+    private groupings: Grouping[];
     private joins: JoinWithTable[];
+    private primaryTable: DBTable | null;
 
     //Private methods
+    private ConstantToSQL(constant: string | number)
+    {
+        if(typeof(constant) === "number")
+            return constant.toString();
+        return '"' + constant + '"';
+    }
+
     private CreateConditionSQL(condition: LeafCondition | CombinedCondition): string
     {
         if("combination" in condition)
             return condition.conditions.map(this.CreateConditionSQL.bind(this)).join(" " + condition.combination + " ");
-        return "(" + condition.table.id + "." + condition.column + " " + condition.operator + " " + condition.constant + ")";
+        return "(" + condition.table.id + "." + condition.column + " " + condition.operator + " " + this.ConstantToSQL(condition.constant) + ")";
     }
 
     private CreateJoinConditionSQL(j: JoinConditionWithConstant | JoinConditionWithTable)
@@ -136,5 +151,10 @@ export class MySQLQueryBuilder implements DBQueryBuilder
             combination: "AND",
             conditions: this.conditions
         });
+    }
+
+    private GroupingsToSQL()
+    {
+        return this.groupings.Values().Map(x => x.table.id + "." + x.columnName).Join(", ");
     }
 }

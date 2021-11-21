@@ -37,8 +37,8 @@ export interface LeafCondition
 {
     table: DBTable;
     column: string;
-    operator: "=";
-    constant: number;
+    operator: "=" | "LIKE";
+    constant: number | string;
 }
 
 export interface CombinedCondition
@@ -71,12 +71,19 @@ export interface Join
     conditions: (JoinConditionWithConstant | JoinConditionWithTable)[];
 }
 
+export interface Grouping
+{
+    table: DBTable;
+    columnName: string;
+}
+
 export interface DBQueryBuilder
 {
     limit?: number;
     offset?: number;
 
     AddCondition(condition: LeafCondition | CombinedCondition): void;
+    AddGrouping(grouping: Grouping): void;
     AddJoin(join: Join): DBTable;
     CreateSQLQuery(): string;
     SetPrimaryTable(name: string): DBTable;

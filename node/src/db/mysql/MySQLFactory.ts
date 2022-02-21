@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -77,7 +77,11 @@ export class MySQLFactory implements DBDriverFactory
     //Private methods
     private async CheckConfig(connection: DBDriverQueryExecutor)
 	{
-		this.CheckGlobalVariable(connection, "innodb_checksums", "1"); //make sure bit-rot detection is enabled
+		//make sure bit-rot detection is enabled
+		const checkSums = (await this.ReadVariableValue(connection, "@@global", "innodb_checksum_algorithm")) as string;
+		if(checkSums.indexOf("none") != -1)
+			throw new Error("Database bit rot detection is disabled!");
+
 		this.CheckAllVariables(connection, "time_zone", "+00:00"); //make sure database works with utc
     }
     
@@ -86,21 +90,23 @@ export class MySQLFactory implements DBDriverFactory
 		this.CheckVariable(connection, variable, expectedValue, ["@@global", "@@local", "@@session"])
 	}
 
-	private CheckGlobalVariable(connection: DBDriverQueryExecutor, variable: string, expectedValue: string)
-	{
-		this.CheckVariable(connection, variable, expectedValue, ["@@global"])
-	}
-
 	private async CheckVariable(connection: DBDriverQueryExecutor, variable: string, expectedValue: string, varTypes: string[])
 	{
 		for (let index = 0; index < varTypes.length; index++)
 		{
 			const varType = varTypes[index];
 
-			const [{result}] = await connection.Query("SELECT " + varType + "." + variable + " AS result");
+			const result = await this.ReadVariableValue(connection, varType, variable);
 
 			if(result != expectedValue)
 				throw new Error("Database variable '" + variable + "' has wrong value: " + result + " Expected: " + expectedValue);
 		}
+	}
+
+	private async ReadVariableValue(connection: DBDriverQueryExecutor, varType: string, variable: string)
+	{
+		const [{result}] = await connection.Query("SELECT " + varType + "." + variable + " AS result");
+
+		return result;
 	}
 }

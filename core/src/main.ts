@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -41,9 +41,11 @@ import { Subject } from "./Observables/Subject";
 import { EqualsAny } from "./EqualsAny";
 import { TimeUtil } from "./TimeUtil";
 import { ObservableObject } from "./ObjectExtensions";
+import { CachedProperty } from "./CachedProperty";
 
 //Exports
 export {
+    CachedProperty,
     Dictionary,
     Duration,
     EqualsAny,

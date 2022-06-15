@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,13 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { APILoader } from "../api/APILoader";
-import { HTTPEndPointProperties } from "./HTTP";
-import { HTTPRequest } from "./HTTPRequest";
-import { HTTPResult } from "./HTTPRequestHandler";
+import { Request } from "./Request";
+import { HTTPResult } from "./Result";
 
-export class HTTP_APILoader extends APILoader<HTTPRequest<any>, HTTPResult, HTTPEndPointProperties>
+export class HTTP_APILoader extends APILoader<Request, HTTPResult, any>
 {
-    public GetEndPointSetups()
+    /*public GetEndPointSetups()
     {
         const setups = super.GetEndPointSetups();
         setups.sort((a, b) => {
@@ -54,5 +53,5 @@ export class HTTP_APILoader extends APILoader<HTTPRequest<any>, HTTPResult, HTTP
         //console.log(setups.map(s => s.properties.route));
 
         return setups;
-    }
+    }*/
 }

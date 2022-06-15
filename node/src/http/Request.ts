@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,22 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { IncomingHttpHeaders } from "http";
+/*import { IncomingHttpHeaders } from "http";
 import { Dictionary } from "acts-util-core";
 
 export interface HTTPRequest<DataType, RouteParamsType = undefined>
 {
-    data: DataType;
     files: Dictionary<Express.Multer.File[]>;
     headers: IncomingHttpHeaders;
     ip: string;
-    routePath: string;
     routeParams: RouteParamsType;
-}
+}*/
 
-export interface HTTPResponse
+export interface Request
 {
-    statusCode: number;
-    headers: IncomingHttpHeaders;
-    data: Buffer;
+    body: any;
+    httpMethod: string;
+    protocol: string;
+    hostName: string;
+    port: number;
+    routePath: string;
 }

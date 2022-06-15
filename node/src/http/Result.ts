@@ -15,10 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import http from "http";
 
-import { APILoader } from "./APILoader";
-
-export namespace API
+export interface HTTPResultData<DataType>
 {
-    export class Loader<ArgType, ResultType, PropertiesType> extends APILoader<ArgType, ResultType, PropertiesType> {};
-};
+    statusCode: number;
+    headers: http.OutgoingHttpHeaders;
+    data?: DataType;
+}
+
+export type HTTPResult = HTTPResultData<object>;
+
+export function CreateResult<DataType>(statusCode: number, headers: http.OutgoingHttpHeaders, data?: DataType): HTTPResultData<DataType>
+{
+    return {
+        statusCode,
+        headers,
+        data
+    };
+}

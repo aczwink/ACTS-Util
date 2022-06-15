@@ -15,10 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import http from "http";
+import { RequestHandler } from "./RequestHandler";
 
-import { APILoader } from "./APILoader";
-
-export namespace API
+export interface RequestHandlerChain
 {
-    export class Loader<ArgType, ResultType, PropertiesType> extends APILoader<ArgType, ResultType, PropertiesType> {};
-};
+    readonly requestListener: http.RequestListener;
+
+    AddBodyParser(): void;
+    AddCORSHandler(trustedOrigins: string[]): void;
+    AddRequestHandler(requestHandler: RequestHandler): void;
+}

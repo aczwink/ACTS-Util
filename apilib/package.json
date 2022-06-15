@@ -1,0 +1,32 @@
+{
+  "name": "acts-util-apilib",
+  "version": "0.0.1",
+  "description": "A utility library for dealing with HTTP APIs with Node.js for TypeScript / JavaScript",
+  "main": "dist/main.js",
+  "bin": "dist/cli.js",
+  "types": "dist/main.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aczwink/ACTS-Util.git"
+  },
+  "author": "Amir Czwink",
+  "license": "AGPL-3.0-only",
+  "bugs": {
+    "url": "https://github.com/aczwink/ACTS-Util/issues"
+  },
+  "homepage": "https://github.com/aczwink/ACTS-Util#readme",
+  "keywords": [],
+  "devDependencies": {
+    "@types/node": "^17.0.29",
+    "@types/uuid": "^8.3.4",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "acts-util-core": "*",
+    "acts-util-node": "*",
+    "uuid": "^8.3.2"
+  }
+}

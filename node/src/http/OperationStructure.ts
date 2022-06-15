@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,9 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { APILoader } from "./APILoader";
-
-export namespace API
+export interface ParameterStructure
 {
-    export class Loader<ArgType, ResultType, PropertiesType> extends APILoader<ArgType, ResultType, PropertiesType> {};
-};
+    name: string;
+    source: "body" | "body-prop" | "path" | "query";
+}
+
+export interface OperationStructure
+{
+    parameters: ParameterStructure[];
+}

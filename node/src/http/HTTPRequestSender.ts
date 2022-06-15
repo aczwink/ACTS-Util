@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import http from "http";
-import { HTTPResponse } from "./HTTPRequest";
+import { RawResponse } from "./Response";
 
 
 export class HTTPRequestSender
@@ -35,14 +35,14 @@ export class HTTPRequestSender
         return JSON.parse(response.data.toString("utf-8")) as ResultType;
     }
 
-    public SendRequest(request: http.RequestOptions, data?: Buffer): Promise<HTTPResponse>
+    public SendRequest(request: http.RequestOptions, data?: Buffer): Promise<RawResponse>
     {
         if(request.headers === undefined)
             request.headers = {};
         if((request.headers["Content-Length"] === undefined) && (data !== undefined))
             request.headers["Content-Length"] = Buffer.byteLength(data);
             
-        return new Promise<HTTPResponse>( (resolve, reject) =>
+        return new Promise<RawResponse>( (resolve, reject) =>
         {
             const req = http.request(request, this.OnRequestIssued.bind(this, resolve, reject));
             req.on('error', reject);
@@ -53,7 +53,7 @@ export class HTTPRequestSender
     }
 
     //Event handlers
-    private OnRequestIssued(resolve: (value: HTTPResponse) => void, reject: (reason: HTTPResponse) => void, res: http.IncomingMessage)
+    private OnRequestIssued(resolve: (value: RawResponse) => void, reject: (reason: Response) => void, res: http.IncomingMessage)
     {        
         const body: Buffer[] = [];
         res.on('data', chunk => body.push(chunk));
@@ -62,7 +62,7 @@ export class HTTPRequestSender
         {
             resolve({
                 data: Buffer.concat(body),
-                headers: res.headers,
+                headers: res.headers as any,
                 statusCode: res.statusCode!
             });
         });

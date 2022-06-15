@@ -42,6 +42,8 @@ import { EqualsAny } from "./EqualsAny";
 import { TimeUtil } from "./TimeUtil";
 import { ObservableObject } from "./ObjectExtensions";
 import { CachedProperty } from "./CachedProperty";
+import { URL } from "./URL";
+import { URLParser } from "./URLParser";
 
 //Exports
 export {
@@ -62,4 +64,6 @@ export {
     SubscriberFunction,
     Subscription,
     TimeUtil,
+    URL,
+    URLParser,
 };

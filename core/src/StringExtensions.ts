@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020,2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,9 +21,18 @@ declare global
 {
     interface String
     {
+        ReplaceAll: (this: string, searchValue: string, replaceValue: string) => string;
         TrimLeft: (this: string, chars: string) => string;
         TrimRight: (this: string, chars: string) => string;
     }
+}
+
+String.prototype.ReplaceAll = function(this: string, searchValue: string, replaceValue: string)
+{
+    let result = this;
+    while(result.indexOf(searchValue) !== -1)
+        result = result.replace(searchValue, replaceValue);
+    return result;
 }
 
 String.prototype.TrimLeft = function(this: string, chars: string)

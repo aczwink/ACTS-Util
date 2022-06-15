@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,9 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { APILoader } from "./APILoader";
+import { Dictionary } from "./Dictionary";
 
-export namespace API
+export class URLParser
 {
-    export class Loader<ArgType, ResultType, PropertiesType> extends APILoader<ArgType, ResultType, PropertiesType> {};
-};
+    public static ParseQueryParams(queryParamsString: string): Dictionary<string>
+    {
+        const queryParamsParts = queryParamsString.length > 0 ? queryParamsString.split("&") : [];
+        const queryParams: Dictionary<string> = {};
+        queryParamsParts.forEach(kv => {
+            const split = kv.split("=")
+            queryParams[split[0]] = split[1];
+        });
+        return queryParams;
+    }
+}

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,125 +15,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as bodyParser from "body-parser";
-import express from "express";
-import cors from "cors";
 import { ConfiguredAPIEndPoint } from "../api/APILoader";
 
-import { HTTPResult, HTTPRequestHandler, HTTPRequestHandlerOptions } from "./HTTPRequestHandler";
-import { HTTPEndPointProperties } from "./HTTP";
-import { HTTPRequest } from "./HTTPRequest";
-import { RequestListener } from "http";
 import { Readable } from "stream";
-import multer from "multer";
+import { HTTPResult } from "./Result";
 
-export class ExpressHTTPRequestHandler implements HTTPRequestHandler
+export class ExpressHTTPRequestHandler
 {
-    constructor(options: HTTPRequestHandlerOptions)
-    {
-        this.app = express();
-
-        this.app.use(cors({ origin: options.trustedOrigins }));
-        this.app.use(bodyParser.json());
-    }
-
-    //Properties
-    public get requestListener(): RequestListener
-    {
-        return this.app;
-    }
-
-    //Public methods
-    public RegisterRoute(properties: HTTPEndPointProperties, handler: (arg: HTTPRequest<any>) => Promise<HTTPResult>): void
-    {
-        if(properties.files === undefined)
-            (this.app as any)[properties.method.toLowerCase()](properties.route, this.OnRequest.bind(this, handler));
-        else
-        {
-            const uploadFiles = this.multer!.fields(properties.files);
-            (this.app as any)[properties.method.toLowerCase()](properties.route, uploadFiles, this.OnRequest.bind(this, handler));
-        }
-    }
-
-    public RegisterRouteSetup(routeSetup: ConfiguredAPIEndPoint<HTTPRequest<any>, HTTPResult, HTTPEndPointProperties>): void
-    {
-        this.RegisterRoute(routeSetup.properties, routeSetup.method);
-    }
-
-    public RegisterRouteSetups(routeSetups: ConfiguredAPIEndPoint<HTTPRequest<any>, HTTPResult, HTTPEndPointProperties>[]): void
-    {
-        routeSetups.forEach(this.RegisterRouteSetup.bind(this));
-    }
-
-    public RegisterUpload(_multer: multer.Multer)
-    {
-        this.multer = _multer;
-    }
-
-    //Private members
-    private app: express.Express;
-    private multer?: multer.Multer;
-
-    //Private methods
-    private ParseQuery(dict: any)
-    {
-        function isNumeric(str: string)
-        {
-            str = str.trim();
-            if(str.length === 0)
-                return false;
-            return !isNaN(parseFloat(str));
-        }
-
-        for (const key in dict)
-        {
-            if (Object.prototype.hasOwnProperty.call(dict, key))
-            {
-                const value = dict[key];
-
-                if(value === "null")
-                    dict[key] = null;
-                else if(isNumeric(value))
-                    dict[key] = parseFloat(value);
-                
-            }
-        }
-        return dict;
-    }
-
+    /*
     //Event handlers
-    private async OnRequest(handler: (req: HTTPRequest<any, any>) => Promise<HTTPResult>, req: express.Request, res: express.Response)
+    private async OnRequest(handler: (req: HTTPRequest<any, any>) => Promise<object>, req: express.Request, res: express.Response)
     {
         const result = await handler({
-            data: ("IsEmpty" in req.body) && req.body.IsEmpty() ? this.ParseQuery(req.query) : req.body,
-            headers: req.headers,
             ip: req.ip,
-            routePath: req.route.path,
-            routeParams: req.params,
-            files: req.files as any
         });
 
-        if(result.statusCode !== undefined)
-            res.status(result.statusCode);
-        if(result.headers !== undefined)
+        if(httpResult.data !== undefined)
         {
-            for (const key in result.headers)
-            {
-                if (Object.prototype.hasOwnProperty.call(result.headers, key))
-                {
-                    res.setHeader(key, result.headers[key]!);
-                }
-            }
+            else if(httpResult.data instanceof Readable)
+                httpResult.data.pipe(res);
         }
-        if(result.data !== undefined)
-        {
-            if(result.data instanceof Buffer)
-                res.write(result.data);
-            else if(result.data instanceof Readable)
-                result.data.pipe(res);
-            else
-                res.json(result.data);
-        }
-        res.end();
-    }
+    }*/
 }

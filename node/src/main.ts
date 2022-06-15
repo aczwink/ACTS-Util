@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -25,10 +25,8 @@ import { Lock } from "./Lock";
 import { LockedProperty } from "./LockedProperty";
 import { GlobalInjector, Injectable } from "./api/GlobalInjector";
 import { API } from "./api/_namespace";
-import { HTTPEndPoint, HTTPEndPointProperties } from "./http/HTTP";
 import { HTTP_APILoader } from "./http/HTTP_APILoader";
-import { HTTPRequestHandler, HTTPResultData } from "./http/HTTPRequestHandler";
-import { HTTPRequest } from "./http/HTTPRequest";
+import { Request } from "./http/Request";
 import { Factory } from "./http/Factory";
 import { DBFactory } from "./db/DBFactory";
 import { DBResource } from "./db/driver/DBDriverFactory";
@@ -37,8 +35,25 @@ import { DBConnectionPool } from "./db/DBConnectionPool";
 import { DBTransactionalQueryExecutor } from "./db/DBTransactionalQueryExecutor";
 import { HTTPRequestSender } from "./http/HTTPRequestSender";
 import { CreateTempDir } from "./fs/Temp";
+import { ModuleLoader } from "./ModuleLoader";
+import * as OpenAPI from "./openapi/Specification";
 
 //Exports
+import * as HTTP_OperationStructure from "./http/OperationStructure";
+import * as HTTP_Response from "./http/Response";
+import * as HTTP_Result from "./http/Result";
+import * as HTTP_RouterRequestHandler from "./http/RouterRequestHandler";
+import * as HTTP_UploadedFile from "./http/UploadedFile";
+export namespace HTTP
+{
+    export import CreateResult = HTTP_Result.CreateResult;
+    export import ParameterStructure = HTTP_OperationStructure.ParameterStructure;
+    export import OperationStructure = HTTP_OperationStructure.OperationStructure;
+    export import ResponseHeaders = HTTP_Response.ResponseHeaders;
+    export import RouterRequestHandler = HTTP_RouterRequestHandler.RouterRequestHandler;
+    export import UploadedFile = HTTP_UploadedFile.UploadedFile;
+}
+
 export {
     API,
     CreateTempDir,
@@ -53,15 +68,13 @@ export {
     FileSystem,
     GlobalInjector,
     HTTP_APILoader,
-    HTTPEndPoint,
-    HTTPEndPointProperties,
-    HTTPRequest,
-    HTTPRequestHandler,
+    Request as HTTPRequest,
     HTTPRequestSender,
-    HTTPResultData,
     Injectable,
     Lock,
     LockedProperty,
+    ModuleLoader,
+    OpenAPI,
     OSFileSystem,
     Promisify,
     VirtualRootFileSystem,

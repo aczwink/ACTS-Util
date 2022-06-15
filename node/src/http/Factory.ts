@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { ExpressHTTPRequestHandler } from "./ExpressHTTPRequestHandler";
-import { HTTPRequestHandler, HTTPRequestHandlerOptions } from "./HTTPRequestHandler";
+import { ExpressRequestHandlerChain } from "./ExpressRequestHandlerChain";
+import { RequestHandlerChain } from "./RequestHandlerChain";
 
 export class Factory
 {
-    static CreateHTTPRequestHandler(options: HTTPRequestHandlerOptions): HTTPRequestHandler
+    static CreateRequestHandlerChain(): RequestHandlerChain
     {
-        return new ExpressHTTPRequestHandler(options);
+        return new ExpressRequestHandlerChain();
     }
 }

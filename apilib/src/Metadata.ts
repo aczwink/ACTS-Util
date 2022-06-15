@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,9 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { APILoader } from "./APILoader";
+import { HTTPMethod } from "./APIRegistry";
 
-export namespace API
+export interface ResponseMetadata
 {
-    export class Loader<ArgType, ResultType, PropertiesType> extends APILoader<ArgType, ResultType, PropertiesType> {};
-};
+    statusCode: number;
+    schemaName: string;
+}
+
+export interface ParameterMetadata
+{
+    name: string;
+    source: "body" | "body-prop" | "form-field" | "path" | "query";
+    schemaName: string;
+    required: boolean;
+}
+
+export interface OperationMetadata
+{
+    route?: string;
+    httpMethod: HTTPMethod;
+    methodName: string;
+    parameters: ParameterMetadata[];
+    responses: ResponseMetadata[];
+}
+
+export interface APIControllerMetadata
+{
+    baseRoute: string;
+    operations: OperationMetadata[];
+}

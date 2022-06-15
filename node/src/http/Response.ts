@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-export interface APIEndpointMetadata<T>
+export interface ResponseHeaders
 {
-    methodName: string;
-    properties: T;
+    "Content-Type"?: "image/gif" | "text/html; charset=utf-8";
 }
+
+interface Response
+{
+    statusCode: number;
+    headers: ResponseHeaders;
+}
+
+export interface ObjectResponse<T> extends Response
+{
+    data: T;
+}
+
+export interface RawResponse extends Response
+{
+    data: Buffer;
+}
+
+export type DataResponse = ObjectResponse<object> | ObjectResponse<string> | RawResponse;

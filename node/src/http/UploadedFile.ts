@@ -18,5 +18,7 @@
 
 export interface UploadedFile
 {
+    originalName: string;
+    mediaType: string;
     buffer: Buffer;
 }

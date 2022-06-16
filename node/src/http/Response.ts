@@ -18,6 +18,7 @@
 
 export interface ResponseHeaders
 {
+    "Content-Disposition"?: string;
     "Content-Type"?: "image/gif" | "text/html; charset=utf-8";
 }
 

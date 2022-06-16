@@ -34,7 +34,7 @@ import { DBQueryExecutor } from "./db/DBQueryExecutor";
 import { DBConnectionPool } from "./db/DBConnectionPool";
 import { DBTransactionalQueryExecutor } from "./db/DBTransactionalQueryExecutor";
 import { HTTPRequestSender } from "./http/HTTPRequestSender";
-import { CreateTempDir } from "./fs/Temp";
+import { CreateTempDir, CreateTempFile } from "./fs/Temp";
 import { ModuleLoader } from "./ModuleLoader";
 import * as OpenAPI from "./openapi/Specification";
 
@@ -57,6 +57,7 @@ export namespace HTTP
 export {
     API,
     CreateTempDir,
+    CreateTempFile,
     DBConnectionPool,
     DBFactory,
     DBResource,

@@ -76,6 +76,8 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
                 for (const file of req.files)
                 {
                     const uf: UploadedFile = {
+                        originalName: file.originalname,
+                        mediaType: file.mimetype,
                         buffer: file.buffer
                     };
                     req.body[file.fieldname] = uf;

@@ -1,4 +1,3 @@
-import { HTTP } from 'acts-util-node';
 /**
  * ACTS-Util
  * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
@@ -16,6 +15,7 @@ import { HTTP } from 'acts-util-node';
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { HTTP } from 'acts-util-node';
 import { APIRegistryInstance, APIRegistryInterface } from './APIRegistry';
 import { APIController, Body, BodyProp, Delete, FormField, Get, Path, Post, Put, Query } from './decorators';
 
@@ -39,6 +39,17 @@ export {
     Put,
     Query,
 };
+
+export function BadRequest(errorMessage: string): TypedHTTPResponse<400, string>
+{
+    return {
+        statusCode: 400,
+        headers: {
+            "Content-Type": "text/html; charset=utf-8",
+        },
+        data: errorMessage
+    };
+}
 
 export function NotFound(errorMessage: string): TypedHTTPResponse<404, string>
 {

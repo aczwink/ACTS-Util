@@ -70,6 +70,23 @@ export class URL implements URLProperties
         return this.ToString() === other.ToString();
     }
 
+    public PathAndQueryToString()
+    {
+        const queryParams = [];
+        for (const key in this.queryParams)
+        {
+            if (this.queryParams.hasOwnProperty(key))
+            {
+                const value = this.queryParams[key];
+                if(value !== undefined)
+                    queryParams.push(key + "=" + value);
+            }
+        }
+        const query = queryParams.length > 0 ? "?" + queryParams.join("&") : "";
+
+        return this.path + query;
+    }
+
     public ToString()
     {
         return this.protocol + "://" + this.authority + this.PathAndQueryToString();
@@ -95,23 +112,6 @@ export class URL implements URLProperties
     private _pathSegments: string[];
 
     //Private methods
-    private PathAndQueryToString()
-    {
-        const queryParams = [];
-        for (const key in this.queryParams)
-        {
-            if (this.queryParams.hasOwnProperty(key))
-            {
-                const value = this.queryParams[key];
-                if(value !== undefined)
-                    queryParams.push(key + "=" + value);
-            }
-        }
-        const query = queryParams.length > 0 ? "?" + queryParams.join("&") : "";
-
-        return this.path + query;
-    }
-
     private SplitPathIntoSegments(path: string)
     {
         if(path.startsWith("/"))

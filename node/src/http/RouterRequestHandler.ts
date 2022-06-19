@@ -63,7 +63,7 @@ export class RouterRequestHandler implements RequestHandler
                 };
             }
 
-            const args = this.ExtractArgs(validatedArgs, this.operationToStructureMap[operationId]!);
+            const args = this.ExtractArgs(validatedArgs, request, this.operationToStructureMap[operationId]!);
             const result = await this.operationToFunctionMap[operationId]?.call(undefined, ...args);
             return this.WrapResult(result);
         }
@@ -107,7 +107,7 @@ export class RouterRequestHandler implements RequestHandler
         this.operationMap[operation.operationId] = operation;
     }
 
-    private ExtractArgs(validatedArgs: ValidatedArgs, opStruct: OperationStructure)
+    private ExtractArgs(validatedArgs: ValidatedArgs, request: Request, opStruct: OperationStructure)
     {
         return opStruct.parameters.map(ps => {
             switch(ps.source)
@@ -120,6 +120,8 @@ export class RouterRequestHandler implements RequestHandler
                     return validatedArgs.routeParams[ps.name];
                 case "query":
                     return validatedArgs.queryParams[ps.name];
+                case "request":
+                    return request;
             }
         });
     }

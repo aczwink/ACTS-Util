@@ -19,7 +19,7 @@
 export interface ParameterStructure
 {
     name: string;
-    source: "body" | "body-prop" | "path" | "query";
+    source: "body" | "body-prop" | "path" | "query" | "request";
 }
 
 export interface OperationStructure

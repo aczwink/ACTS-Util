@@ -154,8 +154,8 @@ export class APIClassGenerator
 
     private GenerateAPIClass(paths: OpenAPI.Paths)
     {
-        const methodDef = "protected abstract IssueRequest<SuccessStatusCodeType, ErrorStatusCodeType, DataType>(requestData: RequestData): Promise<ResponseData<SuccessStatusCodeType, ErrorStatusCodeType, DataType>>;";
-        return "export abstract class API\n{\n\t" + methodDef + "\n\n" + this.GenerateAPIObjects(paths) + "\n}";
+        const constructorDef = "constructor(private __issueRequest: (requestData: RequestData) => Promise<{ statusCode: number; data: any }>){}";
+        return "export abstract class API\n{\n\t" + constructorDef + "\n\n" + this.GenerateAPIObjects(paths) + "\n}";
     }
 
     private GenerateAPIDefinition(path: string, pathItem: OpenAPI.PathItem)
@@ -178,7 +178,7 @@ export class APIClassGenerator
         const responseType = this.FindResponseType(operation.responses);
         const errStatusCodes = operation.responses.OwnKeys().Map(x => x.toString()).Filter(x => x !== responseType.statusCode.toString()).Join(" | ");
         const errStatusCodesType = errStatusCodes.length == 0 ? "undefined" : errStatusCodes;
-        const optTypeCast = errStatusCodes.length == 0 ? " as Promise<SuccessResponse<" + responseType.statusCode + ", " + responseType.returnTypeName + ">>" : "";
+        const optTypeCast = errStatusCodes.length == 0 ? " as Promise<SuccessResponse<" + responseType.statusCode + ", " + responseType.returnTypeName + ">>" : " as Promise<ResponseData<" + responseType.statusCode + ", " + errStatusCodesType + ", " + responseType.returnTypeName + ">>";
 
         const queryParams = operation.parameters.Values().Filter(x => x.in === "query");
         const queryParamsArgString = queryParams.Any() ? "query: { " + (queryParams.Map(this.ParameterToSourceCode.bind(this))).Join("; ") + " }" : "";
@@ -203,7 +203,7 @@ export class APIClassGenerator
             + (isFormData ? "\t\t\t\trequestBodyType: 'form-data',\n" : "")
             + "\t\t}";
 
-        return "\t\t" + operationName + ": (" + argString + ") =>\n\t\t\tthis.IssueRequest<" + responseType.statusCode + ", " + errStatusCodesType + ", " + responseType.returnTypeName + ">(" + requestParamObjectString + ")" + optTypeCast + ",";
+        return "\t\t" + operationName + ": (" + argString + ") =>\n\t\t\tthis.__issueRequest(" + requestParamObjectString + ")" + optTypeCast + ",";
     }
 
     private GenerateAPIObject(path: string, pathItem: OpenAPI.PathItem)

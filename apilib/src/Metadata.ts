@@ -27,7 +27,7 @@ export interface ResponseMetadata
 export interface ParameterMetadata
 {
     name: string;
-    source: "body" | "body-prop" | "form-field" | "path" | "query";
+    source: "body" | "body-prop" | "form-field" | "path" | "query" | "request";
     schemaName: string;
     required: boolean;
 }

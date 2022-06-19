@@ -21,18 +21,25 @@ import { Dictionary } from "acts-util-core";
 
 export interface HTTPRequest<DataType, RouteParamsType = undefined>
 {
-    files: Dictionary<Express.Multer.File[]>;
     headers: IncomingHttpHeaders;
-    ip: string;
-    routeParams: RouteParamsType;
 }*/
 
 export interface Request
 {
-    body: any;
     httpMethod: string;
+    body: any;
     protocol: string;
+    /**
+     * Host header field of the request
+     */
     hostName: string;
+    /**
+     * The local port of the request receiver
+     */
     port: number;
     routePath: string;
+    /**
+     * The ip address of the request sender
+     */
+    ip: string;
 }

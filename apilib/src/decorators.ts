@@ -119,3 +119,7 @@ export function Put(route?: string)
 export function Query(targetObject: Object, methodName: string, parameterIndex: number)
 {
 }
+
+export function Request(targetObject: Object, methodName: string, parameterIndex: number)
+{
+}

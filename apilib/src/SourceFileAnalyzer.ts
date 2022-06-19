@@ -80,7 +80,7 @@ export class SourceFileAnalyzer
         }
     }
 
-    private ExtractParameterDecoratorInfo(decorators: ts.NodeArray<ts.Decorator> | undefined): "body" | "body-prop" | "form-field" | "path" | "query"
+    private ExtractParameterDecoratorInfo(decorators: ts.NodeArray<ts.Decorator> | undefined): "body" | "body-prop" | "form-field" | "path" | "query" | "request"
     {
         if((decorators !== undefined) && (decorators.length == 1))
         {
@@ -99,6 +99,8 @@ export class SourceFileAnalyzer
                         return "path";
                     case "Query":
                         return "query";
+                    case "Request":
+                        return "request";
                     default:
                         throw new Error("Method not implemented.");
                 }

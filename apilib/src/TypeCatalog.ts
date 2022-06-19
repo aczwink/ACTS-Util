@@ -190,6 +190,16 @@ export class TypeCatalog
             const nested = this.typeChecker.getTypeArguments(type as ts.TypeReference);
             return this.ResolveResponsesFromType(nested[0]);
         }
+        if(type.symbol.escapedName === "Readable")
+        {
+            const schemaName = "Buffer";
+            return this.CreateStandardReponse(schemaName);
+        }
+        if(type.symbol.escapedName === "Request")
+        {
+            const schemaName = "Request";
+            return this.CreateStandardReponse(schemaName);
+        }
         if(type.symbol.escapedName === "UploadedFile")
         {
             const schemaName = "UploadedFile";

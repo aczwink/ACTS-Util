@@ -17,7 +17,7 @@
  * */
 import { HTTP } from 'acts-util-node';
 import { APIRegistryInstance, APIRegistryInterface } from './APIRegistry';
-import { APIController, Body, BodyProp, Delete, FormField, Get, Path, Post, Put, Query } from './decorators';
+import { APIController, Body, BodyProp, Delete, FormField, Get, Path, Post, Put, Query, Request } from './decorators';
 
 export const APIRegistry: APIRegistryInterface = APIRegistryInstance;
 
@@ -38,6 +38,7 @@ export {
     Post,
     Put,
     Query,
+    Request,
 };
 
 export function BadRequest(errorMessage: string): TypedHTTPResponse<400, string>

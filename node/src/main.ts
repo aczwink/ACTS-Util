@@ -24,8 +24,6 @@ import { Promisify } from "./fs/Util";
 import { Lock } from "./Lock";
 import { LockedProperty } from "./LockedProperty";
 import { GlobalInjector, Injectable } from "./api/GlobalInjector";
-import { API } from "./api/_namespace";
-import { HTTP_APILoader } from "./http/HTTP_APILoader";
 import { Request } from "./http/Request";
 import { Factory } from "./http/Factory";
 import { DBFactory } from "./db/DBFactory";
@@ -40,6 +38,8 @@ import * as OpenAPI from "./openapi/Specification";
 
 //Exports
 import * as HTTP_OperationStructure from "./http/OperationStructure";
+import * as HTTP_Request from "./http/Request";
+import * as HTTP_RequestHandlerChain from "./http/RequestHandlerChain";
 import * as HTTP_Response from "./http/Response";
 import * as HTTP_Result from "./http/Result";
 import * as HTTP_RouterRequestHandler from "./http/RouterRequestHandler";
@@ -49,13 +49,14 @@ export namespace HTTP
     export import CreateResult = HTTP_Result.CreateResult;
     export import ParameterStructure = HTTP_OperationStructure.ParameterStructure;
     export import OperationStructure = HTTP_OperationStructure.OperationStructure;
+    export import Request = HTTP_Request.Request;
+    export import RequestHandlerChain = HTTP_RequestHandlerChain.RequestHandlerChain;
     export import ResponseHeaders = HTTP_Response.ResponseHeaders;
     export import RouterRequestHandler = HTTP_RouterRequestHandler.RouterRequestHandler;
     export import UploadedFile = HTTP_UploadedFile.UploadedFile;
 }
 
 export {
-    API,
     CreateTempDir,
     CreateTempFile,
     DBConnectionPool,
@@ -68,7 +69,6 @@ export {
     Factory,
     FileSystem,
     GlobalInjector,
-    HTTP_APILoader,
     Request as HTTPRequest,
     HTTPRequestSender,
     Injectable,

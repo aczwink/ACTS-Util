@@ -69,6 +69,11 @@ export class BackendInfoGenerator
                     name: pm.name,
                     source: "query"
                 };
+            case "request":
+                return {
+                    name: pm.name,
+                    source: "request"
+                };
         }
     }
 }

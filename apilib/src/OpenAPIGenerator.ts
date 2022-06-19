@@ -46,9 +46,9 @@ export class OpenAPIGenerator
     //Private methods
     private CreateParameters(parameters: ParameterMetadata[]): OpenAPI.Parameter[]
     {
-        const bodyParams = ["body", "body-prop", "form-field"];
+        const otherParams = ["body", "body-prop", "form-field", "request"];
         return parameters.Values()
-            .Filter(x => !bodyParams.Contains(x.source))
+            .Filter(x => !otherParams.Contains(x.source))
             .Map(param => ({
                 in: param.source as any,
                 name: param.name,

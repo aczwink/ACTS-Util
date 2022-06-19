@@ -20,6 +20,7 @@ import cors from "cors";
 import express from "express";
 import multer from "multer";
 import { RequestListener } from "http";
+import { Readable } from "stream";
 import { RequestHandler } from "./RequestHandler";
 
 import { RequestHandlerChain } from "./RequestHandlerChain";
@@ -95,6 +96,7 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
                 hostName: req.hostname,
                 port: req.socket.localPort,
                 routePath: req.originalUrl,
+                ip: req.ip,
             });
             if(response != null)
                 break;
@@ -128,6 +130,8 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
 
         if(response.data instanceof Buffer)
             res.write(response.data);
+        else if(response.data instanceof Readable)
+            response.data.pipe(res);
         else
             res.json(response.data);
         res.end();

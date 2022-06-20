@@ -94,7 +94,7 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
             httpMethod: req.method,
             protocol: req.protocol,
             hostName: req.hostname,
-            port: req.socket.localPort,
+            port: req.socket.localPort!,
             routePath: req.originalUrl,
             ip: req.ip,
         };

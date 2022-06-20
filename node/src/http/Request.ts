@@ -16,17 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-/*import { IncomingHttpHeaders } from "http";
-import { Dictionary } from "acts-util-core";
-
-export interface HTTPRequest<DataType, RouteParamsType = undefined>
-{
-    headers: IncomingHttpHeaders;
-}*/
+import { IncomingHttpHeaders } from "http";
 
 export interface Request
 {
     httpMethod: string;
+    headers: IncomingHttpHeaders;
     body: any;
     protocol: string;
     /**

@@ -21,5 +21,9 @@ import { DataResponse } from "./Response";
 
 export interface RequestHandler
 {
+    /**
+     * Returning null indicates that this handler "passed" and the processing should be delegted to the next in the chain.
+     * In case the request should not be forwarded further in the chain, for example because authorization failed, a valid response should be returned.
+     */
     HandleRequest(request: Request): Promise<DataResponse | null>;
 }

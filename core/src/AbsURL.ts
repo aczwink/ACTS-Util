@@ -30,7 +30,7 @@ interface URLProperties
 /**
  * Represents a fully qualified url.
  */
-export class URL implements URLProperties
+export class AbsURL implements URLProperties
 {
     constructor(properties: URLProperties)
     {
@@ -65,7 +65,7 @@ export class URL implements URLProperties
     }
 
     //Public methods
-    public Equals(other: URL)
+    public Equals(other: AbsURL)
     {
         return this.ToString() === other.ToString();
     }
@@ -93,13 +93,13 @@ export class URL implements URLProperties
     }
 
     //Public functions
-    public static FromRelative(absolutePrefix: URL, relativePathWithQuery: string)
+    public static FromRelative(absolutePrefix: AbsURL, relativePathWithQuery: string)
     {
         const parts = relativePathWithQuery.split("?");
         const relativePath = parts[0];
-        const joinedPath = URL.JoinPaths(absolutePrefix.path, relativePath);
+        const joinedPath = AbsURL.JoinPaths(absolutePrefix.path, relativePath);
 
-        return new URL({
+        return new AbsURL({
             authority: absolutePrefix.authority,
             path: joinedPath,
             protocol: absolutePrefix.protocol,

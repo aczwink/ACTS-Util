@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Dictionary, URL } from "acts-util-core";
+import { Dictionary, AbsURL } from "acts-util-core";
 import { Operation, Root } from "../openapi/Specification";
 import { OperationStructure } from "./OperationStructure";
 import { OperationValidator, ValidatedArgs } from "./OperationValidator";
@@ -38,7 +38,7 @@ export class RouterRequestHandler implements RequestHandler
     //Public methods
     public async HandleRequest(request: Request): Promise<DataResponse | null>
     {
-        const url = URL.FromRelative(new URL({
+        const url = AbsURL.FromRelative(new AbsURL({
             authority: request.hostName + ":" + request.port,
             path: "/",
             protocol: request.protocol as any,

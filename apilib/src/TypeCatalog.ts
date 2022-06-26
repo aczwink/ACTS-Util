@@ -225,12 +225,6 @@ export class TypeCatalog
         /*
         if(type.flags & ts.TypeFlags.Any)
             throw new Error("Any not possible!");
-
-        if(type.symbol.escapedName === "Buffer")
-        {
-            const schemaName = "Buffer";
-            return this.CreateStandardReponse(schemaName);
-        }
         if(type.symbol.escapedName === "Readable")
         {
             const schemaName = "Buffer";
@@ -241,12 +235,7 @@ export class TypeCatalog
             const schemaName = "Request";
             return this.CreateStandardReponse(schemaName);
         }
-        if(type.symbol.escapedName === "UploadedFile")
-        {
-            const schemaName = "UploadedFile";
-            return this.CreateStandardReponse(schemaName);
-        }
-        return this.CreateStandardReponse(schemaName);*/
+        */
     }
     
     private ResolveType(type: ts.Type): TypeOrRef | HTTPResponseWithCode
@@ -320,8 +309,8 @@ export class TypeCatalog
                 type: this.ResolveType(type.aliasTypeArguments![1]) as any
             };
         }
-
-        const passthrough = ["Date"];
+        
+        const passthrough = ["Buffer", "Date", "UploadedFile"];
         for (const entry of passthrough)
         {
             if(type.symbol.escapedName === entry)

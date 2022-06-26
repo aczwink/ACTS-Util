@@ -176,33 +176,6 @@ export class OpenAPIGenerator
     private CreateSchema(schemaName: string): OpenAPI.Schema
     {
         return this.CreateSchemaOrReference(this.typeCatalog.GetNamedType(schemaName)) as any;
-        /*
-        const schema = this.typeCatalog.GetNamedType(schemaName);
-        switch(schema.kind)
-        {
-            default:
-                console.log(schemaName, schema);
-                throw new Error("BLA");
-        }*/
-        /*
-        const enumProps = this.typeCatalog.GetEnumProperties(schemaName);
-        console.log(schemaName, enumProps);
-        if(enumProps !== undefined)
-        {
-            if(enumProps.underlyingType === "number")
-            {
-                return {
-                    type: "number",
-                    enum: enumProps.values,
-                    "x-enum-varnames": enumProps.names
-                } as any;
-            }
-            return {
-                type: enumProps.underlyingType,
-                enum: enumProps.values
-            };
-        }
-        */
     }
 
     private CreateSchemaOrReference(typeOrRef: TypeOrRef): OpenAPI.Schema | OpenAPI.Reference
@@ -217,9 +190,17 @@ export class OpenAPIGenerator
                         items: this.CreateSchemaOrReference(typeOrRef.entryType)
                     };
                 case "enum":
+                    if(typeOrRef.schema.underlyingType === "number")
+                    {
+                        return {
+                            type: "number",
+                            enum: typeOrRef.schema.values,
+                            "x-enum-varnames": typeOrRef.schema.names
+                        } as any;
+                    }
                     return {
                         type: typeOrRef.schema.underlyingType,
-                        enum: typeOrRef.schema.values as any
+                        enum: typeOrRef.schema.values
                     };
                 case "object":
                     const props = typeOrRef.properties.Values();

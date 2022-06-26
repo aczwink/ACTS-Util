@@ -17,18 +17,19 @@
  * */
 
 import { HTTPMethod } from "./APIRegistry";
+import { TypeOrRef } from "./TypeCatalog";
 
 export interface ResponseMetadata
 {
     statusCode: number;
-    schemaName: string;
+    schemaName: TypeOrRef;
 }
 
 export interface ParameterMetadata
 {
     name: string;
-    source: "body" | "body-prop" | "form-field" | "path" | "query" | "request";
-    schemaName: string;
+    source: "body" | "body-prop" | "form-field" | "header" | "path" | "query" | "request";
+    schemaName: TypeOrRef;
     required: boolean;
 }
 
@@ -39,6 +40,7 @@ export interface OperationMetadata
     methodName: string;
     parameters: ParameterMetadata[];
     responses: ResponseMetadata[];
+    security?: string[];
 }
 
 export interface APIControllerMetadata

@@ -21,6 +21,20 @@ import { APIControllerMetadata, OperationMetadata, ParameterMetadata } from "./M
 import { TypeCatalog } from "./TypeCatalog";
 import { HTTPMethod } from "./APIRegistry";
 
+interface OperationDecoratorInfo
+{
+    type: "operation";
+    httpMethod: HTTPMethod;
+    route?: string;
+}
+interface SecurityDecoratorInfo
+{
+    type: "security";
+    security: string[];
+}
+
+type MethodDecoratorInfo = OperationDecoratorInfo | SecurityDecoratorInfo;
+
 export class SourceFileAnalyzer
 {
     constructor(private typeCatalog: TypeCatalog)
@@ -65,22 +79,31 @@ export class SourceFileAnalyzer
         }
     }
 
-    private CheckAndExtractAPIMethodDecoratorInfo(decorator: ts.Decorator)
+    private CheckAndExtractAPIMethodDecoratorInfo(decorator: ts.Decorator): MethodDecoratorInfo | undefined
     {
-        if(ts.isCallExpression(decorator.expression)
-            && ts.isIdentifier(decorator.expression.expression)
-            && (["Delete", "Get", "Post", "Put"].Contains(decorator.expression.expression.escapedText.toString()))
-        )
+        if( ts.isCallExpression(decorator.expression) && ts.isIdentifier(decorator.expression.expression) )
         {
-            const arg = decorator.expression.arguments[0];
-            return {
-                httpMethod: this.MapHTTPMethodDecorator(decorator.expression.expression.escapedText.toString()),
-                route: ((arg !== undefined) && ts.isStringLiteral(arg) ? arg.text : undefined)
-            };
+            if( ["Delete", "Get", "Post", "Put"].Contains(decorator.expression.expression.escapedText.toString()) )
+            {
+                const arg = decorator.expression.arguments[0];
+                return {
+                    type: "operation",
+                    httpMethod: this.MapHTTPMethodDecorator(decorator.expression.expression.escapedText.toString()),
+                    route: ((arg !== undefined) && ts.isStringLiteral(arg) ? arg.text : undefined)
+                };
+            }
+            else if(decorator.expression.expression.escapedText === "Security")
+            {
+                const arg = decorator.expression.arguments[0];
+                return {
+                    type: "security",
+                    security: []
+                };
+            }
         }
     }
 
-    private ExtractParameterDecoratorInfo(decorators: ts.NodeArray<ts.Decorator> | undefined): "body" | "body-prop" | "form-field" | "path" | "query" | "request"
+    private ExtractParameterDecoratorInfo(decorators: ts.NodeArray<ts.Decorator> | undefined): "body" | "body-prop" | "form-field" | "header" | "path" | "query" | "request"
     {
         if((decorators !== undefined) && (decorators.length == 1))
         {
@@ -95,6 +118,8 @@ export class SourceFileAnalyzer
                         return "body-prop";
                     case "FormField":
                         return "form-field";
+                    case "Header":
+                        return "header";
                     case "Path":
                         return "path";
                     case "Query":
@@ -189,12 +214,29 @@ export class SourceFileAnalyzer
 
     private FindAPIMethodDecorator(decorators: ts.NodeArray<ts.Decorator>)
     {
+        let op: OperationDecoratorInfo | undefined;
+        let sec: SecurityDecoratorInfo | undefined;
         for (const decorator of decorators)
         {
             const data = this.CheckAndExtractAPIMethodDecoratorInfo(decorator);
-            if(data)
-                return data;
+            switch(data?.type)
+            {
+                case "operation":
+                    op = data;
+                    break;
+                case "security":
+                    sec = data;
+                    break;
+            }
         }
+
+        if(op === undefined)
+            return undefined;
+        return {
+            httpMethod: op.httpMethod,
+            route: op.route,
+            security: sec?.security
+        };
     }
 
     private MapHTTPMethodDecorator(s: string): HTTPMethod

@@ -18,15 +18,16 @@
 import fs from "fs";
 import ts from "typescript";
 import { ModuleLoader } from "acts-util-node";
-import { OpenAPIGenerator } from "./OpenAPIGenerator";
+import { OpenAPIGenerator, SecuritySchemeDef } from "./OpenAPIGenerator";
 import { SourceFileAnalyzer } from "./SourceFileAnalyzer";
 import { TypeCatalog } from "./TypeCatalog";
 import { BackendInfoGenerator } from "./BackendInfoGenerator";
+import { Dictionary } from "acts-util-core";
 
 export class OpenAPIGenerationOrchestrator
 {
     //Public methods
-    public async Generate(sourcePath: string, destPath: string)
+    public async Generate(sourcePath: string, destPath: string, securitySchemes: Dictionary<SecuritySchemeDef>)
     {
         const moduleLoader = new ModuleLoader;
         const sourceFiles = await moduleLoader.FindModuleFiles(sourcePath, ".ts");
@@ -74,7 +75,7 @@ export class OpenAPIGenerationOrchestrator
         }
 
         const oapigen = new OpenAPIGenerator(typeCatalog);
-        const oapiobj = oapigen.Generate(apiDefs);
+        const oapiobj = oapigen.Generate(apiDefs, securitySchemes);
 
         const outputData = JSON.stringify(oapiobj, undefined, 4);
         await fs.promises.writeFile(destPath + ".json", outputData, "utf-8");

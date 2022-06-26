@@ -22,7 +22,8 @@ import { URLParser } from "./URLParser";
 interface URLProperties
 {
     readonly protocol: "http" | "https";
-    readonly authority: string;
+    readonly host: string;
+    readonly port: number;
     readonly path: string;
     readonly queryParams: Dictionary<string>;
 }
@@ -41,7 +42,12 @@ export class AbsURL implements URLProperties
     //Properties
     public get authority()
     {
-        return this.urlProperties.authority;
+        return this.urlProperties.host + ":" + this.urlProperties.port;
+    }
+
+    public get host()
+    {
+        return this.urlProperties.host;
     }
 
     public get path()
@@ -52,6 +58,11 @@ export class AbsURL implements URLProperties
     public get pathSegments()
     {
         return this._pathSegments;
+    }
+
+    public get port()
+    {
+        return this.urlProperties.port;
     }
 
     public get protocol()
@@ -100,8 +111,9 @@ export class AbsURL implements URLProperties
         const joinedPath = AbsURL.JoinPaths(absolutePrefix.path, relativePath);
 
         return new AbsURL({
-            authority: absolutePrefix.authority,
+            host: absolutePrefix.host,
             path: joinedPath,
+            port: absolutePrefix.port,
             protocol: absolutePrefix.protocol,
             queryParams: URLParser.ParseQueryParams(parts[1] ?? "")
         });

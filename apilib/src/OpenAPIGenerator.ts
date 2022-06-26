@@ -19,7 +19,12 @@ import { Dictionary } from "acts-util-core";
 import { OpenAPI } from "acts-util-node";
 import { APIRegistryInstance } from "./APIRegistry";
 import { APIControllerMetadata, ParameterMetadata, ResponseMetadata } from "./Metadata";
-import { TypeCatalog } from "./TypeCatalog";
+import { TypeCatalog, TypeOrRef } from "./TypeCatalog";
+
+export interface SecuritySchemeDef extends OpenAPI.SecurityScheme
+{
+    global: boolean;
+}
 
 export class OpenAPIGenerator
 {
@@ -28,25 +33,30 @@ export class OpenAPIGenerator
     }
 
     //Public methods
-    public Generate(apiControllersMetadata: APIControllerMetadata[]): OpenAPI.Root
+    public Generate(apiControllersMetadata: APIControllerMetadata[], securitySchemes: Dictionary<SecuritySchemeDef>): OpenAPI.Root
     {
         return {
             components: {
-                schemas: this.CreateSchemas()
+                schemas: this.CreateSchemas(),
+                securitySchemes: securitySchemes.Entries().ToDictionary(kv => kv.key, kv => ({
+                    type: kv.value!.type,
+                    scheme: kv.value!.scheme
+                }))
             },
             info: {
                 title: "TODO", //TODO
                 version: "TODO" //TODO
             },
             openapi: "3.0.0",
-            paths: this.CreatePathsObject(apiControllersMetadata)
+            paths: this.CreatePathsObject(apiControllersMetadata),
+            security: securitySchemes.Entries().Filter(kv => kv.value!.global).Map(kv => ({ [kv.key]: [] })).ToArray()
         };
     }
 
     //Private methods
     private CreateParameters(parameters: ParameterMetadata[]): OpenAPI.Parameter[]
     {
-        const otherParams = ["body", "body-prop", "form-field", "request"];
+        const otherParams = ["body", "body-prop", "form-field", "header", "request"];
         return parameters.Values()
             .Filter(x => !otherParams.Contains(x.source))
             .Map(param => ({
@@ -74,7 +84,8 @@ export class OpenAPIGenerator
                     operationId: APIRegistryInstance.GenerateOperationId(route, operation.httpMethod),
                     parameters: this.CreateParameters(operation.parameters),
                     requestBody: this.CreateRequestBody(operation.parameters),
-                    responses: this.CreateResponses(operation.responses)
+                    responses: this.CreateResponses(operation.responses),
+                    security: (operation.security === undefined) ? undefined : (operation.security.map(k => ({ [k]: [] }) )),
                 };
             }
         }
@@ -161,13 +172,82 @@ export class OpenAPIGenerator
             }
         };
     }
-    private CreateSchemaOrReference(schemaName: string): OpenAPI.Schema | OpenAPI.Reference
+
+    private CreateSchema(schemaName: string): OpenAPI.Schema
     {
-        switch(schemaName)
+        return this.CreateSchemaOrReference(this.typeCatalog.GetNamedType(schemaName)) as any;
+        /*
+        const schema = this.typeCatalog.GetNamedType(schemaName);
+        switch(schema.kind)
+        {
+            default:
+                console.log(schemaName, schema);
+                throw new Error("BLA");
+        }*/
+        /*
+        const enumProps = this.typeCatalog.GetEnumProperties(schemaName);
+        console.log(schemaName, enumProps);
+        if(enumProps !== undefined)
+        {
+            if(enumProps.underlyingType === "number")
+            {
+                return {
+                    type: "number",
+                    enum: enumProps.values,
+                    "x-enum-varnames": enumProps.names
+                } as any;
+            }
+            return {
+                type: enumProps.underlyingType,
+                enum: enumProps.values
+            };
+        }
+        */
+    }
+
+    private CreateSchemaOrReference(typeOrRef: TypeOrRef): OpenAPI.Schema | OpenAPI.Reference
+    {
+        if(typeof typeOrRef !== "string")
+        {
+            switch(typeOrRef.kind)
+            {
+                case "array":
+                    return {
+                        type: "array",
+                        items: this.CreateSchemaOrReference(typeOrRef.entryType)
+                    };
+                case "enum":
+                    return {
+                        type: typeOrRef.schema.underlyingType,
+                        enum: typeOrRef.schema.values as any
+                    };
+                case "object":
+                    const props = typeOrRef.properties.Values();
+                    return {
+                        type: "object",
+                        properties: props.ToDictionary(kv => kv.propertyName, kv => this.CreateSchemaOrReference(kv.type)),
+                        required: props.Filter(prop => prop.required).Map(prop => prop.propertyName).ToArray(),
+                        additionalProperties: false,
+                    };
+                case "union":
+                    return {
+                        anyOf: typeOrRef.subTypes.map(this.CreateSchemaOrReference.bind(this))
+                    };
+            }
+            console.error(typeOrRef);
+            throw new Error("todo");
+        }
+
+        switch(typeOrRef)
         {
             case "boolean":
                 return {
                     type: "boolean"
+                };
+            case "Date":
+                return {
+                    type: "string",
+                    format: "date-time"
                 };
             case "number":
                 return {
@@ -184,25 +264,8 @@ export class OpenAPIGenerator
                 };
         }
 
-        if(schemaName.endsWith("[]"))
-        {
-            return {
-                type: "array",
-                items: this.CreateSchemaOrReference(schemaName.slice(0, -2))
-            };
-        }
-
-        if(schemaName.startsWith("<"))
-        {
-            const end = schemaName.indexOf(">");
-            return {
-                type: schemaName.substring(1, end) as "number" | "string",
-                enum: JSON.parse(schemaName.substr(end+1))
-            };
-        }
-
         return {
-            $ref: "#/components/schemas/" + schemaName
+            $ref: "#/components/schemas/" + typeOrRef
         };
     }
 
@@ -219,49 +282,9 @@ export class OpenAPIGenerator
         return responses.Values().ToDictionary(x => x.statusCode, this.CreateResponseObject.bind(this));
     }
 
-    private CreateSchema(schemaName: string): OpenAPI.Schema
-    {
-        switch(schemaName)
-        {
-            case "number":
-                return {
-                    type: "number"
-                };
-            case "string":
-                return {
-                    type: "string"
-                };
-        }
-
-        const enumProps = this.typeCatalog.GetEnumProperties(schemaName);
-        if(enumProps !== undefined)
-        {
-            if(enumProps.underlyingType === "number")
-            {
-                return {
-                    type: "number",
-                    enum: enumProps.values,
-                    "x-enum-varnames": enumProps.names
-                } as any;
-            }
-            return {
-                type: enumProps.underlyingType,
-                enum: enumProps.values
-            };
-        }
-
-        const props = this.typeCatalog.GetSchemaProperties(schemaName);
-        return {
-            type: "object",
-            properties: props.ToDictionary(kv => kv.propertyName, kv => this.CreateSchemaOrReference(kv.schemaName)),
-            required: props.Filter(prop => prop.required).Map(prop => prop.propertyName).ToArray(),
-            additionalProperties: false,
-        };
-    }
-
     private CreateSchemas(): Dictionary<OpenAPI.Schema>
     {
         return this.typeCatalog.namedTypes
-            .ToDictionary(k => k, k => this.CreateSchema(k.toString()));
+            .ToDictionary(k => k, this.CreateSchema.bind(this));
     }
 }

@@ -19,6 +19,13 @@ import ts from "typescript";
 import { Dictionary } from "acts-util-core";
 import { ResponseMetadata } from "./Metadata";
 
+interface HTTPResponseWithCode
+{
+    kind: "HTTPResponseWithCode";
+    statusCode: number;
+    type: TypeOrRef;
+}
+
 interface NumberEnumSchema
 {
     underlyingType: "number";
@@ -35,9 +42,42 @@ type EnumSchema = NumberEnumSchema | StringEnumSchema;
 interface SchemaPropertyEntry
 {
     propertyName: string;
-    schemaName: string;
+    type: TypeOrRef;
     required: boolean;
 }
+
+
+interface BaseType
+{
+    type: ts.Type;
+}
+
+interface ArrayType extends BaseType
+{
+    kind: "array";
+    entryType: TypeOrRef;
+}
+
+interface EnumType extends BaseType
+{
+    kind: "enum";
+    schema: EnumSchema;
+}
+
+interface ObjectType extends BaseType
+{
+    kind: "object";
+    properties: SchemaPropertyEntry[];
+}
+
+interface UnionType extends BaseType
+{
+    kind: "union";
+    subTypes: TypeOrRef[];
+}
+
+type Type = ArrayType | EnumType | ObjectType | UnionType;
+export type TypeOrRef = Type | string;
 
 export class TypeCatalog
 {
@@ -49,38 +89,16 @@ export class TypeCatalog
     //Properties
     public get namedTypes()
     {
-        return this._namedTypes.OwnKeys();
+        return this._namedTypes.OwnKeys().Map(k => k.toString());
     }
 
     //Public methods
-    public GetEnumProperties(schemaName: string)
+    public GetNamedType(schemaName: string)
     {
-        const type = this._namedTypes[schemaName]!;
-        return this.TryResolveEnum(type);
-    }
+        const obj = this._namedTypes[schemaName]!.Clone();
+        delete (obj as any).type;
 
-    public GetSchemaProperties(schemaName: string)
-    {
-        const type = this._namedTypes[schemaName]!;
-
-        return type.getProperties().Values().Map(x => {
-            const t = this.typeChecker.getTypeOfSymbolAtLocation(x, x.valueDeclaration!);
-            const responses = this.ResolveResponsesFromType(t);
-            const isRequired = responses.find(x => x.schemaName === "undefined") === undefined;
-            const nonOptResponses = responses.filter(x => x.schemaName !== "undefined");
-            if(nonOptResponses.length !== 1)
-            {
-                console.error(nonOptResponses);
-                throw new Error("must have exactly one type");
-            }
-
-            const prop: SchemaPropertyEntry = {
-                propertyName: x.escapedName.toString(),
-                schemaName: nonOptResponses[0].schemaName,
-                required: isRequired
-            }
-            return prop;
-        });
+        return obj;
     }
 
     public ResolveSchemaNameFromType(typeNode: ts.TypeNode)
@@ -103,10 +121,10 @@ export class TypeCatalog
     }
 
     //Private variables
-    private _namedTypes: Dictionary<ts.Type>;
+    private _namedTypes: Dictionary<Type>;
 
     //Private methods
-    private CreateStandardReponse(schemaName: string): ResponseMetadata[]
+    private CreateStandardReponse(schemaName: TypeOrRef): ResponseMetadata[]
     {
         return [{
             statusCode: 200,
@@ -114,81 +132,104 @@ export class TypeCatalog
         }];
     }
 
-    private MergeEqual(responses: ResponseMetadata[]): ResponseMetadata[]
+    private MergeEqualTypes(types: (string | Type)[])
     {
-        return responses.filter( (x, i) => i === responses.findIndex(y => x.Equals(y)) );
+        return types.filter( (x, i) => i === types.findIndex(y => x.Equals(y)) );
     }
 
-    private RegisterType(schemaName: string, type: ts.Type)
+    private RegisterType(schemaName: string, namedType: Type)
     {
-        this._namedTypes[schemaName] = type;
+        if( (this._namedTypes[schemaName] !== undefined) && (this._namedTypes[schemaName]!.type !== namedType.type) )
+            throw new Error("name conflict for schema: " + schemaName);
+        this._namedTypes[schemaName] = namedType;
+
+        return schemaName;
     }
 
-    private ResolveResponsesFromType(type: ts.Type): ResponseMetadata[]
+    private RegisterTypeIfAliased(namedType: Type)
     {
-        //console.log(this.typeChecker.typeToString(type));
+        const aliasName = namedType.type.aliasSymbol?.escapedName.toString();
+        if(aliasName === undefined)
+            return namedType;
+            
+        return this.RegisterType(aliasName, namedType);
+    }
 
-        const enumCheck = this.TryResolveEnum(type);
-        if(enumCheck !== undefined)
+    private ResolveObjectProperties(type: ts.Type)
+    {
+        return type.getProperties().Values().Map(x => {
+            const t = this.typeChecker.getTypeOfSymbolAtLocation(x, x.valueDeclaration!);
+            const propType = this.ResolveType(t) as any;
+
+            const result = this.ResolvePropertyType(propType);
+
+            const prop: SchemaPropertyEntry = {
+                propertyName: x.escapedName.toString(),
+                type: result.propType,
+                required: result.required
+            }
+            return prop;
+        }).ToArray();
+    }
+
+    private ResolvePropertyType(propType: TypeOrRef)
+    {
+        if(typeof propType === "string")
+            return { required: true, propType };
+
+        if(propType.kind === "union")
         {
-            const schemaName = type.aliasSymbol!.escapedName.toString();
-            this.RegisterType(schemaName, type);
-            return this.CreateStandardReponse(schemaName);
+            const isRequired = propType.subTypes.find(x => x === "undefined") === undefined;
+            const nonOptResponses = propType.subTypes.filter(x => x !== "undefined");
+
+            const rest: UnionType = { kind: "union", type: propType.type, subTypes: nonOptResponses };
+            const result = nonOptResponses.length === 1 ? nonOptResponses[0] : rest;
+
+            return { required: isRequired, propType: result };
         }
 
-        if(type.isUnion())
-        {
-            return this.MergeEqual(type.types.Values()
-                .Map(x => this.ResolveResponsesFromType(x).Values())
-                .Flatten().ToArray());
-        }
+        return { required: true, propType };
+    }
 
+    private CreateResponsesFromType(mappedType: TypeOrRef | HTTPResponseWithCode): ResponseMetadata[]
+    {
+        if(typeof mappedType === "string")
+        {
+            if(mappedType === "undefined")
+            {
+                return [{
+                    statusCode: 204,
+                    schemaName: mappedType
+                }];
+            }
+            return this.CreateStandardReponse(mappedType);
+        }
+        else if(mappedType.kind === "HTTPResponseWithCode")
+        {
+            return [{
+                statusCode: mappedType.statusCode,
+                schemaName: mappedType.type
+            }];
+        }
+        else if(mappedType.kind === "union")
+            return mappedType.subTypes.Values().Map(this.CreateResponsesFromType.bind(this)).Map(x => x.Values()).Flatten().ToArray();
+        
+        return this.CreateStandardReponse(mappedType);
+    }
+
+    private ResolveResponsesFromType(type: ts.Type)
+    {
+        const mappedType = this.ResolveType(type);
+        return this.CreateResponsesFromType(mappedType);
+
+        /*
         if(type.flags & ts.TypeFlags.Any)
             throw new Error("Any not possible!");
 
-        if((type.flags & ts.TypeFlags.Undefined) || (type.flags & ts.TypeFlags.Void))
-        {
-            return [{
-                statusCode: 204,
-                schemaName: "undefined"
-            }];
-        }
-        if( (type.flags & ts.TypeFlags.Boolean) || (type.flags & ts.TypeFlags.BooleanLiteral) )
-            return this.CreateStandardReponse("boolean");
-        if((type.flags & ts.TypeFlags.Number) || type.isNumberLiteral())
-        {
-            const schemaName = "number";
-            return this.CreateStandardReponse(schemaName);
-        }
-        if(type.isStringLiteral())
-        {
-            const schemaName = "<" + type.value + ">";
-            return this.CreateStandardReponse(schemaName);
-        }
-        if(type.flags & ts.TypeFlags.String)
-        {
-            const schemaName = "string";
-            return this.CreateStandardReponse(schemaName);
-        }
-
-        if(type.symbol.escapedName === "Array")
-        {
-            const nested = this.typeChecker.getTypeArguments(type as ts.TypeReference);
-            const nestedTypes = this.ResolveResponsesFromType(nested[0]);
-            return [{
-                statusCode: nestedTypes[0].statusCode,
-                schemaName: nestedTypes[0].schemaName + "[]"
-            }];
-        }
         if(type.symbol.escapedName === "Buffer")
         {
             const schemaName = "Buffer";
             return this.CreateStandardReponse(schemaName);
-        }
-        if(type.symbol.escapedName === "Promise")
-        {
-            const nested = this.typeChecker.getTypeArguments(type as ts.TypeReference);
-            return this.ResolveResponsesFromType(nested[0]);
         }
         if(type.symbol.escapedName === "Readable")
         {
@@ -205,19 +246,96 @@ export class TypeCatalog
             const schemaName = "UploadedFile";
             return this.CreateStandardReponse(schemaName);
         }
-        if(type.aliasSymbol?.escapedName === "TypedHTTPResponse")
+        return this.CreateStandardReponse(schemaName);*/
+    }
+    
+    private ResolveType(type: ts.Type): TypeOrRef | HTTPResponseWithCode
+    {
+        const aliasName = type.aliasSymbol?.escapedName.toString();
+        //console.log(this.typeChecker.typeToString(type), aliasName);
+        if( (aliasName !== undefined) && (this._namedTypes[aliasName]?.type === type) )
+            return aliasName;
+
+        const enumCheck = this.TryResolveEnum(type);
+        if(enumCheck !== undefined)
+            return this.RegisterTypeIfAliased({ kind: "enum", type, schema: enumCheck });
+
+        if(type.isUnion())
         {
-            return [{
-                statusCode: (type.aliasTypeArguments![0] as ts.NumberLiteralType).value,
-                schemaName: this.ResolveResponsesFromType(type.aliasTypeArguments![1])[0].schemaName
-            }];
+            const subTypes: TypeOrRef[] = [];
+            const unionType: UnionType = { kind: "union", type, subTypes };
+            const result = this.RegisterTypeIfAliased(unionType); //register it now to avoid cycles
+
+            const resolvedSubTypes = this.MergeEqualTypes(
+                type.types.Values().Map(x => this.ResolveType(x)).ToArray() as any
+            );
+            subTypes.push(...resolvedSubTypes);
+
+            if(subTypes.length === 1)
+            {
+                if(aliasName !== undefined)
+                    delete this._namedTypes[aliasName];
+
+                const newRes = subTypes[0];
+                if(typeof newRes === "string")
+                    return newRes;
+                return this.RegisterTypeIfAliased(newRes);
+            }
+
+            return result;
         }
 
-        const schemaName = type.symbol.escapedName.toString();
+        if((type.flags & ts.TypeFlags.Undefined) || (type.flags & ts.TypeFlags.Void))
+            return "undefined";
 
-        this.RegisterType(schemaName, type);
-        this.GetSchemaProperties(schemaName).ToArray(); //make sure properties are also registered
-        return this.CreateStandardReponse(schemaName);
+        if( (type.flags & ts.TypeFlags.Boolean) || (type.flags & ts.TypeFlags.BooleanLiteral) )
+            return "boolean";
+
+        if((type.flags & ts.TypeFlags.Number) || type.isNumberLiteral())
+            return "number";
+        if((type.flags & ts.TypeFlags.String) || type.isStringLiteral())
+            return "string";
+
+        if(type.symbol.escapedName === "Array")
+        {
+            const nested = this.typeChecker.getTypeArguments(type as ts.TypeReference);
+            const nestedType = this.ResolveType(nested[0]) as any;
+            return {
+                kind: "array",
+                entryType: nestedType,
+                type
+            };
+        }
+        if(type.symbol.escapedName === "Promise")
+        {
+            const nested = this.typeChecker.getTypeArguments(type as ts.TypeReference);
+            return this.ResolveType(nested[0]);
+        }
+
+        if(type.aliasSymbol?.escapedName === "TypedHTTPResponse")
+        {
+            return {
+                kind: "HTTPResponseWithCode",
+                statusCode: (type.aliasTypeArguments![0] as ts.NumberLiteralType).value,
+                type: this.ResolveType(type.aliasTypeArguments![1]) as any
+            };
+        }
+
+        const passthrough = ["Date"];
+        for (const entry of passthrough)
+        {
+            if(type.symbol.escapedName === entry)
+                return entry;
+        }
+
+        const t: ObjectType = { kind: "object", type, properties: this.ResolveObjectProperties(type) };
+        if(aliasName !== undefined)
+            return this.RegisterTypeIfAliased(t);
+
+        const literalTypes = ["__object", "__type"];
+        if(!literalTypes.Contains(type.symbol.name))
+            return this.RegisterType(type.symbol.name, t);
+        return t;
     }
 
     private TryResolveEnum(type: ts.Type): EnumSchema | undefined

@@ -59,6 +59,11 @@ export class BackendInfoGenerator
                     name: pm.name,
                     source: "body-prop"
                 };
+            case "header":
+                return {
+                    name: pm.name,
+                    source: "header"
+                };
             case "path":
                 return {
                     name: pm.name,

@@ -15,59 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { HTTP } from 'acts-util-node';
 import { APIRegistryInstance, APIRegistryInterface } from './APIRegistry';
-import { APIController, Body, BodyProp, Delete, FormField, Get, Path, Post, Put, Query, Request } from './decorators';
+import { APIController, Body, BodyProp, Delete, FormField, Get, Header, Path, Post, Put, Query, Request, Security } from './decorators';
+import { BadRequest, Forbidden, InternalServerError, NotFound, Ok, Unauthorized } from './Responses';
 
 export const APIRegistry: APIRegistryInterface = APIRegistryInstance;
 
-type TypedHTTPResponse<StatusCodeNumber extends number, DataType> = {
-    statusCode: StatusCodeNumber;
-    headers: HTTP.ResponseHeaders;
-    data: DataType;
-};
-
 export {
     APIController,
+    BadRequest,
     Body,
     BodyProp,
     Delete,
+    Forbidden,
     FormField,
     Get,
+    Header,
+    InternalServerError,
+    NotFound,
+    Ok,
     Path,
     Post,
     Put,
     Query,
     Request,
+    Security,
+    Unauthorized
 };
-
-export function BadRequest(errorMessage: string): TypedHTTPResponse<400, string>
-{
-    return {
-        statusCode: 400,
-        headers: {
-            "Content-Type": "text/html; charset=utf-8",
-        },
-        data: errorMessage
-    };
-}
-
-export function NotFound(errorMessage: string): TypedHTTPResponse<404, string>
-{
-    return {
-        statusCode: 404,
-        headers: {
-            "Content-Type": "text/html; charset=utf-8",
-        },
-        data: errorMessage
-    };
-}
-
-export function Ok<T>(data: T, headers: HTTP.ResponseHeaders): TypedHTTPResponse<200, T>
-{
-    return {
-        statusCode: 200,
-        headers,
-        data,
-    };
-}

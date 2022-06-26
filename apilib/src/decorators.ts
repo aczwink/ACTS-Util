@@ -102,6 +102,10 @@ export function Get(route?: string)
     return HTTPMethodDecoratorReturn(route, "GET");
 }
 
+export function Header(targetObject: Object, methodName: string, parameterIndex: number)
+{
+}
+
 export function Path(targetObject: Object, methodName: string, parameterIndex: number)
 {
 }
@@ -122,4 +126,11 @@ export function Query(targetObject: Object, methodName: string, parameterIndex: 
 
 export function Request(targetObject: Object, methodName: string, parameterIndex: number)
 {
+}
+
+export function Security(securitySchemeName?: string)
+{
+    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
+    {
+    }
 }

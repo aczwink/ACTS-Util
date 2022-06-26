@@ -39,8 +39,9 @@ export class RouterRequestHandler implements RequestHandler
     public async HandleRequest(request: Request): Promise<DataResponse | null>
     {
         const url = AbsURL.FromRelative(new AbsURL({
-            authority: request.hostName + ":" + request.port,
+            host: request.hostName,
             path: "/",
+            port: request.port,
             protocol: request.protocol as any,
             queryParams: {}
         }), request.routePath);
@@ -116,6 +117,8 @@ export class RouterRequestHandler implements RequestHandler
                     return validatedArgs.body;
                 case "body-prop":
                     return validatedArgs.body[ps.name];
+                case "header":
+                    return request.headers[ps.name.toLowerCase()];
                 case "path":
                     return validatedArgs.routeParams[ps.name];
                 case "query":

@@ -146,6 +146,9 @@ export class OperationValidator
             return this.ValidateValue(value, required, refSchema);
         }
 
+        if("anyOf" in schema)
+            return value;
+
         switch(schema.type)
         {
             case "array":

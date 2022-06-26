@@ -24,33 +24,36 @@ import { Promisify } from "./fs/Util";
 import { Lock } from "./Lock";
 import { LockedProperty } from "./LockedProperty";
 import { GlobalInjector, Injectable } from "./api/GlobalInjector";
-import { Request } from "./http/Request";
 import { Factory } from "./http/Factory";
 import { DBFactory } from "./db/DBFactory";
 import { DBResource } from "./db/driver/DBDriverFactory";
 import { DBQueryExecutor } from "./db/DBQueryExecutor";
 import { DBConnectionPool } from "./db/DBConnectionPool";
 import { DBTransactionalQueryExecutor } from "./db/DBTransactionalQueryExecutor";
-import { HTTPRequestSender } from "./http/HTTPRequestSender";
 import { CreateTempDir, CreateTempFile } from "./fs/Temp";
 import { ModuleLoader } from "./ModuleLoader";
 import * as OpenAPI from "./openapi/Specification";
+import { FileSystemWatcher } from "./fs/FileSystemWatcher";
 
 //Exports
+import * as HTTP_APIServiceBase from "./http/APIServiceBase";
 import * as HTTP_OperationStructure from "./http/OperationStructure";
 import * as HTTP_Request from "./http/Request";
 import * as HTTP_RequestHandlerChain from "./http/RequestHandlerChain";
+import * as HTTP_RequestSender from "./http/RequestSender";
 import * as HTTP_Response from "./http/Response";
 import * as HTTP_Result from "./http/Result";
 import * as HTTP_RouterRequestHandler from "./http/RouterRequestHandler";
 import * as HTTP_UploadedFile from "./http/UploadedFile";
 export namespace HTTP
 {
+    export import APIServiceBase = HTTP_APIServiceBase.APIServiceBase;
     export import CreateResult = HTTP_Result.CreateResult;
     export import ParameterStructure = HTTP_OperationStructure.ParameterStructure;
     export import OperationStructure = HTTP_OperationStructure.OperationStructure;
     export import Request = HTTP_Request.Request;
     export import RequestHandlerChain = HTTP_RequestHandlerChain.RequestHandlerChain;
+    export import RequestSender = HTTP_RequestSender.RequestSender;
     export import ResponseHeaders = HTTP_Response.ResponseHeaders;
     export import RouterRequestHandler = HTTP_RouterRequestHandler.RouterRequestHandler;
     export import UploadedFile = HTTP_UploadedFile.UploadedFile;
@@ -68,9 +71,8 @@ export {
     EncryptedFileSystem,
     Factory,
     FileSystem,
+    FileSystemWatcher,
     GlobalInjector,
-    Request as HTTPRequest,
-    HTTPRequestSender,
     Injectable,
     Lock,
     LockedProperty,

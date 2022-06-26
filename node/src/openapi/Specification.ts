@@ -29,6 +29,11 @@ interface ArraySchema
     items: Schema | Reference;
 }
 
+interface AnyOfSchema
+{
+    anyOf: (Schema | Reference)[];
+}
+
 interface BooleanSchema
 {
     type: "boolean";
@@ -52,14 +57,23 @@ interface StringSchema
 {
     type: "string";
     enum?: string[];
-    format?: "binary";
+    format?: "binary" | "date-time";
 }
 
-export type Schema = ArraySchema | BooleanSchema | NumberSchema | ObjectSchema | StringSchema;
+export type Schema = ArraySchema | AnyOfSchema | BooleanSchema | NumberSchema | ObjectSchema | StringSchema;
+
+interface HTTPSecurityScheme
+{
+    type: "http";
+    scheme: string;
+}
+
+export type SecurityScheme = HTTPSecurityScheme;
 
 interface Components
 {
     schemas: Dictionary<Schema>;
+    securitySchemes: Dictionary<SecurityScheme>;
 }
 
 interface Info
@@ -93,12 +107,15 @@ export interface Response
     content?: Dictionary<MediaType>;
 }
 
+type SecurityRequirement = Dictionary<string[]>;
+
 export interface Operation
 {
     operationId: string;
     parameters: Parameter[];
     requestBody?: RequestBody;
     responses: Dictionary<Response>;
+    security?: SecurityRequirement[];
 }
 
 export interface PathItem
@@ -117,4 +134,5 @@ export interface Root
     openapi: "3.0.0";
     info: Info;
     paths: Paths;
+    security?: SecurityRequirement[];
 }

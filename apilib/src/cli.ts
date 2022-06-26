@@ -16,36 +16,80 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import fs from "fs";
 import path from "path";
-import { ModuleLoader } from "acts-util-node";
-import { OpenAPIGenerator } from "./OpenAPIGenerator";
-import { SourceFileAnalyzer } from "./SourceFileAnalyzer";
-import { TypeCatalog } from "./TypeCatalog";
 import { OpenAPIGenerationOrchestrator } from "./OpenAPIGenerationOrchestrator";
 import { APIClassGenerator } from "./APIClassGenerator";
+import { Dictionary } from "acts-util-core";
+import { SecuritySchemeDef } from "./OpenAPIGenerator";
 
-async function ProcessInput()
+interface ConfigBase
 {
-    const args = process.argv.slice(2);
-    const command = args[0];
-    const sourcePath = path.resolve(args[1]);
-    const destPath = path.resolve(args[2]);
+    source: string;
+    destination: string;
+}
 
-    switch(command)
+interface APIClassGenConfig extends ConfigBase
+{
+    type: "api";
+    excludedStatusCodes: number[];
+}
+
+interface OpenAPIGenConfig extends ConfigBase
+{
+    type: "openapi";
+    securitySchemes: Dictionary<SecuritySchemeDef>;
+}
+
+type APILibConfig = APIClassGenConfig | OpenAPIGenConfig;
+
+async function ProcessConfig(config: APILibConfig)
+{
+    const sourcePath = path.resolve(config.source);
+    const destPath = path.resolve(config.destination);
+
+    const destParentPath = path.dirname(destPath);
+    try
+    {
+        await fs.promises.mkdir(destParentPath);
+    }
+    catch(e: any)
+    {
+        if(e.code !== "EEXIST")
+            throw e;
+    }
+
+    switch(config.type)
     {
         case "api":
             {
-                const gen = new APIClassGenerator;
+                const gen = new APIClassGenerator(config.excludedStatusCodes.Values().ToSet());
                 await gen.Generate(sourcePath, destPath);
             }
             break;
         case "openapi":
             {
                 const gen = new OpenAPIGenerationOrchestrator;
-                await gen.Generate(sourcePath, destPath);
+                await gen.Generate(sourcePath, destPath, config.securitySchemes);
             }
             break;
     }
+}
+
+async function ProcessInput()
+{
+    const args = process.argv.slice(2);
+
+    const configInput = await fs.promises.readFile("api.json", "utf-8");
+    const configs = JSON.parse(configInput);
+
+    if(Array.isArray(configs))
+    {
+        for (const config of configs)
+            await ProcessConfig(config);
+    }
+    else
+        await ProcessConfig(configs);
 }
 
 ProcessInput();

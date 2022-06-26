@@ -18,6 +18,7 @@
 import fs from "fs";
 import { OpenAPI } from "acts-util-node";
 import { Dictionary } from "acts-util-core";
+import { EnumeratorBuilder } from "acts-util-core/dist/Enumeration/EnumeratorBuilder";
 
 interface BodyParam
 {
@@ -30,9 +31,16 @@ interface Body
     params: string;
 }
 
+interface FormatRule
+{
+    format: "date-time";
+    keys: string[];
+}
+
 interface ResponseType
 {
     returnTypeName: string;
+    returnTypeSchema:OpenAPI.Schema | OpenAPI.Reference;
     format: "blob" | "json";
 }
 
@@ -43,6 +51,10 @@ interface ResponseTypeWithStatusCode extends ResponseType
 
 export class APIClassGenerator
 {
+    constructor(private excludedStatusCodes: Set<number>)
+    {
+    }
+
     //Public methods
     public async Generate(sourcePath: string, destPath: string)
     {
@@ -53,6 +65,17 @@ export class APIClassGenerator
     }
 
     //Private methods
+    private BuildFormatRules(schema: OpenAPI.Schema | OpenAPI.Reference, schemas: Dictionary<OpenAPI.Schema>)
+    {
+        const rules = this.FindFormatRules([], schema, schemas);
+
+        return "[\n"
+            + (
+                rules.Map(x => this.Indent(5) + "{ format: '" + x.format + "', keys: [" + x.keys.Values().Map(k => "'" + k + "'").Join(", ") + "] }")
+            ).Join("\n")
+            + "\n" + this.Indent(4) + "]";
+    }
+
     private DeclarationToSourceCode(name: string, required: boolean, schema: OpenAPI.Schema | OpenAPI.Reference, indention: number)
     {
         return name + (required ? "" : "?") + ": " + this.SchemaToTypeName(schema, indention)
@@ -76,6 +99,9 @@ export class APIClassGenerator
                         };
                     }
 
+                    if("anyOf" in value)
+                        throw new Error("not implemented");
+
                     if(value.type === "object")
                     {
                         return {
@@ -96,6 +122,47 @@ export class APIClassGenerator
         };
     }
 
+    private FindFormatRules(keys: string[], schema: OpenAPI.Schema | OpenAPI.Reference, schemas: Dictionary<OpenAPI.Schema>): EnumeratorBuilder<FormatRule>
+    {
+        if("$ref" in schema)
+        {
+            const refSchema = schemas[schema.$ref.split("/").pop()!]!;
+            return this.FindFormatRules(keys, refSchema, schemas);
+        }
+        if("anyOf" in schema)
+        {
+            //return schema.anyOf.Values().Map(x => this.FindFormatRules(keys, x, schemas)).Flatten();
+            //TODO: implement this
+            const empty: FormatRule[] = [];
+            return empty.Values();
+        }
+
+        switch(schema.type)
+        {
+            case "array":
+                return this.FindFormatRules(keys, schema.items, schemas);
+            case "boolean":
+            case "number":
+                break;
+            case "object":
+                return schema.properties.Entries()
+                    .Map(kv => this.FindFormatRules([...keys, kv.key] as string[], kv.value!, schemas) ).Flatten();
+            case "string":
+                if(schema.format === "date-time")
+                {
+                    const rule: FormatRule = {
+                        format: "date-time",
+                        keys
+                    };
+                    return [rule].Values();
+                }
+                break;
+        }
+
+        const empty: FormatRule[] = [];
+        return empty.Values();
+    }
+
     private FindResponseType(responses: Dictionary<OpenAPI.Response>)
     {
         const successfulCodes: ResponseTypeWithStatusCode[] = [];
@@ -113,6 +180,12 @@ export class APIClassGenerator
                             statusCode: parseInt(key),
                             format: "json",
                             returnTypeName: "void",
+                            returnTypeSchema: {
+                                type: "object",
+                                properties: {},
+                                required: [],
+                                additionalProperties: false
+                            }
                         });
                         continue;
                     }
@@ -143,40 +216,50 @@ export class APIClassGenerator
             return {
                 returnTypeName: "Blob",
                 format: "blob",
+                returnTypeSchema: {
+                    type: "object",
+                    properties: {},
+                    required: [],
+                    additionalProperties: false
+                }
             };
         }
 
         return {
             returnTypeName: this.GenerateSchemaSourceCode(mediaType.schema),
+            returnTypeSchema: mediaType.schema,
             format: "json",
         };
     }
 
-    private GenerateAPIClass(paths: OpenAPI.Paths)
+    private GenerateAPIClass(paths: OpenAPI.Paths, schemas: Dictionary<OpenAPI.Schema>)
     {
         const constructorDef = "constructor(private __issueRequest: (requestData: RequestData) => Promise<{ statusCode: number; data: any }>){}";
-        return "export abstract class API\n{\n\t" + constructorDef + "\n\n" + this.GenerateAPIObjects(paths) + "\n}";
+        return "export abstract class API\n{\n\t" + constructorDef + "\n\n" + this.GenerateAPIObjects(paths, schemas) + "\n}";
     }
 
-    private GenerateAPIDefinition(path: string, pathItem: OpenAPI.PathItem)
+    private GenerateAPIDefinition(path: string, pathItem: OpenAPI.PathItem, schemas: Dictionary<OpenAPI.Schema>)
     {
         const parts = [
-            this.GenerateAPIDefinitionForOperation("delete", path, pathItem.delete),
-            this.GenerateAPIDefinitionForOperation("get", path, pathItem.get),
-            this.GenerateAPIDefinitionForOperation("post", path, pathItem.post),
-            this.GenerateAPIDefinitionForOperation("put", path, pathItem.put),
+            this.GenerateAPIDefinitionForOperation("delete", path, pathItem.delete, schemas),
+            this.GenerateAPIDefinitionForOperation("get", path, pathItem.get, schemas),
+            this.GenerateAPIDefinitionForOperation("post", path, pathItem.post, schemas),
+            this.GenerateAPIDefinitionForOperation("put", path, pathItem.put, schemas),
         ];
 
         return parts.Values().Filter(x => x.length > 0).Join("\n");
     }
     
-    private GenerateAPIDefinitionForOperation(operationName: string, path: string, operation: OpenAPI.Operation | undefined)
+    private GenerateAPIDefinitionForOperation(operationName: string, path: string, operation: OpenAPI.Operation | undefined, schemas: Dictionary<OpenAPI.Schema>)
     {
         if(operation === undefined)
             return "";
 
         const responseType = this.FindResponseType(operation.responses);
-        const errStatusCodes = operation.responses.OwnKeys().Map(x => x.toString()).Filter(x => x !== responseType.statusCode.toString()).Join(" | ");
+        const errStatusCodes = operation.responses.OwnKeys().Map(x => x.toString())
+            .Filter(x => x !== responseType.statusCode.toString())
+            .Filter(x => !this.excludedStatusCodes.has(parseInt(x)))
+            .Join(" | ");
         const errStatusCodesType = errStatusCodes.length == 0 ? "undefined" : errStatusCodes;
         const optTypeCast = errStatusCodes.length == 0 ? " as Promise<SuccessResponse<" + responseType.statusCode + ", " + responseType.returnTypeName + ">>" : " as Promise<ResponseData<" + responseType.statusCode + ", " + errStatusCodesType + ", " + responseType.returnTypeName + ">>";
 
@@ -198,6 +281,7 @@ export class APIClassGenerator
             + "\t\t\t\tmethod: '" + operationName.toUpperCase() + "',\n"
             + "\t\t\t\tresponseType: '" + responseType.format + "',\n"
             + "\t\t\t\tsuccessStatusCode: " + responseType.statusCode + ",\n"
+            + "\t\t\t\tformatRules: " + this.BuildFormatRules(responseType.returnTypeSchema, schemas) + ",\n"
             + (queryParams.Any() ? "\t\t\t\tquery,\n" : "")
             + (hasBody ? "\t\t\t\tbody,\n" : "")
             + (isFormData ? "\t\t\t\trequestBodyType: 'form-data',\n" : "")
@@ -206,22 +290,25 @@ export class APIClassGenerator
         return "\t\t" + operationName + ": (" + argString + ") =>\n\t\t\tthis.__issueRequest(" + requestParamObjectString + ")" + optTypeCast + ",";
     }
 
-    private GenerateAPIObject(path: string, pathItem: OpenAPI.PathItem)
+    private GenerateAPIObject(path: string, pathItem: OpenAPI.PathItem, schemas: Dictionary<OpenAPI.Schema>)
     {
         const segmentName = path.slice(1).replace(/\{.*?\}/g, "_any_")
             .ReplaceAll("/", "");
-        return "\t" + segmentName + " = {\n" + (this.GenerateAPIDefinition(path, pathItem)) + "\n\t};";
+        return "\t" + segmentName + " = {\n" + (this.GenerateAPIDefinition(path, pathItem, schemas)) + "\n\t};";
     }
 
-    private GenerateAPIObjects(paths: OpenAPI.Paths)
+    private GenerateAPIObjects(paths: OpenAPI.Paths, schemas: Dictionary<OpenAPI.Schema>)
     {
         return paths.Entries()
-            .Map(kv => this.GenerateAPIObject(kv.key.toString(), kv.value!))
+            .Map(kv => this.GenerateAPIObject(kv.key.toString(), kv.value!, schemas))
             .Join("\n");
     }
 
     private GenerateModelSourceCode(modelName: string, schema: OpenAPI.Schema)
     {
+        if("anyOf" in schema)
+            return "export type " + modelName + " = " + this.SchemaToTypeName(schema, 0) + ";";
+
         if(schema.type === "number")
         {
             const entries = [];
@@ -245,7 +332,13 @@ export class APIClassGenerator
     private GenerateRequestDataInterfaceSourceCode()
     {
         return `
-export interface RequestData
+interface FormatRule
+{
+    format: "date-time";
+    keys: string[];
+}
+
+interface RequestData
 {
     path: string;
     method: "DELETE" | "GET" | "POST" | "PUT";
@@ -254,6 +347,7 @@ export interface RequestData
     requestBodyType?: "form-data";
     responseType: "blob" | "json";
     successStatusCode: number;
+    formatRules: FormatRule[];
 }
 
 interface ErrorResponse<StatusCodeType>
@@ -283,7 +377,7 @@ export type ResponseData<SuccessStatusCodeType, ErrorStatusCodeType, DataType> =
             + "\n\n"
             + this.GenerateRequestDataInterfaceSourceCode()
             + "\n\n"
-            + this.GenerateAPIClass(openAPIDef.paths);
+            + this.GenerateAPIClass(openAPIDef.paths, openAPIDef.components.schemas);
     }
 
     private Indent(indention: number): string
@@ -301,9 +395,10 @@ export type ResponseData<SuccessStatusCodeType, ErrorStatusCodeType, DataType> =
     private SchemaToTypeName(schema: OpenAPI.Schema | OpenAPI.Reference, indention: number): string
     {
         if("$ref" in schema)
-        {
             return schema.$ref.split("/").pop()!;
-        }
+
+        if("anyOf" in schema)
+            return schema.anyOf.map(x => this.SchemaToTypeName(x, indention)).join(" | ");
 
         switch(schema.type)
         {
@@ -322,7 +417,11 @@ export type ResponseData<SuccessStatusCodeType, ErrorStatusCodeType, DataType> =
             case "string":
                 if(schema.enum !== undefined)
                     return schema.enum.Values().Map(x => '"' + x + '"').Join(" | ");
-                return schema.format === "binary" ? "File" : "string";
+                if(schema.format === "binary")
+                    return "File";
+                if(schema.format === "date-time")
+                    return "Date";
+                return "string";
         }
     }
 }

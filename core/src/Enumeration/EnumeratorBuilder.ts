@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -165,6 +165,12 @@ export class EnumeratorBuilder<T>
     public Reduce<U>( func: (accumulator: U, currentValue: T) => U, initialValue: U )
     {
         return this.ReduceImpl(this.CreateInstance(), func, initialValue);
+    }
+
+    public Reverse()
+    {
+        const arr = this.ToArray();
+        return arr.reverse().Values();
     }
 
     public Skip(count: number)

@@ -19,7 +19,7 @@ import { Dictionary } from "acts-util-core";
 import { OpenAPI } from "acts-util-node";
 import { APIRegistryInstance } from "./APIRegistry";
 import { APIControllerMetadata, ParameterMetadata, ResponseMetadata } from "./Metadata";
-import { TypeCatalog, TypeOrRef } from "./TypeCatalog";
+import { DocumentationData, TypeCatalog, TypeOrRef } from "./TypeCatalog";
 
 export interface SecuritySchemeDef extends OpenAPI.SecurityScheme
 {
@@ -47,7 +47,7 @@ export class OpenAPIGenerator
                 title: "TODO", //TODO
                 version: "TODO" //TODO
             },
-            openapi: "3.0.0",
+            openapi: "3.1.0",
             paths: this.CreatePathsObject(apiControllersMetadata),
             security: securitySchemes.Entries().Filter(kv => kv.value!.global).Map(kv => ({ [kv.key]: [] })).ToArray()
         };
@@ -178,7 +178,7 @@ export class OpenAPIGenerator
         return this.CreateSchemaOrReference(this.typeCatalog.GetNamedType(schemaName)) as any;
     }
 
-    private CreateSchemaOrReference(typeOrRef: TypeOrRef): OpenAPI.Schema | OpenAPI.Reference
+    private CreateSchemaOrReference(typeOrRef: TypeOrRef, docData?: DocumentationData): OpenAPI.Schema | OpenAPI.Reference
     {
         if(typeof typeOrRef !== "string")
         {
@@ -186,6 +186,7 @@ export class OpenAPIGenerator
             {
                 case "array":
                     return {
+                        title: docData?.title,
                         type: "array",
                         items: this.CreateSchemaOrReference(typeOrRef.entryType)
                     };
@@ -205,14 +206,15 @@ export class OpenAPIGenerator
                 case "object":
                     const props = typeOrRef.properties.Values();
                     return {
+                        title: typeOrRef.docData.title,
                         type: "object",
-                        properties: props.ToDictionary(kv => kv.propertyName, kv => this.CreateSchemaOrReference(kv.type)),
+                        properties: props.ToDictionary(kv => kv.propertyName, kv => this.CreateSchemaOrReference(kv.type, kv.docData)),
                         required: props.Filter(prop => prop.required).Map(prop => prop.propertyName).ToArray(),
                         additionalProperties: false,
                     };
                 case "union":
                     return {
-                        anyOf: typeOrRef.subTypes.map(this.CreateSchemaOrReference.bind(this))
+                        anyOf: typeOrRef.subTypes.map(t => this.CreateSchemaOrReference(t) )
                     };
             }
             console.error(typeOrRef);
@@ -223,6 +225,8 @@ export class OpenAPIGenerator
         {
             case "boolean":
                 return {
+                    description: docData?.description,
+                    title: docData?.title,
                     type: "boolean"
                 };
             case "Date":
@@ -232,10 +236,16 @@ export class OpenAPIGenerator
                 };
             case "number":
                 return {
+                    description: docData?.description,
+                    format: docData?.format,
+                    title: docData?.title,
                     type: "number"
                 };
             case "string":
                 return {
+                    description: docData?.description,
+                    format: docData?.format as any,
+                    title: docData?.title,
                     type: "string"
                 };
             case "UploadedFile":

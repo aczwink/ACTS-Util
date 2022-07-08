@@ -32,7 +32,6 @@ import { DBConnectionPool } from "./db/DBConnectionPool";
 import { DBTransactionalQueryExecutor } from "./db/DBTransactionalQueryExecutor";
 import { CreateTempDir, CreateTempFile } from "./fs/Temp";
 import { ModuleLoader } from "./ModuleLoader";
-import * as OpenAPI from "./openapi/Specification";
 import { FileSystemWatcher } from "./fs/FileSystemWatcher";
 
 //Exports
@@ -77,7 +76,6 @@ export {
     Lock,
     LockedProperty,
     ModuleLoader,
-    OpenAPI,
     OSFileSystem,
     Promisify,
     VirtualRootFileSystem,

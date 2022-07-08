@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Dictionary, AbsURL } from "acts-util-core";
-import { Operation, Root } from "../openapi/Specification";
+import { Dictionary, AbsURL, OpenAPI } from "acts-util-core";
 import { OperationStructure } from "./OperationStructure";
 import { OperationValidator, ValidatedArgs } from "./OperationValidator";
 import { Request } from "./Request";
@@ -27,7 +26,7 @@ import { RouterNode } from "./RouterNode";
 
 export class RouterRequestHandler implements RequestHandler
 {
-    constructor(private apiDefinition: Root, private operationToStructureMap: Dictionary<OperationStructure>, private operationToFunctionMap: Dictionary<Function>)
+    constructor(private apiDefinition: OpenAPI.Root, private operationToStructureMap: Dictionary<OperationStructure>, private operationToFunctionMap: Dictionary<Function>)
     {
         this.operationMap = {};
         this.rootRouterNode = new RouterNode;
@@ -80,10 +79,10 @@ export class RouterRequestHandler implements RequestHandler
 
     //Private variables
     private rootRouterNode: RouterNode;
-    private operationMap: Dictionary<Operation>;
+    private operationMap: Dictionary<OpenAPI.Operation>;
 
     //Private methods
-    private ConstructRouting(apiDefinition: Root)
+    private ConstructRouting(apiDefinition: OpenAPI.Root)
     {
         for (const key in apiDefinition.paths)
         {
@@ -99,7 +98,7 @@ export class RouterRequestHandler implements RequestHandler
         }
     }
 
-    private ConstructRoutingOperation(path: string, operationMethod: string, operation: Operation | undefined)
+    private ConstructRoutingOperation(path: string, operationMethod: string, operation: OpenAPI.Operation | undefined)
     {
         if(operation === undefined)
             return;

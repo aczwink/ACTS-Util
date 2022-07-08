@@ -39,8 +39,16 @@ interface StringEnumSchema
 }
 type EnumSchema = NumberEnumSchema | StringEnumSchema;
 
+export interface DocumentationData
+{
+    description?: string;
+    format?: string;
+    title?: string;
+}
+
 interface SchemaPropertyEntry
 {
+    docData: DocumentationData;
     propertyName: string;
     type: TypeOrRef;
     required: boolean;
@@ -67,6 +75,7 @@ interface EnumType extends BaseType
 interface ObjectType extends BaseType
 {
     kind: "object";
+    docData: DocumentationData;
     properties: SchemaPropertyEntry[];
 }
 
@@ -124,6 +133,22 @@ export class TypeCatalog
     private _namedTypes: Dictionary<Type>;
 
     //Private methods
+    private BuildDocumentationData(symbol: ts.Symbol): DocumentationData
+    {
+        const displayParts = symbol.getDocumentationComment(this.typeChecker);
+        const doc = ts.displayPartsToString(displayParts).trim();
+
+        const jsDocs = symbol.getJsDocTags(this.typeChecker);
+        const formatNode = jsDocs.find(x => x.name === "format");
+        const titleNode = jsDocs.find(x => x.name === "title");
+
+        return {
+            description: doc.length === 0 ? undefined : doc,
+            format: formatNode === undefined ? undefined : ts.displayPartsToString(formatNode.text),
+            title: titleNode === undefined ? undefined : ts.displayPartsToString(titleNode.text)
+        };
+    }
+
     private CreateStandardReponse(schemaName: TypeOrRef): ResponseMetadata[]
     {
         return [{
@@ -157,14 +182,15 @@ export class TypeCatalog
 
     private ResolveObjectProperties(type: ts.Type)
     {
-        return type.getProperties().Values().Map(x => {
-            const t = this.typeChecker.getTypeOfSymbolAtLocation(x, x.valueDeclaration!);
+        return type.getProperties().Values().Map(symbol => {
+            const t = this.typeChecker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration!);
             const propType = this.ResolveType(t) as any;
 
             const result = this.ResolvePropertyType(propType);
 
             const prop: SchemaPropertyEntry = {
-                propertyName: x.escapedName.toString(),
+                docData: this.BuildDocumentationData(symbol),
+                propertyName: symbol.escapedName.toString(),
                 type: result.propType,
                 required: result.required
             }
@@ -317,7 +343,7 @@ export class TypeCatalog
                 return entry;
         }
 
-        const t: ObjectType = { kind: "object", type, properties: this.ResolveObjectProperties(type) };
+        const t: ObjectType = { kind: "object", type, docData: this.BuildDocumentationData(type.symbol), properties: this.ResolveObjectProperties(type) };
         if(aliasName !== undefined)
             return this.RegisterTypeIfAliased(t);
 

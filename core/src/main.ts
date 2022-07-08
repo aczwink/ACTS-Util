@@ -44,6 +44,7 @@ import { ObservableObject } from "./ObjectExtensions";
 import { CachedProperty } from "./CachedProperty";
 import { AbsURL } from "./AbsURL";
 import { URLParser } from "./URLParser";
+import * as OpenAPI from "./OpenAPI/Specification";
 
 //Exports
 export {
@@ -58,6 +59,7 @@ export {
     Observable,
     ObservableObject,
     Observer,
+    OpenAPI,
     Property,
     PropertyObserver,
     ResolutionStrategy,

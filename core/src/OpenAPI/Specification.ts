@@ -16,14 +16,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Dictionary } from "acts-util-core";
+import { Dictionary } from "../Dictionary";
 
 export interface Reference
 {
     $ref: string;
+    description?: string;
+    title?: string; //TODO: THIS IS NONSTANDARD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
-interface ArraySchema
+interface SchemaBase
+{
+    description?: string;
+    title?: string;
+}
+interface PrimitiveSchemaBase extends SchemaBase
+{
+    format?: string;
+}
+
+interface ArraySchema extends SchemaBase
 {
     type: "array";
     items: Schema | Reference;
@@ -34,18 +46,18 @@ interface AnyOfSchema
     anyOf: (Schema | Reference)[];
 }
 
-interface BooleanSchema
+interface BooleanSchema extends PrimitiveSchemaBase
 {
     type: "boolean";
 }
 
-interface NumberSchema
+interface NumberSchema extends PrimitiveSchemaBase
 {
     type: "number";
     enum?: number[];
 }
 
-interface ObjectSchema
+export interface ObjectSchema extends SchemaBase
 {
     type: "object";
     properties: Dictionary<Schema | Reference>;
@@ -53,7 +65,7 @@ interface ObjectSchema
     additionalProperties: boolean;
 }
 
-interface StringSchema
+interface StringSchema extends PrimitiveSchemaBase
 {
     type: "string";
     enum?: string[];
@@ -131,7 +143,7 @@ export type Paths = Dictionary<PathItem>;
 export interface Root
 {
     components: Components;
-    openapi: "3.0.0";
+    openapi: "3.1.0";
     info: Info;
     paths: Paths;
     security?: SecurityRequirement[];

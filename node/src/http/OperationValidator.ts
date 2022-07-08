@@ -15,8 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Dictionary } from "acts-util-core";
-import { Operation, Parameter, Reference, RequestBody, Root, Schema } from "../openapi/Specification";
+import { Dictionary, OpenAPI } from "acts-util-core";
 
 export interface ValidatedArgs
 {
@@ -27,7 +26,7 @@ export interface ValidatedArgs
 
 export class OperationValidator
 {
-    constructor(private apiDefinition: Root, private operation: Operation)
+    constructor(private apiDefinition: OpenAPI.Root, private operation: OpenAPI.Operation)
     {
         this._queryParams = {};
         this._routeParams = {};
@@ -68,7 +67,7 @@ export class OperationValidator
         return !isNaN(parseFloat(str));
     }
 
-    private ValidateBody(body: any, requestBody: RequestBody | undefined)
+    private ValidateBody(body: any, requestBody: OpenAPI.RequestBody | undefined)
     {
         if(requestBody === undefined)
         {
@@ -94,7 +93,7 @@ export class OperationValidator
         }
     }
 
-    private ValidateQueryParams(queryParams: Dictionary<string>, parameters: Parameter[])
+    private ValidateQueryParams(queryParams: Dictionary<string>, parameters: OpenAPI.Parameter[])
     {
         for (const param of parameters)
         {
@@ -121,7 +120,7 @@ export class OperationValidator
             throw new Error("additional query params exist");
     }
 
-    private ValidateRouteParams(routeParams: Dictionary<string>, parameters: Parameter[])
+    private ValidateRouteParams(routeParams: Dictionary<string>, parameters: OpenAPI.Parameter[])
     {
         for (const param of parameters)
         {
@@ -130,7 +129,7 @@ export class OperationValidator
         }
     }
 
-    private ValidateValue(value: any, required: boolean, schema: Schema | Reference): any
+    private ValidateValue(value: any, required: boolean, schema: OpenAPI.Schema | OpenAPI.Reference): any
     {
         if(value === undefined)
         {

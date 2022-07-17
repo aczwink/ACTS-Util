@@ -5,8 +5,7 @@
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
   "scripts": {
-    "build": "tsc",
-    "execute": "tsc --target ES5 --module commonjs --lib ES2015,dom _playground.ts && node _playground.js"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",

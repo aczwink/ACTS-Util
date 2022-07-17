@@ -64,8 +64,22 @@ export class RouterRequestHandler implements RequestHandler
             }
 
             const args = this.ExtractArgs(validatedArgs, request, this.operationToStructureMap[operationId]!);
-            const result = await this.operationToFunctionMap[operationId]?.call(undefined, ...args);
-            return this.WrapResult(result);
+            try
+            {
+                const result = await this.operationToFunctionMap[operationId]?.call(undefined, ...args);
+                return this.WrapResult(result);
+            }
+            catch(e)
+            {
+                console.error("Unhandled exception occured: ", e);
+                return {
+                    statusCode: 500,
+                    headers: {
+                        "Content-Type": "text/html; charset=utf-8"
+                    },
+                    data: "Internal server error"
+                };
+            }
         }
 
         return {

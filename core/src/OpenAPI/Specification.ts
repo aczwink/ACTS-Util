@@ -51,7 +51,7 @@ interface BooleanSchema extends PrimitiveSchemaBase
     type: "boolean";
 }
 
-interface NumberSchema extends PrimitiveSchemaBase
+export interface NumberSchema extends PrimitiveSchemaBase
 {
     type: "number";
     enum?: number[];

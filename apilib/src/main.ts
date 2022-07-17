@@ -18,6 +18,7 @@
 import { APIRegistryInstance, APIRegistryInterface } from './APIRegistry';
 import { APIController, Body, BodyProp, Delete, FormField, Get, Header, Path, Post, Put, Query, Request, Security } from './decorators';
 import { BadRequest, Forbidden, InternalServerError, NotFound, Ok, Unauthorized } from './Responses';
+import { WrapAPIs } from './Wrap';
 
 export const APIRegistry: APIRegistryInterface = APIRegistryInstance;
 
@@ -40,5 +41,6 @@ export {
     Query,
     Request,
     Security,
-    Unauthorized
+    Unauthorized,
+    WrapAPIs
 };

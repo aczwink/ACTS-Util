@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import fs from "fs";
-import { OpenAPI } from "acts-util-node";
-import { Dictionary } from "acts-util-core";
+import { Dictionary, OpenAPI } from "acts-util-core";
 import { EnumeratorBuilder } from "acts-util-core/dist/Enumeration/EnumeratorBuilder";
 
 interface BodyParam

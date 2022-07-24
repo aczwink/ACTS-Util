@@ -106,6 +106,11 @@ export function Header(targetObject: Object, methodName: string, parameterIndex:
 {
 }
 
+export function Patch(route?: string)
+{
+    return HTTPMethodDecoratorReturn(route, "PATCH");
+}
+
 export function Path(targetObject: Object, methodName: string, parameterIndex: number)
 {
 }

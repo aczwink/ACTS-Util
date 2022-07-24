@@ -106,6 +106,7 @@ export class RouterRequestHandler implements RequestHandler
 
                 this.ConstructRoutingOperation(key, "DELETE", pathItem.delete);
                 this.ConstructRoutingOperation(key, "GET", pathItem.get);
+                this.ConstructRoutingOperation(key, "PATCH", pathItem.patch);
                 this.ConstructRoutingOperation(key, "POST", pathItem.post);
                 this.ConstructRoutingOperation(key, "PUT", pathItem.put);
             }

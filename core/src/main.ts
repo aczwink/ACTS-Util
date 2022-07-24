@@ -45,6 +45,8 @@ import { CachedProperty } from "./CachedProperty";
 import { AbsURL } from "./AbsURL";
 import { URLParser } from "./URLParser";
 import * as OpenAPI from "./OpenAPI/Specification";
+import { OpenAPIDefaultObjectCreator } from "./OpenAPI/OpenAPIDefaultObjectCreator";
+import { OpenAPISchemaValidator } from "./OpenAPI/OpenAPISchemaValidator";
 
 //Exports
 export {
@@ -60,6 +62,8 @@ export {
     ObservableObject,
     Observer,
     OpenAPI,
+    OpenAPIDefaultObjectCreator,
+    OpenAPISchemaValidator,
     Property,
     PropertyObserver,
     ResolutionStrategy,

@@ -37,16 +37,20 @@ interface StringEnumSchema
     underlyingType: "string";
     values: string[];
 }
-type EnumSchema = NumberEnumSchema | StringEnumSchema;
+export type EnumSchema = NumberEnumSchema | StringEnumSchema;
 
 export interface DocumentationData
 {
+    default?: any;
     description?: string;
     format?: string;
+    minimum?: number;
+    maximum?: number;
+    pattern?: string;
     title?: string;
 }
 
-interface SchemaPropertyEntry
+export interface SchemaPropertyEntry
 {
     docData: DocumentationData;
     propertyName: string;
@@ -85,7 +89,7 @@ interface UnionType extends BaseType
     subTypes: TypeOrRef[];
 }
 
-type Type = ArrayType | EnumType | ObjectType | UnionType;
+export type Type = ArrayType | EnumType | ObjectType | UnionType;
 export type TypeOrRef = Type | string;
 
 export class TypeCatalog
@@ -139,14 +143,40 @@ export class TypeCatalog
         const doc = ts.displayPartsToString(displayParts).trim();
 
         const jsDocs = symbol.getJsDocTags(this.typeChecker);
+        const defaultNode = jsDocs.find(x => x.name === "default");
         const formatNode = jsDocs.find(x => x.name === "format");
+        const minimumNode = jsDocs.find(x => x.name === "minimum");
+        const maximumNode = jsDocs.find(x => x.name === "maximum");
+        const patternNode = jsDocs.find(x => x.name === "pattern");
         const titleNode = jsDocs.find(x => x.name === "title");
 
         return {
+            default: defaultNode === undefined ? undefined : this.BuildDocumentationDefaultValue(ts.displayPartsToString(defaultNode.text), symbol),
             description: doc.length === 0 ? undefined : doc,
             format: formatNode === undefined ? undefined : ts.displayPartsToString(formatNode.text),
+            minimum: minimumNode === undefined ? undefined : this.BuildDocumentationNumberValue(ts.displayPartsToString(minimumNode.text)),
+            maximum: maximumNode === undefined ? undefined : this.BuildDocumentationNumberValue(ts.displayPartsToString(maximumNode.text)),
+            pattern: patternNode === undefined ? undefined : ts.displayPartsToString(patternNode.text),
             title: titleNode === undefined ? undefined : ts.displayPartsToString(titleNode.text)
         };
+    }
+
+    private BuildDocumentationDefaultValue(stringValue: string, symbol: ts.Symbol)
+    {
+        const type = this.typeChecker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration!);
+
+        if( (type.flags & ts.TypeFlags.Boolean) || (type.flags & ts.TypeFlags.BooleanLiteral) )
+            return stringValue === "true";
+        if((type.flags & ts.TypeFlags.Number) || type.isNumberLiteral())
+            return this.BuildDocumentationNumberValue(stringValue)
+        return stringValue;
+    }
+
+    private BuildDocumentationNumberValue(stringValue: string)
+    {
+        if(stringValue.startsWith("0o"))
+            return parseInt(stringValue.substring(2), 8);
+        return parseFloat(stringValue);
     }
 
     private CreateStandardReponse(schemaName: TypeOrRef): ResponseMetadata[]
@@ -308,7 +338,18 @@ export class TypeCatalog
 
         if((type.flags & ts.TypeFlags.Number) || type.isNumberLiteral())
             return "number";
-        if((type.flags & ts.TypeFlags.String) || type.isStringLiteral())
+        if(type.isStringLiteral())
+        {
+            return {
+                kind: "enum",
+                type,
+                schema: {
+                    underlyingType: "string",
+                    values: [type.value]
+                }
+            };
+        }
+        if(type.flags & ts.TypeFlags.String)
             return "string";
 
         if(type.symbol.escapedName === "Array")

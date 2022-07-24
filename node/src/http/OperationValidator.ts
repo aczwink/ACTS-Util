@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Dictionary, OpenAPI } from "acts-util-core";
+import { Dictionary, OpenAPI, OpenAPISchemaValidator } from "acts-util-core";
 
 export interface ValidatedArgs
 {
@@ -147,24 +147,33 @@ export class OperationValidator
 
         if("anyOf" in schema)
             return value;
+        if("oneOf" in schema)
+            return value;
+
+        const validator = new OpenAPISchemaValidator(this.apiDefinition);
 
         switch(schema.type)
         {
             case "array":
                 return value.map( (x: any) => this.ValidateValue(x, true, schema.items) );
 
-            case "number":
-                if(typeof value === "number")
+            case "boolean":
+                if(typeof value === "boolean")
                     return value;
+                throw new Error("NOT IMPLEMENTED: " + (typeof value) + " - " + value);
 
-                if(!this.IsNumeric(value))
+            case "number":
+                let numValue;
+                if(typeof value === "number")
+                    numValue = value;
+                else if(!this.IsNumeric(value))
                     throw new Error("The value '" + value + "' is not numeric");
-                const numValue = parseFloat(value);
-                if(schema.enum !== undefined)
-                {
-                    if(!schema.enum.Contains(numValue))
-                        throw new Error("illegal enum value: " + value);
-                }
+                else
+                    numValue = parseFloat(value);
+
+                if(!validator.ValidateNumber(numValue, schema))
+                    throw new Error("illegal enum value: " + value);
+
                 return numValue;
 
             case "object":
@@ -182,11 +191,8 @@ export class OperationValidator
                 return result;
 
             case "string":
-                if(schema.enum !== undefined)
-                {
-                    if(!schema.enum.Contains(value))
-                        throw new Error("illegal enum value: " + value);
-                }
+                if(!validator.ValidateString(value, schema))
+                    throw new Error("illegal enum value: " + value);
                 return value;
         }
     }

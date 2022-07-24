@@ -49,12 +49,16 @@ interface AnyOfSchema
 interface BooleanSchema extends PrimitiveSchemaBase
 {
     type: "boolean";
+    default?: boolean;
 }
 
 export interface NumberSchema extends PrimitiveSchemaBase
 {
     type: "number";
+    default?: number;
     enum?: number[];
+    minimum?: number;
+    maximum?: number;
 }
 
 export interface ObjectSchema extends SchemaBase
@@ -65,14 +69,23 @@ export interface ObjectSchema extends SchemaBase
     additionalProperties: boolean;
 }
 
-interface StringSchema extends PrimitiveSchemaBase
+interface OneOfSchema
+{
+    oneOf: (Schema | Reference)[];
+    discriminator?: {
+        propertyName: string;
+    }
+}
+
+export interface StringSchema extends PrimitiveSchemaBase
 {
     type: "string";
     enum?: string[];
     format?: "binary" | "date-time";
+    pattern?: string;
 }
 
-export type Schema = ArraySchema | AnyOfSchema | BooleanSchema | NumberSchema | ObjectSchema | StringSchema;
+export type Schema = AnyOfSchema | ArraySchema | BooleanSchema | NumberSchema | ObjectSchema | OneOfSchema | StringSchema;
 
 interface HTTPSecurityScheme
 {
@@ -134,6 +147,7 @@ export interface PathItem
 {
     delete?: Operation;
     get?: Operation;
+    patch?: Operation;
     post?: Operation;
     put?: Operation;
 }

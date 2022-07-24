@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { APIRegistryInstance, APIRegistryInterface } from './APIRegistry';
-import { APIController, Body, BodyProp, Delete, FormField, Get, Header, Path, Post, Put, Query, Request, Security } from './decorators';
+import { APIController, Body, BodyProp, Delete, FormField, Get, Header, Patch, Path, Post, Put, Query, Request, Security } from './decorators';
 import { BadRequest, Forbidden, InternalServerError, NotFound, Ok, Unauthorized } from './Responses';
 import { WrapAPIs } from './Wrap';
 
@@ -35,6 +35,7 @@ export {
     InternalServerError,
     NotFound,
     Ok,
+    Patch,
     Path,
     Post,
     Put,

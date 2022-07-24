@@ -19,6 +19,7 @@ import { Dictionary, OpenAPI } from "acts-util-core";
 import { APIRegistryInstance } from "./APIRegistry";
 import { APIControllerMetadata, ParameterMetadata, ResponseMetadata } from "./Metadata";
 import { DocumentationData, TypeCatalog, TypeOrRef } from "./TypeCatalog";
+import { TypesDiscriminator } from "./TypesDiscriminator";
 
 export interface SecuritySchemeDef extends OpenAPI.SecurityScheme
 {
@@ -212,18 +213,29 @@ export class OpenAPIGenerator
                         additionalProperties: false,
                     };
                 case "union":
+                    const discriminatorFinder = new TypesDiscriminator(this.typeCatalog);
+                    const discriminatorProperty = discriminatorFinder.FindDiscriminatorProperty(typeOrRef.subTypes);
+                    if(discriminatorProperty !== null)
+                    {
+                        return {
+                            oneOf: typeOrRef.subTypes.map(t => this.CreateSchemaOrReference(t)),
+                            discriminator: {
+                                propertyName: discriminatorProperty
+                            }
+                        };
+                    }
+
                     return {
                         anyOf: typeOrRef.subTypes.map(t => this.CreateSchemaOrReference(t) )
                     };
             }
-            console.error(typeOrRef);
-            throw new Error("todo");
         }
 
         switch(typeOrRef)
         {
             case "boolean":
                 return {
+                    default: docData?.default,
                     description: docData?.description,
                     title: docData?.title,
                     type: "boolean"
@@ -235,8 +247,11 @@ export class OpenAPIGenerator
                 };
             case "number":
                 return {
+                    default: docData?.default,
                     description: docData?.description,
                     format: docData?.format,
+                    maximum: docData?.maximum,
+                    minimum: docData?.minimum,
                     title: docData?.title,
                     type: "number"
                 };
@@ -244,6 +259,7 @@ export class OpenAPIGenerator
                 return {
                     description: docData?.description,
                     format: docData?.format as any,
+                    pattern: docData?.pattern,
                     title: docData?.title,
                     type: "string"
                 };

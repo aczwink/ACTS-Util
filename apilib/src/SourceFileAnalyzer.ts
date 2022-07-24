@@ -83,7 +83,7 @@ export class SourceFileAnalyzer
     {
         if( ts.isCallExpression(decorator.expression) && ts.isIdentifier(decorator.expression.expression) )
         {
-            if( ["Delete", "Get", "Post", "Put"].Contains(decorator.expression.expression.escapedText.toString()) )
+            if( ["Delete", "Get", "Patch", "Post", "Put"].Contains(decorator.expression.expression.escapedText.toString()) )
             {
                 const arg = decorator.expression.arguments[0];
                 return {
@@ -247,6 +247,8 @@ export class SourceFileAnalyzer
                 return "DELETE";
             case "Get":
                 return "GET";
+            case "Patch":
+                return "PATCH";
             case "Post":
                 return "POST";
             case "Put":

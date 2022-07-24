@@ -26,7 +26,7 @@ export interface RequestHeaders
     "Content-Length"?: number;
 }
 
-export type HTTPMethod = "DELETE" | "GET" | "PUT" | "POST";
+export type HTTPMethod = "DELETE" | "GET" | "PATCH" | "PUT" | "POST";
 
 interface Request
 {

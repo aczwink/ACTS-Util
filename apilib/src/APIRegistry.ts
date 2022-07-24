@@ -18,7 +18,7 @@
 import { v5 as uuidv5 } from 'uuid';
 import { Dictionary } from "acts-util-core";
 
-export type HTTPMethod = "DELETE" | "GET" | "POST" | "PUT";
+export type HTTPMethod = "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
 
 export interface APIRegistryInterface
 {

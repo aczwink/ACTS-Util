@@ -98,7 +98,7 @@ export class APIClassGenerator
                         };
                     }
 
-                    if("anyOf" in value)
+                    if(("anyOf" in value) || ("oneOf" in value))
                         throw new Error("not implemented");
 
                     if(value.type === "object")
@@ -132,6 +132,11 @@ export class APIClassGenerator
         {
             //return schema.anyOf.Values().Map(x => this.FindFormatRules(keys, x, schemas)).Flatten();
             //TODO: implement this
+            const empty: FormatRule[] = [];
+            return empty.Values();
+        }
+        if("oneOf" in schema)
+        {
             const empty: FormatRule[] = [];
             return empty.Values();
         }
@@ -242,6 +247,7 @@ export class APIClassGenerator
         const parts = [
             this.GenerateAPIDefinitionForOperation("delete", path, pathItem.delete, schemas),
             this.GenerateAPIDefinitionForOperation("get", path, pathItem.get, schemas),
+            this.GenerateAPIDefinitionForOperation("patch", path, pathItem.patch, schemas),
             this.GenerateAPIDefinitionForOperation("post", path, pathItem.post, schemas),
             this.GenerateAPIDefinitionForOperation("put", path, pathItem.put, schemas),
         ];
@@ -305,7 +311,7 @@ export class APIClassGenerator
 
     private GenerateModelSourceCode(modelName: string, schema: OpenAPI.Schema)
     {
-        if("anyOf" in schema)
+        if(("anyOf" in schema) || ("oneOf" in schema))
             return "export type " + modelName + " = " + this.SchemaToTypeName(schema, 0) + ";";
 
         if(schema.type === "number")
@@ -340,7 +346,7 @@ interface FormatRule
 interface RequestData
 {
     path: string;
-    method: "DELETE" | "GET" | "POST" | "PUT";
+    method: "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
     query?: object;
     body?: object;
     requestBodyType?: "form-data";
@@ -398,6 +404,8 @@ export type ResponseData<SuccessStatusCodeType, ErrorStatusCodeType, DataType> =
 
         if("anyOf" in schema)
             return schema.anyOf.map(x => this.SchemaToTypeName(x, indention)).join(" | ");
+        if("oneOf" in schema)
+            return schema.oneOf.map(x => this.SchemaToTypeName(x, indention)).join(" | ");
 
         switch(schema.type)
         {

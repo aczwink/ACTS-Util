@@ -82,12 +82,12 @@ export class MySQLFactory implements DBDriverFactory
 		if(checkSums.indexOf("none") != -1)
 			throw new Error("Database bit rot detection is disabled!");
 
-		this.CheckAllVariables(connection, "time_zone", "+00:00"); //make sure database works with utc
+		await this.CheckAllVariables(connection, "time_zone", "+00:00"); //make sure database works with utc
     }
     
-    private CheckAllVariables(connection: DBDriverQueryExecutor, variable: string, expectedValue: string)
+    private async CheckAllVariables(connection: DBDriverQueryExecutor, variable: string, expectedValue: string)
 	{
-		this.CheckVariable(connection, variable, expectedValue, ["@@global", "@@local", "@@session"])
+		await this.CheckVariable(connection, variable, expectedValue, ["@@global", "@@local", "@@session"])
 	}
 
 	private async CheckVariable(connection: DBDriverQueryExecutor, variable: string, expectedValue: string, varTypes: string[])

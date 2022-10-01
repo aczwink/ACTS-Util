@@ -57,14 +57,6 @@ export class SourceFileAnalyzer
     //Private methods
     private CheckAndExtractAPIControllerInfo(decorator: ts.Decorator)
     {
-        /*if(decorator.expression.kind === ts.SyntaxKind.Identifier)
-            {
-                const id = decorator.expression as ts.Identifier;
-                if(id.escapedText === )
-                {
-                    console.log(decorator);
-                }
-            }*/
         if(ts.isCallExpression(decorator.expression)
             && ts.isIdentifier(decorator.expression.expression)
             && (decorator.expression.expression.escapedText === "APIController")
@@ -76,7 +68,23 @@ export class SourceFileAnalyzer
                 const baseRoute = arg.text;
                 return baseRoute;
             }
+            if(ts.isTemplateExpression(arg))
+                return this.EvaluateTemplateExpression(arg);
         }
+    }
+
+    private EvaluateTemplateExpression(expr: ts.TemplateExpression)
+    {
+        const tc = this.typeCatalog;
+
+        function EvalTemplateSpanExpr(spanExpr: ts.Expression)
+        {
+            if(ts.isIdentifier(spanExpr))
+                return tc.ResolveConstant(spanExpr);
+            throw new Error("NOT IMPLEMENTED");
+        }
+
+        return expr.head.text + expr.templateSpans.map(span => EvalTemplateSpanExpr(span.expression) + span.literal.text).join("");
     }
 
     private CheckAndExtractAPIMethodDecoratorInfo(decorator: ts.Decorator): MethodDecoratorInfo | undefined

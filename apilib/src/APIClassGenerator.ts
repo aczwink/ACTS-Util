@@ -18,6 +18,7 @@
 import fs from "fs";
 import { Dictionary, OpenAPI } from "acts-util-core";
 import { EnumeratorBuilder } from "acts-util-core/dist/Enumeration/EnumeratorBuilder";
+import { APIPathNode } from "./APIPathNode";
 
 interface BodyParam
 {
@@ -64,15 +65,15 @@ export class APIClassGenerator
     }
 
     //Private methods
-    private BuildFormatRules(schema: OpenAPI.Schema | OpenAPI.Reference, schemas: Dictionary<OpenAPI.Schema>)
+    private BuildFormatRules(schema: OpenAPI.Schema | OpenAPI.Reference, schemas: Dictionary<OpenAPI.Schema>, indention: number)
     {
         const rules = this.FindFormatRules([], schema, schemas);
 
         return "[\n"
             + (
-                rules.Map(x => this.Indent(5) + "{ format: '" + x.format + "', keys: [" + x.keys.Values().Map(k => "'" + k + "'").Join(", ") + "] }")
+                rules.Map(x => this.Indent(indention + 1) + "{ format: '" + x.format + "', keys: [" + x.keys.Values().Map(k => "'" + k + "'").Join(", ") + "] }")
             ).Join("\n")
-            + "\n" + this.Indent(4) + "]";
+            + "\n" + this.Indent(indention) + "]";
     }
 
     private DeclarationToSourceCode(name: string, required: boolean, schema: OpenAPI.Schema | OpenAPI.Reference, indention: number)
@@ -242,20 +243,20 @@ export class APIClassGenerator
         return "export abstract class API\n{\n\t" + constructorDef + "\n\n" + this.GenerateAPIObjects(paths, schemas) + "\n}";
     }
 
-    private GenerateAPIDefinition(path: string, pathItem: OpenAPI.PathItem, schemas: Dictionary<OpenAPI.Schema>)
+    private GenerateAPIDefinition(path: string, pathItem: OpenAPI.PathItem, schemas: Dictionary<OpenAPI.Schema>, indention: number)
     {
         const parts = [
-            this.GenerateAPIDefinitionForOperation("delete", path, pathItem.delete, schemas),
-            this.GenerateAPIDefinitionForOperation("get", path, pathItem.get, schemas),
-            this.GenerateAPIDefinitionForOperation("patch", path, pathItem.patch, schemas),
-            this.GenerateAPIDefinitionForOperation("post", path, pathItem.post, schemas),
-            this.GenerateAPIDefinitionForOperation("put", path, pathItem.put, schemas),
+            this.GenerateAPIDefinitionForOperation("delete", path, pathItem.delete, schemas, indention),
+            this.GenerateAPIDefinitionForOperation("get", path, pathItem.get, schemas, indention),
+            this.GenerateAPIDefinitionForOperation("patch", path, pathItem.patch, schemas, indention),
+            this.GenerateAPIDefinitionForOperation("post", path, pathItem.post, schemas, indention),
+            this.GenerateAPIDefinitionForOperation("put", path, pathItem.put, schemas, indention),
         ];
 
         return parts.Values().Filter(x => x.length > 0).Join("\n");
     }
     
-    private GenerateAPIDefinitionForOperation(operationName: string, path: string, operation: OpenAPI.Operation | undefined, schemas: Dictionary<OpenAPI.Schema>)
+    private GenerateAPIDefinitionForOperation(operationName: string, path: string, operation: OpenAPI.Operation | undefined, schemas: Dictionary<OpenAPI.Schema>, indention: number)
     {
         if(operation === undefined)
             return "";
@@ -281,32 +282,55 @@ export class APIClassGenerator
 
         const argString = [pathParamsArgString, queryParamsArgString, bodyParamsArgString].Values().Filter(x => x.length > 0).Join(", ");
 
+        const subIndention = indention + 2;
         const requestParamObjectString = "{\n"
-            + "\t\t\t\tpath: `" + path.replace("{", "${") + "`,\n"
-            + "\t\t\t\tmethod: '" + operationName.toUpperCase() + "',\n"
-            + "\t\t\t\tresponseType: '" + responseType.format + "',\n"
-            + "\t\t\t\tsuccessStatusCode: " + responseType.statusCode + ",\n"
-            + "\t\t\t\tformatRules: " + this.BuildFormatRules(responseType.returnTypeSchema, schemas) + ",\n"
-            + (queryParams.Any() ? "\t\t\t\tquery,\n" : "")
-            + (hasBody ? "\t\t\t\tbody,\n" : "")
-            + (isFormData ? "\t\t\t\trequestBodyType: 'form-data',\n" : "")
-            + "\t\t}";
+            + this.Indent(subIndention) + "path: `" + path.replace("{", "${") + "`,\n"
+            + this.Indent(subIndention) + "method: '" + operationName.toUpperCase() + "',\n"
+            + this.Indent(subIndention) + "responseType: '" + responseType.format + "',\n"
+            + this.Indent(subIndention) + "successStatusCode: " + responseType.statusCode + ",\n"
+            + this.Indent(subIndention) + "formatRules: " + this.BuildFormatRules(responseType.returnTypeSchema, schemas, subIndention) + ",\n"
+            + (queryParams.Any() ? (this.Indent(subIndention) + "query,\n") : "")
+            + (hasBody ? (this.Indent(subIndention) + "body,\n") : "")
+            + (isFormData ? (this.Indent(subIndention) + "requestBodyType: 'form-data',\n") : "")
+            + this.Indent(indention+1) + "}";
 
-        return "\t\t" + operationName + ": (" + argString + ") =>\n\t\t\tthis.__issueRequest(" + requestParamObjectString + ")" + optTypeCast + ",";
+        return this.Indent(indention) + operationName + ": (" + argString + ") =>\n" + this.Indent(indention +1) + "this.__issueRequest(" + requestParamObjectString + ")" + optTypeCast + ",";
     }
 
-    private GenerateAPIObject(path: string, pathItem: OpenAPI.PathItem, schemas: Dictionary<OpenAPI.Schema>)
+    private GenerateAPIObject(pathSegment: string, node: APIPathNode, schemas: Dictionary<OpenAPI.Schema>)
     {
-        const segmentName = path.slice(1).replace(/\{.*?\}/g, "_any_")
-            .ReplaceAll("/", "");
-        return "\t" + segmentName + " = {\n" + (this.GenerateAPIDefinition(path, pathItem, schemas)) + "\n\t};";
+        const path = "/" + pathSegment;
+        const segmentName = pathSegment.ReplaceAll("/", "").ReplaceAll("-", "");
+        const apiDefs = (node.pathItem === undefined) ? "" : this.GenerateAPIDefinition(path, node.pathItem, schemas, 2);
+        const subObjects = node.children
+            .Map(kv => this.GenerateAPISubObject(kv.key.toString(), kv.value!, schemas, 2, path))
+            .Join("\n");
+        const content = [apiDefs, subObjects].filter(x => x.length > 0).join("\n\n");
+        return "\t" + segmentName + " = {\n" + content + "\n\t};";
     }
 
     private GenerateAPIObjects(paths: OpenAPI.Paths, schemas: Dictionary<OpenAPI.Schema>)
     {
-        return paths.Entries()
+        const root = new APIPathNode();
+        paths.Entries().ForEach(x => root.Add(x.key.toString().substring(1).split("/"), x.value!));
+
+        return root.children
             .Map(kv => this.GenerateAPIObject(kv.key.toString(), kv.value!, schemas))
             .Join("\n");
+    }
+
+    private GenerateAPISubObject(pathSegment: string, node: APIPathNode, schemas: Dictionary<OpenAPI.Schema>, indention: number, parentPath: string): string
+    {
+        const subPath = parentPath + "/" + (pathSegment === "*" ? node.wildCardName : pathSegment);
+
+        const segmentName = (pathSegment === "*") ? "_any_" : pathSegment.ReplaceAll("/", "").ReplaceAll("-", "");
+        const apiDefs = (node.pathItem === undefined) ? "" : this.GenerateAPIDefinition(subPath, node.pathItem, schemas, indention + 1);
+        const subObjects = node.children
+            .Map(kv => this.GenerateAPISubObject(kv.key.toString(), kv.value!, schemas, indention + 1, subPath))
+            .Join("\n");
+            const content = [apiDefs, subObjects].filter(x => x.length > 0).join("\n\n");
+
+        return this.Indent(indention) + segmentName + ": {\n" + content + "\n" + this.Indent(indention) + "}";
     }
 
     private GenerateModelSourceCode(modelName: string, schema: OpenAPI.Schema)

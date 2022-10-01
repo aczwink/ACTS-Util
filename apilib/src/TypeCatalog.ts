@@ -114,6 +114,14 @@ export class TypeCatalog
         return obj;
     }
 
+    public ResolveConstant(identifier: ts.Identifier)
+    {
+        const type = this.typeChecker.getTypeAtLocation(identifier);
+        if(type.isStringLiteral())
+            return type.value;
+        throw new Error("Method not implemented.");
+    }
+
     public ResolveSchemaNameFromType(typeNode: ts.TypeNode)
     {
         const type = this.typeChecker.getTypeFromTypeNode(typeNode);

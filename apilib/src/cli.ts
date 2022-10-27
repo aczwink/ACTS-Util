@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import fs from "fs";
+import ts from "typescript";
 import path from "path";
 import { OpenAPIGenerationOrchestrator } from "./OpenAPIGenerationOrchestrator";
 import { APIClassGenerator } from "./APIClassGenerator";
@@ -69,8 +70,15 @@ async function ProcessConfig(config: APILibConfig)
             break;
         case "openapi":
             {
+                const configFile = ts.readConfigFile("tsconfig.json", ts.sys.readFile);
+                const parsedConfig = ts.parseJsonConfigFileContent(
+                    configFile.config,
+                    ts.sys,
+                    "./"
+                );
+
                 const gen = new OpenAPIGenerationOrchestrator;
-                await gen.Generate(sourcePath, destPath, config.securitySchemes);
+                await gen.Generate(sourcePath, destPath, config.securitySchemes, parsedConfig.options);
             }
             break;
     }

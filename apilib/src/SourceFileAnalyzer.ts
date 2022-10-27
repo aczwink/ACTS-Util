@@ -17,10 +17,14 @@
  * */
 import ts from "typescript";
 import "acts-util-core";
-import { APIControllerMetadata, OperationMetadata, ParameterMetadata } from "./Metadata";
+import { APIControllerMetadata, CommonMethodMetadata, OperationMetadata, ParameterMetadata } from "./Metadata";
 import { TypeCatalog } from "./TypeCatalog";
 import { HTTPMethod } from "./APIRegistry";
 
+interface CommonMethodDecoratorInfo
+{
+    type: "common-method";
+}
 interface OperationDecoratorInfo
 {
     type: "operation";
@@ -33,7 +37,21 @@ interface SecurityDecoratorInfo
     security: string[];
 }
 
-type MethodDecoratorInfo = OperationDecoratorInfo | SecurityDecoratorInfo;
+type MethodDecoratorInfo = CommonMethodDecoratorInfo | OperationDecoratorInfo | SecurityDecoratorInfo;
+
+interface CommonAPIMethodInfo
+{
+    type: "common-method";
+}
+interface OperationAPIMethodInfo
+{
+    type: "operation";
+    httpMethod: HTTPMethod;
+    route: string | undefined;
+    security: string[] | undefined;
+}
+
+type APIMethodInfo = CommonAPIMethodInfo | OperationAPIMethodInfo;
 
 export class SourceFileAnalyzer
 {
@@ -100,6 +118,12 @@ export class SourceFileAnalyzer
                     route: ((arg !== undefined) && ts.isStringLiteral(arg) ? arg.text : undefined)
                 };
             }
+            else if(decorator.expression.expression.escapedText === "Common")
+            {
+                return {
+                    type: "common-method"
+                };
+            }
             else if(decorator.expression.expression.escapedText === "Security")
             {
                 const arg = decorator.expression.arguments[0];
@@ -111,7 +135,8 @@ export class SourceFileAnalyzer
         }
     }
 
-    private ExtractParameterDecoratorInfo(decorators: ts.NodeArray<ts.Decorator> | undefined): "body" | "body-prop" | "form-field" | "header" | "path" | "query" | "request"
+    private ExtractParameterDecoratorInfo(decorators: ts.NodeArray<ts.Decorator> | undefined)
+        : "body" | "body-prop" | "common-data" | "form-field" | "header" | "path" | "query" | "request"
     {
         if((decorators !== undefined) && (decorators.length == 1))
         {
@@ -124,6 +149,8 @@ export class SourceFileAnalyzer
                         return "body";
                     case "BodyProp":
                         return "body-prop";
+                    case "Common":
+                        return "common-data";
                     case "FormField":
                         return "form-field";
                     case "Header":
@@ -176,6 +203,9 @@ export class SourceFileAnalyzer
         const baseRoute = this.FindAPIControllerDecorator(classDecl);
         if(baseRoute !== undefined)
         {
+            const className = classDecl.name!.text;
+
+            let common: CommonMethodMetadata | undefined;
             const operations: OperationMetadata[] = [];
             for (const member of classDecl.members)
             {
@@ -183,26 +213,45 @@ export class SourceFileAnalyzer
                     && (member.decorators !== undefined)
                 )
                 {
-                    const apiDecorator = this.FindAPIMethodDecorator(member.decorators);
+                    const apiDecorator = this.FindAPIMethodDecorators(member.decorators);
                     if(apiDecorator)
                     {
+                        const methodName = (member.name as ts.Identifier).text;
                         const parametersInfo = this.ExtractParametersInfo(member.parameters);
                         //console.log("method: ", (member.name as ts.Identifier).text);
                         const responses = this.typeCatalog.ResolveResponsesFromMethodReturnType(member);
-                        operations.push({
-                            methodName: (member.name as ts.Identifier).text,
-                            parameters: parametersInfo,
-                            responses,
-                            ...apiDecorator
-                        });
+
+                        if(apiDecorator.type === "common-method")
+                        {
+                            if(common === undefined)
+                            {
+                                common = {
+                                    methodName,
+                                    parameters: parametersInfo,
+                                    responses
+                                };
+                            }
+                            else
+                                throw new Error("Can't have two common methods in same api controller: " + className);
+                        }
+                        else
+                        {
+                            operations.push({
+                                methodName,
+                                parameters: parametersInfo,
+                                responses,
+                                ...apiDecorator
+                            });
+                        }
                     }
                 }
             }
 
             return {
-                //className: classDecl.name!.text,
+                //className,
 
                 baseRoute: "/" + baseRoute,
+                common,
                 operations
             };
         }
@@ -220,8 +269,9 @@ export class SourceFileAnalyzer
         }
     }
 
-    private FindAPIMethodDecorator(decorators: ts.NodeArray<ts.Decorator>)
+    private FindAPIMethodDecorators(decorators: ts.NodeArray<ts.Decorator>): APIMethodInfo | undefined
     {
+        let common: CommonMethodDecoratorInfo | undefined;
         let op: OperationDecoratorInfo | undefined;
         let sec: SecurityDecoratorInfo | undefined;
         for (const decorator of decorators)
@@ -229,6 +279,9 @@ export class SourceFileAnalyzer
             const data = this.CheckAndExtractAPIMethodDecoratorInfo(decorator);
             switch(data?.type)
             {
+                case "common-method":
+                    common = data;
+                    break;
                 case "operation":
                     op = data;
                     break;
@@ -238,12 +291,21 @@ export class SourceFileAnalyzer
             }
         }
 
-        if(op === undefined)
-            return undefined;
+        if(common === undefined)
+        {
+            if(op === undefined)
+                return undefined;
+
+            return {
+                type: "operation",
+                httpMethod: op.httpMethod,
+                route: op.route,
+                security: sec?.security
+            };
+        }
+
         return {
-            httpMethod: op.httpMethod,
-            route: op.route,
-            security: sec?.security
+            type: "common-method"
         };
     }
 

@@ -27,19 +27,16 @@ import { Dictionary } from "acts-util-core";
 export class OpenAPIGenerationOrchestrator
 {
     //Public methods
-    public async Generate(sourcePath: string, destPath: string, securitySchemes: Dictionary<SecuritySchemeDef>)
+    public async Generate(sourcePath: string, destPath: string, securitySchemes: Dictionary<SecuritySchemeDef>, compilerOptions: ts.CompilerOptions)
     {
         const moduleLoader = new ModuleLoader;
         const sourceFiles = await moduleLoader.FindModuleFiles(sourcePath, ".ts");
 
+        compilerOptions.noEmit = true;
+
         const program = ts.createProgram({
             rootNames: sourceFiles,
-            options: {
-                strict: true,
-                noEmit: true,
-                esModuleInterop: true,
-                experimentalDecorators: true,
-            }
+            options: compilerOptions
         });
         let emitResult = program.emit();
 

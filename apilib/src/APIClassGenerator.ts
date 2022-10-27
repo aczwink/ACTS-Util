@@ -330,7 +330,7 @@ export class APIClassGenerator
             .Join("\n");
             const content = [apiDefs, subObjects].filter(x => x.length > 0).join("\n\n");
 
-        return this.Indent(indention) + segmentName + ": {\n" + content + "\n" + this.Indent(indention) + "}";
+        return this.Indent(indention) + segmentName + ": {\n" + content + "\n" + this.Indent(indention) + "},";
     }
 
     private GenerateModelSourceCode(modelName: string, schema: OpenAPI.Schema)

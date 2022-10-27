@@ -28,23 +28,32 @@ export interface ResponseMetadata
 export interface ParameterMetadata
 {
     name: string;
-    source: "body" | "body-prop" | "form-field" | "header" | "path" | "query" | "request";
+    source: "body" | "body-prop" | "common-data" | "form-field" | "header" | "path" | "query" | "request";
     schemaName: TypeOrRef;
     required: boolean;
 }
 
-export interface OperationMetadata
+interface MethodMetadata
 {
-    route?: string;
-    httpMethod: HTTPMethod;
     methodName: string;
     parameters: ParameterMetadata[];
     responses: ResponseMetadata[];
+}
+
+export interface CommonMethodMetadata extends MethodMetadata
+{
+}
+
+export interface OperationMetadata extends MethodMetadata
+{
+    route?: string;
+    httpMethod: HTTPMethod;
     security?: string[];
 }
 
 export interface APIControllerMetadata
 {
     baseRoute: string;
+    common?: CommonMethodMetadata;
     operations: OperationMetadata[];
 }

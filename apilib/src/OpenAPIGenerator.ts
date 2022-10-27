@@ -17,7 +17,7 @@
  * */
 import { Dictionary, OpenAPI } from "acts-util-core";
 import { APIRegistryInstance } from "./APIRegistry";
-import { APIControllerMetadata, ParameterMetadata, ResponseMetadata } from "./Metadata";
+import { APIControllerMetadata, CommonMethodMetadata, ParameterMetadata, ResponseMetadata } from "./Metadata";
 import { DocumentationData, TypeCatalog, TypeOrRef } from "./TypeCatalog";
 import { TypesDiscriminator } from "./TypesDiscriminator";
 
@@ -37,7 +37,7 @@ export class OpenAPIGenerator
     {
         return {
             components: {
-                schemas: this.CreateSchemas(),
+                schemas: this.CreateSchemas(apiControllersMetadata),
                 securitySchemes: securitySchemes.Entries().ToDictionary(kv => kv.key, kv => ({
                     type: kv.value!.type,
                     scheme: kv.value!.scheme
@@ -78,19 +78,33 @@ export class OpenAPIGenerator
                 const route = apiControllerMetadata.baseRoute + (operation.route === undefined ? "" : "/" + operation.route);
                 if(!(route in obj))
                     obj[route] = {};
+
+                this.VerifyParameters(operation.parameters, operation.methodName);
+
+                const parameters = this.ResolveParameters(operation.parameters, apiControllerMetadata.common);
+                const responses = this.ResolveResponses(operation.responses, apiControllerMetadata.common);
                 
                 const ops = obj[route] as Dictionary<OpenAPI.Operation>;
                 ops[operation.httpMethod.toLowerCase()] = {
                     operationId: APIRegistryInstance.GenerateOperationId(route, operation.httpMethod),
-                    parameters: this.CreateParameters(operation.parameters),
-                    requestBody: this.CreateRequestBody(operation.parameters),
-                    responses: this.CreateResponses(operation.responses),
+                    parameters: this.CreateParameters(parameters),
+                    requestBody: this.CreateRequestBody(parameters),
+                    responses: this.CreateResponses(responses),
                     security: (operation.security === undefined) ? undefined : (operation.security.map(k => ({ [k]: [] }) )),
                 };
             }
         }
 
         return obj;
+    }
+    private VerifyParameters(parameters: ParameterMetadata[], methodName: string)
+    {
+        for (let index = 0; index < parameters.length; index++)
+        {
+            const param = parameters[index];
+            if((param.source === "common-data") && (index != 0))
+                throw new Error("Common parameters must be always the first ones inside a function. Error in method: " + methodName);
+        }
     }
 
     private CreateRequestBody(parameters: ParameterMetadata[]): OpenAPI.RequestBody | undefined
@@ -288,9 +302,39 @@ export class OpenAPIGenerator
         return responses.Values().ToDictionary(x => x.statusCode, this.CreateResponseObject.bind(this));
     }
 
-    private CreateSchemas(): Dictionary<OpenAPI.Schema>
+    private CreateSchemas(apiControllersMetadata: APIControllerMetadata[]): Dictionary<OpenAPI.Schema>
     {
+        const skip = apiControllersMetadata
+            .Values()
+            .Map(x => x.common?.responses.find(x => x.statusCode === 200))
+            .NotUndefined()
+            .Map(x => x.schemaName)
+            .ToSet();
+
         return this.typeCatalog.namedTypes
+            .Filter(x => !skip.has(x))
             .ToDictionary(k => k, this.CreateSchema.bind(this));
+    }
+
+    private ResolveParameters(parameters: ParameterMetadata[], common?: CommonMethodMetadata)
+    {
+        return parameters.Values()
+            .Map(x => x.source === "common-data" ? common!.parameters : [x])
+            .Map(x => x.Values())
+            .Flatten()
+            .Distinct(x => [x.name, x.source])
+            .ToArray();
+    }
+
+    private ResolveResponses(responses: ResponseMetadata[], common?: CommonMethodMetadata)
+    {
+        if(common === undefined)
+            return responses;
+
+        return common.responses.Values()
+            .Filter(x => x.statusCode !== 200) //everything from the common api is allowed but not its standard return value
+            .Concat(responses.Values())
+            .Distinct(x => x.statusCode)
+            .ToArray();
     }
 }

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ declare global
         Intersect: <T>(this: Set<T>, other: Set<T>) => Set<T>;
         ToArray: <T>(this: Set<T>) => T[];
         Values: <T>(this: Set<T>) => EnumeratorBuilder<T>;
+        Without: <T>(this: Set<T>, other: Set<T>) => Set<T>;
     }
 }
 
@@ -52,4 +53,9 @@ Set.prototype.ToArray = function<T>(this: Set<T>)
 Set.prototype.Values = function<T>(this: Set<T>)
 {
     return new EnumeratorBuilder( () => new SymbolIteratorEnumerator(this.values()) );
+}
+
+Set.prototype.Without = function<T>(this: Set<T>, other: Set<T>)
+{
+    return this.Values().Filter(x => !other.has(x)).ToSet();
 }

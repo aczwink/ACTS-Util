@@ -35,7 +35,10 @@ export class BackendInfoGenerator
                 const operationId = APIRegistryInstance.GenerateOperationId(route, operation.httpMethod);
 
                 result[operationId] = {
-                    parameters: operation.parameters.map(this.MapParameterMetadata.bind(this))
+                    parameters: operation.parameters.Values()
+                        .Map(this.MapParameterMetadata.bind(this, apiControllerMetadata.common?.parameters))
+                        .Map(x => x.Values()).Flatten()
+                        .ToArray()
                 };
             }
         }
@@ -44,41 +47,45 @@ export class BackendInfoGenerator
     }
 
     //Private methods
-    private MapParameterMetadata(pm: ParameterMetadata): HTTP.ParameterStructure
+    private MapParameterMetadata(commonParameters: ParameterMetadata[] | undefined, pm: ParameterMetadata): HTTP.ParameterStructure[]
     {
         switch(pm.source)
         {
             case "body":
-                return {
+                return [{
                     name: pm.name,
                     source: "body"
-                };
+                }];
             case "body-prop":
             case "form-field":
-                return {
+                return [{
                     name: pm.name,
                     source: "body-prop"
-                };
+                }];
+            case "common-data":
+                return commonParameters!.Values()
+                    .Map(x => this.MapParameterMetadata(undefined, x).Values())
+                    .Flatten().ToArray();
             case "header":
-                return {
+                return [{
                     name: pm.name,
                     source: "header"
-                };
+                }];
             case "path":
-                return {
+                return [{
                     name: pm.name,
                     source: "path"
-                };
+                }];
             case "query":
-                return {
+                return [{
                     name: pm.name,
                     source: "query"
-                };
+                }];
             case "request":
-                return {
+                return [{
                     name: pm.name,
                     source: "request"
-                };
+                }];
         }
     }
 }

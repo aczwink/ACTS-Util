@@ -22,6 +22,7 @@ import { APIRegistryInstance, HTTPMethod } from "./APIRegistry";
 interface APIClassInstance<PropertiesType, ParameterType>
 {
     __apiEndPointSetups: PropertiesType[];
+    __apiCommonMethodName?: string;
     __apiParameters: Dictionary<ParameterType[]>;
     [key: string]: any;
 }
@@ -69,14 +70,32 @@ export function APIController<T extends {new(...args:any[]):{}}>(baseRoute: stri
 {
     return function (constructor:T)
     {
-        const setups = MakeObjectAPIClassInstance<HTTPEndPointProperties>(constructor.prototype).__apiEndPointSetups;
+        const apiClassInstance = MakeObjectAPIClassInstance<HTTPEndPointProperties>(constructor.prototype);
+        const setups = apiClassInstance.__apiEndPointSetups;
 
         GlobalInjector.RegisterProvider(constructor, constructor);
         const instance: any = GlobalInjector.Resolve(constructor);
 
-        setups.Values().ForEach(props =>
-            APIRegistryInstance.RegisterEndPoint("/" + baseRoute + props.route, props.httpMethod, instance[props.methodName].bind(instance))
-        );
+        setups.Values().ForEach(props => {
+            let func = instance[props.methodName].bind(instance);
+
+            if(apiClassInstance.__apiCommonMethodName !== undefined)
+            {
+                const commonFunc = instance[apiClassInstance.__apiCommonMethodName].bind(instance);
+                const commonArgsLength = commonFunc.length;
+                const origFunc = func;
+
+                func = async function(...args: any[])
+                {
+                    const result = await commonFunc(args.slice(0, commonArgsLength));
+                    if( (result !== undefined) && (result !== null) && (typeof result.statusCode === "number") )
+                        return result;
+                    return await origFunc(result, ...args.slice(commonArgsLength));
+                };
+            }
+
+            APIRegistryInstance.RegisterEndPoint("/" + baseRoute + props.route, props.httpMethod, func)
+        });
     };
 }
 
@@ -86,6 +105,20 @@ export function Body(targetObject: Object, methodName: string, parameterIndex: n
 
 export function BodyProp(targetObject: Object, methodName: string, parameterIndex: number)
 {
+}
+
+export function Common(): (targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor) => void;
+export function Common(targetObject: Object, methodName: string, parameterIndex: number): void;
+export function Common(targetClassOrObject?: Object, methodName?: string, methodDescriptorOrarameterIndex?: PropertyDescriptor | number)
+{
+    return function(targetClass: any, methodName: string)
+    {
+        if(targetClassOrObject === undefined)
+        {
+            const instance = MakeObjectAPIClassInstance(targetClass);
+            instance.__apiCommonMethodName = methodName;
+        }
+    };
 }
 
 export function Delete(route?: string)

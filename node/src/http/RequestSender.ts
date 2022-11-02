@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import http from "http";
+import https from "https";
 import { AbsURL } from "acts-util-core";
 import { ResponseHeaders } from "./Response";
 
@@ -56,11 +57,8 @@ export class RequestSender
     //Public methods
     public async SendRequest(request: Request): Promise<Response>
     {
-        if(request.url.protocol === "https")
-            throw new Error("https is not implemented");
-
         const httpRequest: http.RequestOptions = {
-            protocol: "http:",
+            protocol: (request.url.protocol === "https") ? "https:" : "http:",
             hostname: request.url.host,
             port: request.url.port,
             path: request.url.PathAndQueryToString(),
@@ -82,7 +80,8 @@ export class RequestSender
     {
         return new Promise<RawResult>( (resolve, reject) =>
         {
-            const req = http.request(request, this.OnRequestIssued.bind(this, resolve, reject));
+            const mod = (request.protocol === "https:" ? https : http);
+            const req = mod.request(request, this.OnRequestIssued.bind(this, resolve, reject));
 
             req.on('error', reject);
             if(body !== undefined)

@@ -72,7 +72,7 @@ export class APIClassGenerator
         return "[\n"
             + (
                 rules.Map(x => this.Indent(indention + 1) + "{ format: '" + x.format + "', keys: [" + x.keys.Values().Map(k => "'" + k + "'").Join(", ") + "] }")
-            ).Join("\n")
+            ).Join(",\n")
             + "\n" + this.Indent(indention) + "]";
     }
 
@@ -239,7 +239,7 @@ export class APIClassGenerator
 
     private GenerateAPIClass(paths: OpenAPI.Paths, schemas: Dictionary<OpenAPI.Schema>)
     {
-        const constructorDef = "constructor(private __issueRequest: (requestData: RequestData) => Promise<{ statusCode: number; data: any }>){}";
+        const constructorDef = "constructor(private __issueRequest: (requestData: RequestData) => Promise<RawResponse>){}";
         return "export abstract class API\n{\n\t" + constructorDef + "\n\n" + this.GenerateAPIObjects(paths, schemas) + "\n}";
     }
 
@@ -379,15 +379,24 @@ interface RequestData
     formatRules: FormatRule[];
 }
 
+interface RawResponse
+{
+    statusCode: number;
+    data: any;
+    rawBody: any;
+}
+
 interface ErrorResponse<StatusCodeType>
 {
 	statusCode: StatusCodeType;
+    rawBody: any;
 }
 
 interface SuccessResponse<StatusCodeType, DataType>
 {
 	statusCode: StatusCodeType;
     data: DataType;
+    rawBody: any;
 }
 
 export type ResponseData<SuccessStatusCodeType, ErrorStatusCodeType, DataType> =

@@ -45,6 +45,17 @@ export function Forbidden(errorMessage: string): TypedHTTPResponse<403, string>
     };
 }
 
+export function Conflict(errorMessage: string): TypedHTTPResponse<409, string>
+{
+    return {
+        statusCode: 409,
+        headers: {
+            "Content-Type": "text/html; charset=utf-8",
+        },
+        data: errorMessage
+    };
+}
+
 export function InternalServerError(errorMessage: string): TypedHTTPResponse<500, string>
 {
     return {

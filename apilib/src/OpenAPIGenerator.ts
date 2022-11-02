@@ -310,9 +310,15 @@ export class OpenAPIGenerator
             .NotUndefined()
             .Map(x => x.schemaName)
             .ToSet();
+        const dontSkip = apiControllersMetadata.Values()
+            .Map(x => x.operations.Values()).Flatten()
+            .Map(x => x.responses.Values()).Flatten()
+            .Map(x => x.schemaName)
+            .ToSet();
+        const skipWithoutDontSkip = skip.Without(dontSkip);
 
         return this.typeCatalog.namedTypes
-            .Filter(x => !skip.has(x))
+            .Filter(x => !skipWithoutDontSkip.has(x))
             .ToDictionary(k => k, this.CreateSchema.bind(this));
     }
 

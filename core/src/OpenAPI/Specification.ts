@@ -69,7 +69,7 @@ export interface ObjectSchema extends SchemaBase
     additionalProperties: boolean;
 }
 
-interface OneOfSchema
+export interface OneOfSchema
 {
     oneOf: (Schema | Reference)[];
     discriminator?: {

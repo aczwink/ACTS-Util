@@ -54,9 +54,11 @@ export class OpenAPIGenerationOrchestrator
             }
         });
         let exitCode = emitResult.emitSkipped ? 1 : 0;
-        console.log(`Process exiting with code '${exitCode}'.`);
         if(exitCode)
+        {
+            console.log("Typescript does not compile. Bailing out...");
             process.exit(exitCode);
+        }
 
         const typeCatalog = new TypeCatalog(program.getTypeChecker());
 

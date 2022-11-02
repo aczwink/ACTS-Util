@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { NumberSchema, ObjectSchema, Reference, Root, Schema, StringSchema } from "./Specification";
+import { NumberSchema, ObjectSchema, OneOfSchema, Reference, Root, Schema, StringSchema } from "./Specification";
 
 export class OpenAPISchemaValidator
 {
@@ -37,7 +37,7 @@ export class OpenAPISchemaValidator
         if("anyOf" in schema)
             throw new Error("anyOf not implemented");
         if("oneOf" in schema)
-            throw new Error("anyOf not implemented");
+            return this.ValidateOneOf(value, schema);
 
         switch(schema.type)
         {
@@ -99,5 +99,11 @@ export class OpenAPISchemaValidator
                 return false;
         }
         return true;
+    }
+
+    //Private methods
+    private ValidateOneOf(value: any, schema: OneOfSchema): boolean
+    {
+        return schema.oneOf.Values().Map(x => this.Validate(value, x)).Any();
     }
 }

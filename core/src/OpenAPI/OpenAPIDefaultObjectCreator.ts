@@ -48,6 +48,8 @@ export class OpenAPIDefaultObjectCreator
             case "number":
                 if(schema.default !== undefined)
                     return schema.default;
+                if(schema.enum !== undefined)
+                    return schema.enum[0];
                 return 0;
             case "object":
                 return schema.required.Values().ToDictionary(x => x, x => this.Create(schema.properties[x]!))

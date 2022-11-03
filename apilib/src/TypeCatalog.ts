@@ -29,7 +29,7 @@ interface HTTPResponseWithCode
 interface NumberEnumSchema
 {
     underlyingType: "number";
-    names: string[];
+    names?: string[];
     values: number[];
 }
 interface StringEnumSchema
@@ -415,7 +415,8 @@ export class TypeCatalog
                     stringValues.push(entry.value);
                 else if(entry.isNumberLiteral())
                 {
-                    names.push(entry.symbol.escapedName.toString());
+                    if(entry.symbol !== undefined)
+                        names.push(entry.symbol.escapedName.toString());
                     numberValues.push(entry.value);
                 }
             }
@@ -423,7 +424,7 @@ export class TypeCatalog
             {
                 return {
                     underlyingType: "number",
-                    names,
+                    names: (names.length === numberValues.length) ? names : undefined,
                     values: numberValues
                 };
             }

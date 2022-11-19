@@ -33,6 +33,7 @@ import { DBTransactionalQueryExecutor } from "./db/DBTransactionalQueryExecutor"
 import { CreateTempDir, CreateTempFile } from "./fs/Temp";
 import { ModuleLoader } from "./ModuleLoader";
 import { FileSystemWatcher } from "./fs/FileSystemWatcher";
+import { DBExpression } from "./db/DBExpression";
 
 //Exports
 import * as HTTP_APIServiceBase from "./http/APIServiceBase";
@@ -62,6 +63,7 @@ export {
     CreateTempDir,
     CreateTempFile,
     DBConnectionPool,
+    DBExpression,
     DBFactory,
     DBResource,
     DBQueryExecutor,

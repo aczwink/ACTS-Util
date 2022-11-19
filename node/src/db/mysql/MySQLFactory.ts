@@ -74,6 +74,15 @@ export class MySQLFactory implements DBDriverFactory
 		return new MySQLQueryBuilder;
 	}
 
+	public ParseDateTime(dt: string): Date
+	{
+		const parts = dt.split(" ");
+		const dateParts = parts[0].split("-").map(x => parseInt(x));
+		const timeParts = parts[1].split(":").map(x => parseInt(x));
+
+		return new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2], 0);
+	}
+
     //Private methods
     private async CheckConfig(connection: DBDriverQueryExecutor)
 	{

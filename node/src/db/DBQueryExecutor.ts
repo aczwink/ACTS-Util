@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
+import { DBExpr } from "./DBExpression";
 import { DBDriverQueryExecutor, SQLArgType } from "./driver/DBDriverQueryExecutor";
 
 interface SQLResult
@@ -110,9 +111,13 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 			if (values.hasOwnProperty(key))
 			{
 				let value = values[key];
-				if(value === "NOW()")
+				if(value instanceof DBExpr)
 				{
-					setters.push(key + " = " + value);
+					setters.push(key + " = " + value.stringRepresentation);
+				}
+				else if(value === undefined)
+				{
+					//don't update
 				}
 				else
 				{

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -44,8 +44,16 @@ export class Expector<T>
 
     private ToString(value: T)
     {
+        if(typeof value === "undefined")
+            return "undefined";
+        if(typeof value === "string")
+            return value;
+
+        if(value instanceof Date)
+            return "Date (" + value.toISOString() + ")";
+
         if(value instanceof Set)
             return "Set {" + [...value].join(", ") + "}";
-        return "???";
+        return JSON.stringify(value);
     }
 }

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,13 @@ export class HierarchicalComparator
                 return v2 === null;
             if(v2 === null)
                 return false;
+
+            if(v1 instanceof Date)
+            {
+                if(v2 instanceof Date)
+                    return v1.valueOf() === v2.valueOf();
+                return false;
+            }
 
             if(v1 instanceof Set)
                 return this.EqualsSet(v1, v2);

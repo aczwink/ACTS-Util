@@ -3,3 +3,4 @@ npm-debug.log
 node_modules
 core/package-lock.json
 node/package-lock.json
+test/package-lock.json

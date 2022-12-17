@@ -68,7 +68,7 @@ export class HierarchicalComparator
         return true;
     }
 
-    public EqualsObject<T>(v1: T, v2: T)
+    public EqualsObject<T extends object>(v1: T, v2: T)
     {
         if(this.IsAlreadyEqual(v1, v2))
             return true;

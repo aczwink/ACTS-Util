@@ -135,7 +135,7 @@ export class SourceFileAnalyzer
         }
     }
 
-    private ExtractParameterDecoratorInfo(decorators: ts.NodeArray<ts.Decorator> | undefined)
+    private ExtractParameterDecoratorInfo(decorators: readonly ts.Decorator[] | undefined)
         : "body" | "body-prop" | "common-data" | "form-field" | "header" | "path" | "query" | "request"
     {
         if((decorators !== undefined) && (decorators.length == 1))
@@ -178,7 +178,7 @@ export class SourceFileAnalyzer
         {
             return {
                 name: nameNode.text,
-                source: this.ExtractParameterDecoratorInfo(param.decorators),
+                source: this.ExtractParameterDecoratorInfo(ts.getDecorators(param)),
                 schemaName,
                 required: param.questionToken === undefined
             };
@@ -209,11 +209,10 @@ export class SourceFileAnalyzer
             const operations: OperationMetadata[] = [];
             for (const member of classDecl.members)
             {
-                if(ts.isMethodDeclaration(member)
-                    && (member.decorators !== undefined)
+                if(ts.isMethodDeclaration(member) && ts.canHaveDecorators(member) && (ts.getDecorators(member) !== undefined)
                 )
                 {
-                    const apiDecorator = this.FindAPIMethodDecorators(member.decorators);
+                    const apiDecorator = this.FindAPIMethodDecorators(ts.getDecorators(member)!);
                     if(apiDecorator)
                     {
                         const methodName = (member.name as ts.Identifier).text;
@@ -259,9 +258,13 @@ export class SourceFileAnalyzer
 
     private FindAPIControllerDecorator(classDecl: ts.ClassDeclaration)
     {
-        if(classDecl.decorators === undefined)
+        if(!ts.canHaveDecorators(classDecl))
             return;
-        for (const decorator of classDecl.decorators)
+        const decorators = ts.getDecorators(classDecl);
+        if(decorators === undefined)
+            return;
+
+        for (const decorator of decorators)
         {
             const baseRoute = this.CheckAndExtractAPIControllerInfo(decorator);
             if(baseRoute !== undefined)
@@ -269,7 +272,7 @@ export class SourceFileAnalyzer
         }
     }
 
-    private FindAPIMethodDecorators(decorators: ts.NodeArray<ts.Decorator>): APIMethodInfo | undefined
+    private FindAPIMethodDecorators(decorators: readonly ts.Decorator[]): APIMethodInfo | undefined
     {
         let common: CommonMethodDecoratorInfo | undefined;
         let op: OperationDecoratorInfo | undefined;

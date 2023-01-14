@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import ts from "typescript";
-import { Dictionary } from "acts-util-core";
+import { Dictionary, EqualsAny } from "acts-util-core";
 import { ResponseMetadata } from "./Metadata";
 
 interface HTTPResponseWithCode
@@ -197,7 +197,7 @@ export class TypeCatalog
 
     private MergeEqualTypes(types: (string | Type)[])
     {
-        return types.filter( (x, i) => i === types.findIndex(y => x.Equals(y)) );
+        return types.filter( (x, i) => i === types.findIndex(y => EqualsAny(x, y)) );
     }
 
     private RegisterType(schemaName: string, namedType: Type)

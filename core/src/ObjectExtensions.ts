@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -33,8 +33,8 @@ declare global
         Clone: <T>(this: T) => T;
         DeepClone: <T>(this: T) => T;
         Entries: <T extends object>(this: T) => EnumeratorBuilder<KeyValuePair<keyof T, T[keyof T]>>;
-        Equals: <T>(this: T, other: T) => boolean;
-        IsEmpty: <T>(this: T) => boolean;
+        Equals: <T extends object>(this: T, other: T) => boolean;
+        IsEmpty: <T extends object>(this: T) => boolean;
         IsObject: (value: any) => boolean;
         ObserveProperties: <T>(this: T) => ObservableObject<T>;
         OwnKeys: <T>(this: T) => EnumeratorBuilder<keyof T>;
@@ -80,13 +80,13 @@ Object.prototype.Entries = function<T extends object>(this: T)
     });
 }
 
-Object.prototype.Equals = function<T>(this: T, other: T)
+Object.prototype.Equals = function<T extends object>(this: T, other: T)
 {
     const cmp = new HierarchicalComparator();
     return cmp.EqualsObject(this, other);
 }
 
-Object.prototype.IsEmpty = function<T>(this: T)
+Object.prototype.IsEmpty = function<T extends object>(this: T)
 {
     return Object.keys(this).length === 0;
 }

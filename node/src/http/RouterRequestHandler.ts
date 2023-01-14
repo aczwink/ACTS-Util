@@ -66,7 +66,11 @@ export class RouterRequestHandler implements RequestHandler
             const args = this.ExtractArgs(validatedArgs, request, this.operationToStructureMap[operationId]!);
             try
             {
-                const result = await this.operationToFunctionMap[operationId]!.call(undefined, ...args);
+                const func = this.operationToFunctionMap[operationId];
+                if(func === undefined)
+                    throw new Error("no function registered for operation: " + operationId);
+
+                const result = await func.call(undefined, ...args);
                 return this.WrapResult(result);
             }
             catch(e)

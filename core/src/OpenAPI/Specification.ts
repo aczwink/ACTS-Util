@@ -35,7 +35,7 @@ interface PrimitiveSchemaBase extends SchemaBase
     format?: string;
 }
 
-interface ArraySchema extends SchemaBase
+export interface ArraySchema extends SchemaBase
 {
     type: "array";
     items: Schema | Reference;

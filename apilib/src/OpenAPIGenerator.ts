@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -304,6 +304,20 @@ export class OpenAPIGenerator
 
     private CreateSchemas(apiControllersMetadata: APIControllerMetadata[]): Dictionary<OpenAPI.Schema>
     {
+        function FlattenType(typeOrRef: TypeOrRef)
+        {
+            if(typeof typeOrRef !== "string")
+            {
+                switch(typeOrRef.kind)
+                {
+                    case "array":
+                        return typeOrRef.entryType;
+                }
+            }
+
+            return typeOrRef;
+        }
+
         const skip = apiControllersMetadata
             .Values()
             .Map(x => x.common?.responses.find(x => x.statusCode === 200))
@@ -313,7 +327,7 @@ export class OpenAPIGenerator
         const dontSkip = apiControllersMetadata.Values()
             .Map(x => x.operations.Values()).Flatten()
             .Map(x => x.responses.Values()).Flatten()
-            .Map(x => x.schemaName)
+            .Map(x => FlattenType(x.schemaName))
             .ToSet();
         const skipWithoutDontSkip = skip.Without(dontSkip);
 

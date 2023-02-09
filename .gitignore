@@ -1,6 +1,7 @@
 dist
 npm-debug.log
 node_modules
+apilib/package-lock.json
 core/package-lock.json
 node/package-lock.json
 test/package-lock.json

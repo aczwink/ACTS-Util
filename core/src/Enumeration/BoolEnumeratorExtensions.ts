@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2021-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -23,10 +23,16 @@ declare module "./EnumeratorBuilder"
     interface EnumeratorBuilder<T>
     {
         All: (this: EnumeratorBuilder<boolean>) => boolean;
+        AnyTrue: (this: EnumeratorBuilder<boolean>) => boolean;
     }
 }
 
 EnumeratorBuilder.prototype.All = function(this: EnumeratorBuilder<boolean>)
 {
     return !this.Filter(x => x === false).Any();
+}
+
+EnumeratorBuilder.prototype.AnyTrue = function(this: EnumeratorBuilder<boolean>)
+{
+    return this.Filter(x => x === true).Any();
 }

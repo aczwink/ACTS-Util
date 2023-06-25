@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ import "./Enumeration/MapIterator";
 import "./Enumeration/NumberEnumeratorExtensions";
 import "./Enumeration/StringEnumeratorExtensions";
 
-import { Dictionary } from "./Dictionary";
+import { Dictionary, NumberDictionary } from "./Dictionary";
 import { MulticastObservable } from "./Observables/MulticastObservable";
 import { Observable, Observer, Subscription, SubscriberFunction } from "./Observables/Observable";
 import { Property, PropertyObserver } from "./Observables/Property";
@@ -58,6 +58,7 @@ export {
     Injector,
     Instantiatable,
     MulticastObservable,
+    NumberDictionary,
     Observable,
     ObservableObject,
     Observer,

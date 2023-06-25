@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,4 +18,9 @@
 export interface Dictionary<T>
 {
     [key: string]: T | undefined;
+}
+
+export interface NumberDictionary<T>
+{
+    [key: number]: T | undefined;
 }

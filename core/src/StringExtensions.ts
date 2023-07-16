@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020,2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -30,8 +30,11 @@ declare global
 String.prototype.ReplaceAll = function(this: string, searchValue: string, replaceValue: string)
 {
     let result = this;
-    while(result.indexOf(searchValue) !== -1)
-        result = result.replace(searchValue, replaceValue);
+    for(let pos = result.indexOf(searchValue); pos !== -1; pos = result.indexOf(searchValue, pos))
+    {
+        result = result.substring(0, pos) + replaceValue + result.substring(pos + searchValue.length);
+        pos += replaceValue.length;
+    }
     return result;
 }
 

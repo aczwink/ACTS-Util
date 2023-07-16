@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -87,7 +87,7 @@ export function APIController<T extends {new(...args:any[]):{}}>(baseRoute: stri
 
                 func = async function(...args: any[])
                 {
-                    const result = await commonFunc(args.slice(0, commonArgsLength));
+                    const result = await commonFunc(...args.slice(0, commonArgsLength));
                     if( (result !== undefined) && (result !== null) && (typeof result.statusCode === "number") )
                         return result;
                     return await origFunc(result, ...args.slice(commonArgsLength));

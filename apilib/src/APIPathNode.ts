@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -51,7 +51,7 @@ export class APIPathNode
             if(this._pathItem === undefined)
                 this._pathItem = pathItem;
             else
-                throw new Error("not implemented");
+                throw new Error("not implemented1");
             return;
         }
     
@@ -62,7 +62,7 @@ export class APIPathNode
                 return this._children["*"]!.Add(pathSegments.slice(1), pathItem);
 
             if(this._children.Values().Any())
-                throw new Error("not implemented");
+                throw new Error("Conflict: Route with segment '" + currentSegment + "' is supposed to be wildcard but already has children: " + this.children.Map(x => x.key.toString()).Join(", "));
             this.hasOnlyWildCardChild = true;
             const child = this._children["*"] = new APIPathNode;
             child._wildCardName = currentSegment;
@@ -70,7 +70,7 @@ export class APIPathNode
         }
 
         if(this.hasOnlyWildCardChild)
-            throw new Error("Method not implemented.");
+            throw new Error("Conflict: Can't add route because a wildcard was already specified: " + pathSegments.join("/"));
 
         if(this._children[currentSegment] === undefined)
             this._children[currentSegment] = new APIPathNode;

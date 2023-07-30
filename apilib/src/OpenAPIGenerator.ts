@@ -201,6 +201,7 @@ export class OpenAPIGenerator
                 case "array":
                     return {
                         title: docData?.title,
+                        description: docData?.description,
                         type: "array",
                         items: this.CreateSchemaOrReference(typeOrRef.entryType)
                     };
@@ -215,6 +216,7 @@ export class OpenAPIGenerator
                     }
                     return {
                         type: typeOrRef.schema.underlyingType,
+                        description: docData?.description,
                         enum: typeOrRef.schema.values
                     };
                 case "object":

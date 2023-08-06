@@ -285,7 +285,7 @@ export class APIClassGenerator
 
         const subIndention = indention + 2;
         const requestParamObjectString = "{\n"
-            + this.Indent(subIndention) + "path: `" + path.ReplaceAll("{", "${") + "`,\n"
+            + this.Indent(subIndention) + "path: `" + path.ReplaceAll("{", "${encodeURIComponent(").ReplaceAll("}", ")}") + "`,\n"
             + this.Indent(subIndention) + "method: '" + operationName.toUpperCase() + "',\n"
             + this.Indent(subIndention) + "responseType: '" + responseType.format + "',\n"
             + this.Indent(subIndention) + "successStatusCode: " + responseType.statusCode + ",\n"

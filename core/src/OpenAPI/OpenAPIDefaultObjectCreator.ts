@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -54,6 +54,8 @@ export class OpenAPIDefaultObjectCreator
             case "object":
                 return schema.required.Values().ToDictionary(x => x, x => this.Create(schema.properties[x]!))
             case "string":
+                if(schema.default !== undefined)
+                    return schema.default;
                 if(schema.enum !== undefined)
                     return schema.enum[0];
                 return "";

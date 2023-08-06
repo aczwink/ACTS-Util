@@ -80,6 +80,7 @@ export interface OneOfSchema
 export interface StringSchema extends PrimitiveSchemaBase
 {
     type: "string";
+    default?: string;
     enum?: string[];
     format?: "binary" | "date-time";
     pattern?: string;

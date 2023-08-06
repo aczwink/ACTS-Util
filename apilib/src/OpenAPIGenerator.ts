@@ -273,6 +273,7 @@ export class OpenAPIGenerator
                 };
             case "string":
                 return {
+                    default: docData?.default,
                     description: docData?.description,
                     format: docData?.format as any,
                     pattern: docData?.pattern,

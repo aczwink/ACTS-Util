@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,8 @@ export interface RequestHeaders
     Authorization?: string;
     "Content-Type"?: "application/json";
     "Content-Length"?: number;
+    Host?: string;
+    "User-Agent"?: string;
 }
 
 export type HTTPMethod = "DELETE" | "GET" | "PATCH" | "PUT" | "POST";
@@ -96,18 +98,46 @@ export class RequestSender
             Authorization: headers.Authorization,
             "Content-Length": headers["Content-Length"],
             "Content-Type": headers["Content-Type"],
+            Host: headers.Host,
+            "User-Agent": headers["User-Agent"]
         };
     }
 
     private MapResponseHeaders(headers: http.IncomingHttpHeaders): ResponseHeaders
     {
         return {
+            "Access-Control-Expose-Headers": headers["access-control-expose-headers"],
+            "Cache-Control": headers["cache-control"],
             "Content-Disposition": headers["content-disposition"],
-            "Content-Type": headers["content-type"] as any,
+            "Content-Type": this.ParseContentTypeHeader(headers["content-type"]),
         };
     }
 
     //Event handlers
+    private ParseContentTypeHeader(rawHeader: string | undefined)
+    {
+        if(rawHeader === undefined)
+            return undefined;
+
+        const parts = rawHeader.split("; ");
+        const mediaType = parts.shift();
+        let charset = undefined;
+
+        for (const part of parts)
+        {
+            const subParts = part.split("=");
+            if(subParts[0] === "charset")
+                charset = subParts[1].toLowerCase();
+            else
+                throw new Error("Unknown directive in Content-Type header: " + part);
+        }
+
+        return {
+            mediaType: mediaType,
+            charset
+        } as any;
+    }
+
     private OnRequestIssued(resolve: (value: RawResult) => void, reject: (reason: Response) => void, res: http.IncomingMessage)
     {        
         const body: Buffer[] = [];

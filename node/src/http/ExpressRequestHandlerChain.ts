@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -114,7 +114,10 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
             this.SendReponse({
                 data: "Request could not be handled",
                 headers: {
-                    "Content-Type": "text/html; charset=utf-8"
+                    "Content-Type": {
+                        mediaType: "text/html",
+                        charset: "utf-8"
+                    }
                 },
                 statusCode: 500,
             }, res);

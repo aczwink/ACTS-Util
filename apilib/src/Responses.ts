@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,10 @@ export function BadRequest(errorMessage: string): TypedHTTPResponse<400, string>
     return {
         statusCode: 400,
         headers: {
-            "Content-Type": "text/html; charset=utf-8",
+            "Content-Type": {
+                mediaType: "text/html",
+                charset: "utf-8"
+            }
         },
         data: errorMessage
     };
@@ -39,7 +42,10 @@ export function Forbidden(errorMessage: string): TypedHTTPResponse<403, string>
     return {
         statusCode: 403,
         headers: {
-            "Content-Type": "text/html; charset=utf-8",
+            "Content-Type": {
+                mediaType: "text/html",
+                charset: "utf-8"
+            }
         },
         data: errorMessage
     };
@@ -50,7 +56,10 @@ export function Conflict(errorMessage: string): TypedHTTPResponse<409, string>
     return {
         statusCode: 409,
         headers: {
-            "Content-Type": "text/html; charset=utf-8",
+            "Content-Type": {
+                mediaType: "text/html",
+                charset: "utf-8"
+            }
         },
         data: errorMessage
     };
@@ -61,7 +70,10 @@ export function InternalServerError(errorMessage: string): TypedHTTPResponse<500
     return {
         statusCode: 500,
         headers: {
-            "Content-Type": "text/html; charset=utf-8",
+            "Content-Type": {
+                mediaType: "text/html",
+                charset: "utf-8"
+            }
         },
         data: errorMessage
     };
@@ -72,7 +84,10 @@ export function NotFound(errorMessage: string): TypedHTTPResponse<404, string>
     return {
         statusCode: 404,
         headers: {
-            "Content-Type": "text/html; charset=utf-8",
+            "Content-Type": {
+                mediaType: "text/html",
+                charset: "utf-8"
+            }
         },
         data: errorMessage
     };
@@ -92,7 +107,10 @@ export function Unauthorized(errorMessage: string): TypedHTTPResponse<401, strin
     return {
         statusCode: 401,
         headers: {
-            "Content-Type": "text/html; charset=utf-8",
+            "Content-Type": {
+                mediaType: "text/html",
+                charset: "utf-8"
+            }
         },
         data: errorMessage
     };

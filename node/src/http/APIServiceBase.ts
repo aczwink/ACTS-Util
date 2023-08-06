@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
  * */
 import { AbsURL } from "acts-util-core";
 import { HTTPMethod, RequestHeaders, RequestSender } from "./RequestSender";
+import { ResponseHeaders } from "./Response";
 
 interface RequestData
 {
@@ -83,7 +84,7 @@ export class APIServiceBase
 
         return {
             statusCode: response.statusCode,
-            body: (response.statusCode === 204) ? undefined : this.FormatResponseBody(response.body, requestData.responseType)
+            body: (response.statusCode === 204) ? undefined : this.FormatResponseBody(response.body, requestData.responseType, response.headers)
         };
     }
 
@@ -98,10 +99,14 @@ export class APIServiceBase
         return Buffer.alloc(0);
     }
 
-    private FormatResponseBody(body: Buffer, responseType: "blob" | "json")
+    private FormatResponseBody(body: Buffer, responseType: "blob" | "json", responseHeaders: ResponseHeaders)
     {
         if(responseType === "blob")
             return body;
-        return JSON.parse(body.toString("utf-8"));
+
+        let encoding = responseHeaders["Content-Type"]?.charset ?? "utf-8";
+        if( (responseHeaders["Content-Type"]?.mediaType !== "application/json") )
+            throw new Error("Illegal content type for parsing JSON: " + responseHeaders["Content-Type"]);
+        return JSON.parse(body.toString(encoding));
     }
 }

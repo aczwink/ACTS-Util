@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ async function LoadAll(dirPath: string)
 
         const stats = fs.statSync(childPath);
         if(stats.isDirectory())
-            LoadAll(childPath);
+            await LoadAll(childPath);
         else if(child.endsWith(".js"))
         {
             const loadPath = childPath.substr(0, childPath.length - 3);

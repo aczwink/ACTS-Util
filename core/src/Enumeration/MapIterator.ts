@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -42,10 +42,19 @@ declare module "./EnumeratorBuilder"
     interface EnumeratorBuilder<T>
     {
         Map: <T, U>(this: EnumeratorBuilder<T>, func: (input: T) => U) => EnumeratorBuilder<U>;
+        MapAsync: <T, U>(this: EnumeratorBuilder<Promise<T>>, func: (input: T) => U) => EnumeratorBuilder<Promise<U>>;
     }
 }
 
 EnumeratorBuilder.prototype.Map = function<T, U>(this: EnumeratorBuilder<T>, func: (input: T) => U)
 {
     return new EnumeratorBuilder(() => new MapIterator<T, U>(this.CreateInstance(), func));
+}
+
+EnumeratorBuilder.prototype.MapAsync = function<T, U>(this: EnumeratorBuilder<Promise<T>>, func: (input: T) => U)
+{
+    return this.Map(async x => {
+        const result = await x;
+        return func(result);
+    });
 }

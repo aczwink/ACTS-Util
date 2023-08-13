@@ -20,5 +20,8 @@
   "devDependencies": {
     "@types/node": "^14.18.33",
     "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "acts-util-core": "*"
   }
 }

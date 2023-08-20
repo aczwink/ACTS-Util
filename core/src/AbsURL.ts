@@ -26,6 +26,7 @@ interface URLProperties
     readonly port: number;
     readonly path: string;
     readonly queryParams: Dictionary<string>;
+    readonly fragment?: string;
 }
 
 /**
@@ -43,6 +44,11 @@ export class AbsURL implements URLProperties
     public get authority()
     {
         return this.urlProperties.host + ":" + this.urlProperties.port;
+    }
+
+    public get fragment()
+    {
+        return this.urlProperties.fragment;
     }
 
     public get host()
@@ -100,14 +106,19 @@ export class AbsURL implements URLProperties
 
     public ToString()
     {
-        return this.protocol + "://" + this.authority + this.PathAndQueryToString();
+        const frag = (this.fragment === undefined) ? "" : ("#" + this.fragment);
+        return this.protocol + "://" + this.authority + this.PathAndQueryToString() + frag;
     }
 
     //Public functions
-    public static FromRelative(absolutePrefix: AbsURL, relativePathWithQuery: string)
+    public static FromRelative(absolutePrefix: AbsURL, relativePathWithQueryAndFragment: string)
     {
-        const parts = relativePathWithQuery.split("?");
-        const relativePath = parts[0];
+        const parts = relativePathWithQueryAndFragment.split("#");
+        const fragment = (parts.length === 2) ? parts[1] : undefined;
+
+        const relativePathWithQuery = parts[0];
+        const parts2 = relativePathWithQuery.split("?");
+        const relativePath = parts2[0];
         const joinedPath = AbsURL.JoinPaths(absolutePrefix.path, relativePath);
 
         return new AbsURL({
@@ -115,7 +126,8 @@ export class AbsURL implements URLProperties
             path: joinedPath,
             port: absolutePrefix.port,
             protocol: absolutePrefix.protocol,
-            queryParams: URLParser.ParseQueryParams(parts[1] ?? "")
+            queryParams: URLParser.ParseQueryParams(parts2[1] ?? ""),
+            fragment
         });
     }
 

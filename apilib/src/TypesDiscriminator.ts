@@ -91,6 +91,8 @@ export class TypesDiscriminator
         {
             switch(type)
             {
+                case "boolean":
+                case "null":
                 case "string":
                     return type;
             }

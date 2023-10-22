@@ -449,6 +449,8 @@ export type ResponseData<SuccessStatusCodeType, ErrorStatusCodeType, DataType> =
                 return "boolean";
             case "number":
                 return "number";
+            case "'null'":
+                return "null";
             case "object":
                 return "{\n"
                     + schema.properties.Entries()

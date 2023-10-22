@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -52,6 +52,11 @@ interface BooleanSchema extends PrimitiveSchemaBase
     default?: boolean;
 }
 
+interface NullSchema extends PrimitiveSchemaBase
+{
+    type: "'null'";
+}
+
 export interface NumberSchema extends PrimitiveSchemaBase
 {
     type: "number";
@@ -86,7 +91,7 @@ export interface StringSchema extends PrimitiveSchemaBase
     pattern?: string;
 }
 
-export type Schema = AnyOfSchema | ArraySchema | BooleanSchema | NumberSchema | ObjectSchema | OneOfSchema | StringSchema;
+export type Schema = AnyOfSchema | ArraySchema | BooleanSchema | NullSchema | NumberSchema | ObjectSchema | OneOfSchema | StringSchema;
 
 interface HTTPSecurityScheme
 {

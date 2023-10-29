@@ -41,7 +41,7 @@ declare module "./EnumeratorBuilder"
 {
     interface EnumeratorBuilder<T>
     {
-        Map: <T, U>(this: EnumeratorBuilder<T>, func: (input: T) => U) => EnumeratorBuilder<U>;
+        Map: <U>(this: EnumeratorBuilder<T>, func: (input: T) => U) => EnumeratorBuilder<U>;
         MapAsync: <T, U>(this: EnumeratorBuilder<Promise<T>>, func: (input: T) => U) => EnumeratorBuilder<Promise<U>>;
     }
 }

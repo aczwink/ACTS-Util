@@ -84,7 +84,7 @@ export class OpenAPISchemaValidator
 
     public ValidateObject(obj: any, schema: ObjectSchema)
     {
-        return schema.properties.Entries().Map(kv => this.Validate(obj[kv.key], kv.value!)).All();
+        return schema.properties.Entries().Map(kv => this.ValidateProperty(obj, schema.required, kv.key.toString(), kv.value!)).All();
     }
 
     public ValidateString(value: string, schema: StringSchema)
@@ -105,6 +105,15 @@ export class OpenAPISchemaValidator
     }
 
     //Private methods
+    private ValidateProperty(obj: any, requiredProperties: string[], key: string, propertySchema: Schema | Reference): boolean
+    {
+        const value = obj[key];
+
+        if((value === undefined) && !requiredProperties.includes(key))
+            return true;
+        return this.Validate(value, propertySchema);
+    }
+
     private ValidateOneOf(value: any, schema: OneOfSchema): boolean
     {
         return schema.oneOf.Values().Map(x => this.Validate(value, x)).Any();

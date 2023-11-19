@@ -88,7 +88,7 @@ export class OperationValidator
             {
                 const schema = requestBody.content[key]?.schema!;
 
-                this._body = this.ValidateValue(body, requestBody.required === true, schema);
+                this._body = this.ValidateValue(body, requestBody.required === true, schema, "body");
             }
         }
     }
@@ -109,7 +109,7 @@ export class OperationValidator
                         dest = undefined;
                 }
                 else
-                    dest = this.ValidateValue(decodeURIComponent(src), param.required === true, param.schema);
+                    dest = this.ValidateValue(decodeURIComponent(src), param.required === true, param.schema, "query");
 
                 this._queryParams[param.name] = dest;
                 delete queryParams[param.name];
@@ -128,12 +128,12 @@ export class OperationValidator
             {
                 const value = routeParams[param.name];
                 const unescaped = (value === undefined ? undefined : decodeURIComponent(value));
-                this._routeParams[param.name] = this.ValidateValue(unescaped, true, param.schema);
+                this._routeParams[param.name] = this.ValidateValue(unescaped, true, param.schema, "path");
             }
         }
     }
 
-    private ValidateValue(value: any, required: boolean, schema: OpenAPI.Schema | OpenAPI.Reference): any
+    private ValidateValue(value: any, required: boolean, schema: OpenAPI.Schema | OpenAPI.Reference, source: "body" | "path" | "query"): any
     {
         if(value === undefined)
         {
@@ -146,11 +146,29 @@ export class OperationValidator
         {
             const refName = schema.$ref.split('/').pop()!;
             const refSchema = this.apiDefinition.components.schemas[refName]!;
-            return this.ValidateValue(value, required, refSchema);
+            return this.ValidateValue(value, required, refSchema, source);
         }
 
         if("anyOf" in schema)
-            return value;
+        {
+            const matches = [];
+            for (const x of schema.anyOf)
+            {
+                try
+                {
+                    const matched = this.ValidateValue(value, required, x, source);
+                    matches.push(matched);
+                }
+                catch(e)
+                {
+                    //not nice code :S
+                }
+            }
+            if(matches.length === 1)
+                return matches[0];
+            console.log(matches);
+            throw new Error("TODO: implement me");
+        }
         if("oneOf" in schema)
             return value;
 
@@ -159,11 +177,19 @@ export class OperationValidator
         switch(schema.type)
         {
             case "array":
-                return value.map( (x: any) => this.ValidateValue(x, true, schema.items) );
+                return value.map( (x: any) => this.ValidateValue(x, true, schema.items, source) );
 
             case "boolean":
                 if(typeof value === "boolean")
                     return value;
+                if(source === "query")
+                {
+                    //in query params, they come as string
+                    if(value === "true")
+                        return true;
+                    if(value === "false")
+                        return false;
+                }
                 throw new Error("NOT IMPLEMENTED: " + (typeof value) + " - " + value);
 
             case "number":
@@ -188,7 +214,7 @@ export class OperationValidator
                 {
                     if (Object.prototype.hasOwnProperty.call(schema.properties, key))
                     {
-                        result[key] = this.ValidateValue(value[key], req.has(key), schema.properties[key]!);
+                        result[key] = this.ValidateValue(value[key], req.has(key), schema.properties[key]!, source);
                     }
                 }
 
@@ -198,6 +224,19 @@ export class OperationValidator
                 if(!validator.ValidateString(value, schema))
                     throw new Error("illegal enum value: " + value);
                 return value;
+
+            case "'null'":
+                if(source === "body")
+                {
+                    if(value === null)
+                        return null;
+                }
+                else if(source === "query")
+                {
+                    if(value === "null")
+                        return null;
+                }
+                throw new Error("NOT IMPLEMENTED: " + (typeof value) + " - " + value);
         }
     }
 }

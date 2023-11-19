@@ -93,6 +93,7 @@ export class TypesDiscriminator
             {
                 case "boolean":
                 case "null":
+                case "number":
                 case "string":
                     return type;
             }

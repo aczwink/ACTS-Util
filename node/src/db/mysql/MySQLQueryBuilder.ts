@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2021-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Column, CombinedCondition, DBQueryBuilder, DBTable, Grouping, Join, JoinConditionWithConstant, JoinConditionWithTable, LeafCondition, SpecialColumn } from "../driver/DBQueryBuilder";
+import { Column, CombinedCondition, ConditionOperand, DBQueryBuilder, DBTable, Grouping, Join, JoinConditionWithConstant, JoinConditionWithTable, LeafCondition, SpecialColumn } from "../driver/DBQueryBuilder";
 
 interface JoinWithTable
 {
@@ -105,8 +105,10 @@ export class MySQLQueryBuilder implements DBQueryBuilder
     private primaryTable: DBTable | null;
 
     //Private methods
-    private ConstantToSQL(constant: string | number)
+    private ConstantToSQL(constant: string | number | null)
     {
+        if(constant === null)
+            return "NULL";
         if(typeof(constant) === "number")
             return constant.toString();
         return '"' + constant + '"';
@@ -116,7 +118,7 @@ export class MySQLQueryBuilder implements DBQueryBuilder
     {
         if("combination" in condition)
             return condition.conditions.map(this.CreateConditionSQL.bind(this)).join(" " + condition.combination + " ");
-        return "(" + condition.table.id + "." + condition.column + " " + condition.operator + " " + this.ConstantToSQL(condition.constant) + ")";
+        return "(" + this.OperandToSQL(condition.operand) + " " + condition.operator + " " + this.ConstantToSQL(condition.constant) + ")";
     }
 
     private CreateJoinConditionSQL(j: JoinConditionWithConstant | JoinConditionWithTable)
@@ -156,5 +158,12 @@ export class MySQLQueryBuilder implements DBQueryBuilder
     private GroupingsToSQL()
     {
         return this.groupings.Values().Map(x => x.table.id + "." + x.columnName).Join(", ");
+    }
+
+    private OperandToSQL(operand: ConditionOperand): string
+    {
+        if("table" in operand)
+            return operand.table.id + "." + operand.column;
+        return operand.function + "(" + operand.args.map(this.OperandToSQL.bind(this)).join(",") + ")";
     }
 }

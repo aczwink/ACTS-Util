@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2021-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -33,12 +33,19 @@ export interface SpecialColumn
     special: "count";
 }
 
+export interface CallExpr
+{
+    function: string;
+    args: ConditionOperand[];
+}
+
+export type ConditionOperand = CallExpr | Column;
+
 export interface LeafCondition
 {
-    table: DBTable;
-    column: string;
-    operator: "=" | "LIKE";
-    constant: number | string;
+    operand: ConditionOperand;
+    operator: "=" | "LIKE" | "IS";
+    constant: number | string | null;
 }
 
 export interface CombinedCondition

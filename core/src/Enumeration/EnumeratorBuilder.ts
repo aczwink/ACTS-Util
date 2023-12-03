@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -188,6 +188,23 @@ export class EnumeratorBuilder<T>
         const tmp = this.ToArray();
         tmp.sort(sorter);
         return tmp.Values();
+    }
+
+    public Take(count: number)
+    {
+        return new EnumeratorBuilder<T>( () => {
+            const it = this.CreateInstance();
+            return {
+                HasNext() {
+                    return it.HasNext() && (count > 0);
+                },
+
+                Next() {
+                    count--;
+                    return it.Next();
+                },
+            };
+        });
     }
 
     public ToArray()

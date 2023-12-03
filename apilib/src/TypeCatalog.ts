@@ -363,6 +363,9 @@ export class TypeCatalog
         if(type.flags & ts.TypeFlags.String)
             return "string";
 
+        if(type.flags === ts.TypeFlags.NonPrimitive)
+            return "object";
+
         if(type.symbol.escapedName === "Array")
         {
             const nested = this.typeChecker.getTypeArguments(type as ts.TypeReference);

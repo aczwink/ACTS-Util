@@ -275,6 +275,13 @@ export class OpenAPIGenerator
                 return {
                     type: "'null'"
                 };
+            case "object":
+                return {
+                    type: "object",
+                    properties: {},
+                    required: [],
+                    additionalProperties: true,
+                };
             case "string":
                 return {
                     default: docData?.default,

@@ -63,8 +63,6 @@ export class OpenAPISchemaValidator
                 return this.ValidateObject(value, schema);
 
             case "string":
-                if(typeof value !== "string")
-                    return false;
                 return this.ValidateString(value, schema);
         }
     }
@@ -89,6 +87,10 @@ export class OpenAPISchemaValidator
 
     public ValidateString(value: string, schema: StringSchema)
     {
+        if(schema.format === "binary")
+            return value !== null;
+        if(typeof value !== "string")
+            return false;
         if(schema.enum !== undefined)
         {
             if(!schema.enum.Contains(value))

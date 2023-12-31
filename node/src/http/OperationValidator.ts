@@ -67,6 +67,38 @@ export class OperationValidator
         return !isNaN(parseFloat(str));
     }
 
+    private TrySupertypeMatching(a: any, b: any)
+    {
+        if((typeof a) === (typeof b))
+        {
+            switch(typeof a)
+            {
+                case "object":
+                {
+                    const ka = Object.keys(a);
+                    const kb = Object.keys(b);
+                    const commonKeys = ka.Values().ToSet().Intersect(kb.Values().ToSet()).ToArray();
+                    for (const key of commonKeys)
+                    {
+                        const x = a[key];
+                        const y = b[key];
+
+                        if( (typeof x) !== (typeof y) )
+                            throw new Error("TODO: implement me");
+                    }
+                    if(ka.length > kb.length)
+                        return a;
+                    else if(ka.length === kb.length)
+                        throw new Error("TODO: implement me");
+                    return b;
+                }
+                default:
+                    throw new Error("TODO: implement me");
+            }
+        }
+        throw new Error("TODO: implement me");
+    }
+
     private ValidateBody(body: any, requestBody: OpenAPI.RequestBody | undefined)
     {
         if(requestBody === undefined)
@@ -166,8 +198,7 @@ export class OperationValidator
             }
             if(matches.length === 1)
                 return matches[0];
-            console.log(matches);
-            throw new Error("TODO: implement me");
+            return matches.reduce(this.TrySupertypeMatching.bind(this));
         }
         if("oneOf" in schema)
             return value;

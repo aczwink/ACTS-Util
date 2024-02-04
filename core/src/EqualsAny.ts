@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,11 @@ export class HierarchicalComparator
     {
         if(typeof v1 === typeof v2)
         {
-            //typeof null is "object" -.-
+            if(v1 === undefined)
+                return v2 === undefined;
+            if(v2 === undefined)
+                return false;
+            
             if(v1 === null)
                 return v2 === null;
             if(v2 === null)

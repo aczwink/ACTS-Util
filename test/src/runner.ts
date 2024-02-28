@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -61,6 +61,9 @@ async function RunAll()
     console.log();
     console.log("Executed tests: " + testCases.length);
     console.log("Failed tests: " + nFailedTests);
+
+    if(nFailedTests > 0)
+        process.exit(1);
 }
 
 RunAll();

@@ -56,20 +56,34 @@ function MapTestResult(result: TestRunResult): MochaJSONTestResult
 
 export function GenerateMochaJSONOutput(startDate: Date, results: TestRunResult[])
 {
+    const tests = [];
+    const passes = [];
+    const failures = [];
+    for (const result of results)
+    {
+        const mapped = MapTestResult(result);
+        tests.push(mapped);
+        if(result.error === undefined)
+            passes.push(mapped);
+        else
+            failures.push(mapped);
+    }
+
     const end = new Date();
     const data = {
         stats: {
             suites: 1,
             tests: results.length,
-            passes: results.Values().Filter(x => x.error === undefined).Count(),
+            passes: passes.length,
             pending: 0,
             failures: results.Values().Filter(x => x.error !== undefined).Count(),
             start: startDate.toISOString(),
             end: end.toISOString(),
             duration: (end.valueOf() - startDate.valueOf())
         },
-        tests: results.map(MapTestResult),
-        passes: results.Values().Filter(x => x.error === undefined).Map(MapTestResult).ToArray()
+        tests,
+        failures,
+        passes,
     };
 
     return JSON.stringify(data);

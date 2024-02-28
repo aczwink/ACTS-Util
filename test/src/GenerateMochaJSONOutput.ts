@@ -69,6 +69,7 @@ export function GenerateMochaJSONOutput(startDate: Date, results: TestRunResult[
             duration: (end.valueOf() - startDate.valueOf())
         },
         tests: results.map(MapTestResult),
+        passes: results.Values().Filter(x => x.error === undefined).Map(MapTestResult).ToArray()
     };
 
     return JSON.stringify(data);

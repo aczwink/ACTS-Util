@@ -82,6 +82,7 @@ export function GenerateMochaJSONOutput(startDate: Date, results: TestRunResult[
             duration: (end.valueOf() - startDate.valueOf())
         },
         tests,
+        pending: [],
         failures,
         passes,
     };

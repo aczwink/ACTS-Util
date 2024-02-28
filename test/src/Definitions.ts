@@ -16,17 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { TestCase } from "./Definitions";
-import { Expector } from "./Expector";
-
-export const testCases: TestCase[] = [];
-
-export function Expect<T>(value: T)
+export interface TestCase
 {
-    return new Expector<T>(value);
+    title: string;
+    testFunction: () => void;
 }
 
-export function It(title: string, testFunction: () => void)
+export interface TestRunResult
 {
-    testCases.push({title, testFunction});
+    testTitle: string;
+    error?: Error;
+    executionDuration: number;
 }

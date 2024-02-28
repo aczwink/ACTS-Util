@@ -19,6 +19,9 @@
 import * as fs from "fs";
 import * as path from "path";
 import { testCases } from "./main";
+import { TestRunResult } from "./Definitions";
+import { GenerateTextOutput } from "./GenerateTextOutput";
+import { GenerateMochaJSONOutput } from "./GenerateMochaJSONOutput";
 
 async function LoadAll(dirPath: string)
 {
@@ -38,32 +41,56 @@ async function LoadAll(dirPath: string)
     }
 }
 
-async function RunAll()
+async function RunAll(directoryPath: string)
 {
-    const dir = path.join(process.cwd(), process.argv[2]);
+    const dir = path.join(process.cwd(), directoryPath);
     await LoadAll(dir);
 
-    let nFailedTests = 0;
+    const testExecutions: TestRunResult[] = [];
     for (const testCase of testCases)
     {
-        console.log("Running test: " + testCase.title);
+        const before = Date.now();
+        let err;
         try
         {
             await testCase.testFunction();
         }
         catch(error)
         {
-            console.log("Test '" + testCase.title + "' failed: " + error);
-            nFailedTests += 1;
+            err = error;
         }
+        const after = Date.now();
+        testExecutions.push({
+            testTitle: testCase.title,
+            error: err as any,
+            executionDuration: after - before
+        });
     }
 
-    console.log();
-    console.log("Executed tests: " + testCases.length);
-    console.log("Failed tests: " + nFailedTests);
-
-    if(nFailedTests > 0)
-        process.exit(1);
+    return testExecutions;
 }
 
-RunAll();
+async function ExecuteAllTests()
+{
+    const startDate = new Date();
+
+    const results = await RunAll(process.argv[2]);
+
+    let text;
+    switch(process.argv[3])
+    {
+        case "text":
+        case undefined:
+            text = GenerateTextOutput(results);
+            break;
+        case "mocha-json":
+            text = GenerateMochaJSONOutput(startDate, results);
+            break;
+        default:
+            throw new Error("Unknown format: " + process.argv[3]);
+    }
+
+    console.log(text);
+}
+
+ExecuteAllTests();

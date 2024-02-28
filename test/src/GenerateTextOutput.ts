@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,17 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { TestCase } from "./Definitions";
-import { Expector } from "./Expector";
+import { TestRunResult } from "./Definitions";
 
-export const testCases: TestCase[] = [];
-
-export function Expect<T>(value: T)
+function ErrorToString(error: Error)
 {
-    return new Expector<T>(value);
+    return error.message;
 }
 
-export function It(title: string, testFunction: () => void)
+export function GenerateTextOutput(results: TestRunResult[])
 {
-    testCases.push({title, testFunction});
+    const data = [];
+    for (const result of results)
+    {
+        const text = "Result of test case '" + result.testTitle + "': " + (result.error === undefined ? "success" : "failed (" + ErrorToString(result.error) + ")");
+        data.push(text);
+    }
+
+    return data.join("\n");
 }

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -24,22 +24,23 @@ export class Expector<T>
     }
 
     //Public methods
-    public Equals(value: T)
+    public Equals(value: T, message?: string)
     {
         if(!EqualsAny(this.value, value))
-            this.ThrowExpectedGot(value);
+            this.ThrowExpectedGot(value, message);
     }
 
     public ToBe(value: T)
     {
         if(this.value !== value)
-            this.ThrowExpectedGot(value);
+            this.ThrowExpectedGot(value, undefined);
     }
 
     //Private methods
-    private ThrowExpectedGot(value: T)
+    private ThrowExpectedGot(value: T, additionalMessage: string | undefined)
     {
-        throw new Error("Expected: " + this.ToString(value) + ", got: " + this.ToString(this.value));
+        const standardMessage = "Expected: " + this.ToString(value) + ", got: " + this.ToString(this.value);
+        throw new Error(standardMessage + (additionalMessage === undefined ? "" : (", " + additionalMessage)));
     }
 
     private ToString(value: T)

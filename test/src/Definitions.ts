@@ -19,12 +19,17 @@
 export interface TestCase
 {
     title: string;
+    relativeFilePath: string;
     testFunction: () => void;
 }
 
 export interface TestRunResult
 {
+    testSuite: string;
     testTitle: string;
+    filePath: string;
     error?: Error;
     executionDuration: number;
 }
+
+export const internal_context = { testFilePath: "" };

@@ -48,8 +48,8 @@ function MapTestResult(result: TestRunResult): MochaJSONTestResult
         currentRetry: 0,
         duration: result.executionDuration,
         err: (result.error === undefined ? {} : MapError(result.error)),
-        file: "TODO",
-        fullTitle: result.testTitle,
+        file: result.filePath,
+        fullTitle: result.testSuite + result.testTitle,
         title: result.testTitle
     };
 }
@@ -72,7 +72,7 @@ export function GenerateMochaJSONOutput(startDate: Date, results: TestRunResult[
     const end = new Date();
     const data = {
         stats: {
-            suites: 1,
+            suites: results.Values().Distinct(x => x.testSuite).Count(),
             tests: results.length,
             passes: passes.length,
             pending: 0,

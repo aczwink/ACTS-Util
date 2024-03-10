@@ -19,23 +19,26 @@
 import * as fs from "fs";
 import * as path from "path";
 import { testCases } from "./main";
-import { TestRunResult } from "./Definitions";
+import { TestRunResult, internal_context } from "./Definitions";
 import { GenerateTextOutput } from "./GenerateTextOutput";
 import { GenerateMochaJSONOutput } from "./GenerateMochaJSONOutput";
 
-async function LoadAll(dirPath: string)
+async function LoadAll(rootPath: string, dirPath: string)
 {
-    const children = fs.readdirSync(dirPath, "utf8");
+    const absDirPath = path.join(rootPath, dirPath);
+    const children = fs.readdirSync(absDirPath, "utf8");
     for (const child of children)
     {
-        const childPath = path.join(dirPath, child);
+        const relChildPath = path.join(dirPath, child);
+        const absChildPath = path.join(rootPath, relChildPath);
 
-        const stats = fs.statSync(childPath);
+        const stats = fs.statSync(absChildPath);
         if(stats.isDirectory())
-            await LoadAll(childPath);
+            await LoadAll(rootPath, relChildPath);
         else if(child.endsWith(".js"))
         {
-            const loadPath = childPath.substr(0, childPath.length - 3);
+            const loadPath = absChildPath.substr(0, absChildPath.length - 3);
+            internal_context.testFilePath = relChildPath;
             await import(loadPath);
         }
     }
@@ -44,7 +47,7 @@ async function LoadAll(dirPath: string)
 async function RunAll(directoryPath: string)
 {
     const dir = path.join(process.cwd(), directoryPath);
-    await LoadAll(dir);
+    await LoadAll(dir, ".");
 
     const testExecutions: TestRunResult[] = [];
     for (const testCase of testCases)
@@ -61,9 +64,11 @@ async function RunAll(directoryPath: string)
         }
         const after = Date.now();
         testExecutions.push({
+            testSuite: testCase.relativeFilePath.split("/")[0],
             testTitle: testCase.title,
             error: err as any,
-            executionDuration: after - before
+            executionDuration: after - before,
+            filePath: testCase.relativeFilePath
         });
     }
 

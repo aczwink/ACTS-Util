@@ -28,7 +28,7 @@ export function GenerateTextOutput(results: TestRunResult[])
     const data = [];
     for (const result of results)
     {
-        const text = "Result of test case '" + result.testTitle + "': " + (result.error === undefined ? "success" : "failed (" + ErrorToString(result.error) + ")");
+        const text = "Result of test case '" + result.testSuite + "/" + result.testTitle + "': " + (result.error === undefined ? "success" : "failed (" + ErrorToString(result.error) + ")" + " file: " + result.filePath);
         data.push(text);
     }
 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { TestCase } from "./Definitions";
+import { TestCase, internal_context } from "./Definitions";
 import { Expector } from "./Expector";
 
 export const testCases: TestCase[] = [];
@@ -28,5 +28,9 @@ export function Expect<T>(value: T)
 
 export function It(title: string, testFunction: () => void)
 {
-    testCases.push({title, testFunction});
+    testCases.push({
+        title,
+        testFunction,
+        relativeFilePath: internal_context.testFilePath
+    });
 }

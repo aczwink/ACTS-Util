@@ -32,5 +32,9 @@ export function GenerateTextOutput(results: TestRunResult[])
         data.push(text);
     }
 
+    const succeeded = results.Values().Filter(x => x.error === undefined).Count();
+    const failed = results.length - succeeded;
+    data.push("Total succeeded: " + succeeded + ", failed: " + failed);
+
     return data.join("\n");
 }

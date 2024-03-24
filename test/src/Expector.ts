@@ -30,10 +30,10 @@ export class Expector<T>
             this.ThrowExpectedGot(value, message);
     }
 
-    public ToBe(value: T)
+    public ToBe(value: T, message?: string)
     {
         if(this.value !== value)
-            this.ThrowExpectedGot(value, undefined);
+            this.ThrowExpectedGot(value, message);
     }
 
     //Private methods

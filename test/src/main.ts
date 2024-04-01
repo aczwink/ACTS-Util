@@ -26,6 +26,11 @@ export function Expect<T>(value: T)
     return new Expector<T>(value);
 }
 
+export function Fail(message?: string)
+{
+    throw new Error(message);
+}
+
 export function It(title: string, testFunction: () => void)
 {
     testCases.push({

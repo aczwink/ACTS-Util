@@ -63,8 +63,10 @@ async function RunAll(directoryPath: string)
             err = error;
         }
         const after = Date.now();
+        const suite = testCase.relativeFilePath.split("/");
+        suite.Remove(suite.length - 1);
         testExecutions.push({
-            testSuite: testCase.relativeFilePath.split("/")[0],
+            testSuite: suite.join("/"),
             testTitle: testCase.title,
             error: err as any,
             executionDuration: after - before,

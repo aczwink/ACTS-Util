@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ declare global
         Equals: <T>(this: Set<T>, other: Set<T>) => boolean;
         Intersect: <T>(this: Set<T>, other: Set<T>) => Set<T>;
         ToArray: <T>(this: Set<T>) => T[];
+        Union: <T>(this: Set<T>, other: Set<T>) => Set<T>;
         Values: <T>(this: Set<T>) => EnumeratorBuilder<T>;
         Without: <T>(this: Set<T>, other: Set<T>) => Set<T>;
     }
@@ -48,6 +49,11 @@ Set.prototype.Intersect = function<T>(this: Set<T>, other: Set<T>)
 Set.prototype.ToArray = function<T>(this: Set<T>)
 {
     return [...this];
+}
+
+Set.prototype.Union = function<T>(this: Set<T>, other: Set<T>)
+{
+    return new Set([...this, ...other]);
 }
 
 Set.prototype.Values = function<T>(this: Set<T>)

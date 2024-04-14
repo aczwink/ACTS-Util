@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -56,12 +56,13 @@ export class APIClassGenerator
     }
 
     //Public methods
-    public async Generate(sourcePath: string, destPath: string)
+    public async Generate(sourcePath: string, destPath: string, header?: string)
     {
         const openAPIDef: OpenAPI.Root = JSON.parse(await fs.promises.readFile(sourcePath, "utf-8"));
 
         const apiSourceCode = this.GenerateSourceCode(openAPIDef);
-        await fs.promises.writeFile(destPath, apiSourceCode, "utf-8");
+        const finalSourceCode = (header === undefined) ? apiSourceCode : (header + "\n\n" + apiSourceCode);
+        await fs.promises.writeFile(destPath, finalSourceCode, "utf-8");
     }
 
     //Private methods
@@ -281,7 +282,7 @@ export class APIClassGenerator
         const hasBody = bodyParam.params.length > 0;
         const bodyParamsArgString = hasBody ? "body: " + bodyParam.params : "";
 
-        const argString = [pathParamsArgString, queryParamsArgString, bodyParamsArgString].Values().Filter(x => x.length > 0).Join(", ");
+        const argString = [pathParamsArgString, queryParamsArgString, bodyParamsArgString, "opt?: OptionalRequestData"].Values().Filter(x => x.length > 0).Join(", ");
 
         const subIndention = indention + 2;
         const requestParamObjectString = "{\n"
@@ -293,6 +294,7 @@ export class APIClassGenerator
             + (queryParams.Any() ? (this.Indent(subIndention) + "query,\n") : "")
             + (hasBody ? (this.Indent(subIndention) + "body,\n") : "")
             + (isFormData ? (this.Indent(subIndention) + "requestBodyType: 'form-data',\n") : "")
+            + this.Indent(subIndention) + "...opt,\n"
             + this.Indent(indention+1) + "}";
 
         return this.Indent(indention) + operationName + ": (" + argString + ") =>\n" + this.Indent(indention +1) + "this.__issueRequest(" + requestParamObjectString + ")" + optTypeCast + ",";
@@ -368,7 +370,7 @@ interface FormatRule
     keys: string[];
 }
 
-interface RequestData
+interface RequestData extends OptionalRequestData
 {
     path: string;
     method: "DELETE" | "GET" | "PATCH" | "POST" | "PUT";

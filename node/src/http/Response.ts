@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ export interface ResponseHeaders
     "Access-Control-Expose-Headers"?: string;
     "Cache-Control"?: string;
     "Content-Disposition"?: string;
+    "Content-Length"?: number;
     "Content-Type"?: {
         mediaType: "application/json" | "image/gif" | "text/html";
         charset?: "utf-8";

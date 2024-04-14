@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,7 @@ interface APIClassGenConfig extends ConfigBase
 {
     type: "api";
     excludedStatusCodes: number[];
+    header?: string;
 }
 
 interface OpenAPIGenConfig extends ConfigBase
@@ -65,7 +66,7 @@ async function ProcessConfig(config: APILibConfig)
         case "api":
             {
                 const gen = new APIClassGenerator(config.excludedStatusCodes.Values().ToSet());
-                await gen.Generate(sourcePath, destPath);
+                await gen.Generate(sourcePath, destPath, config.header);
             }
             break;
         case "openapi":

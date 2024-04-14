@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -391,7 +391,7 @@ export class TypeCatalog
             };
         }
         
-        const passthrough = ["Buffer", "Date", "UploadedFile"];
+        const passthrough = ["Buffer", "Date", "Readable", "UploadedFile"];
         for (const entry of passthrough)
         {
             if(type.symbol.escapedName === entry)

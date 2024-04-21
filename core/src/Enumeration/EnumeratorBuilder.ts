@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,8 @@ export class EnumeratorBuilder<T>
     public Accumulate( func: (accumulator: T, currentValue: T) => T )
     {
         const it = this.CreateInstance();
+        if(!it.HasNext())
+            throw new Error("Can not accumulate empty enumeration");
         return this.ReduceImpl(it, func, it.Next());
     }
 

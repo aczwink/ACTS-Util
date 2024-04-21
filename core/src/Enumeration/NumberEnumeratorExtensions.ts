@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,14 @@ declare module "./EnumeratorBuilder"
 {
     interface EnumeratorBuilder<T>
     {
+        Max: (this: EnumeratorBuilder<number>) => number;
         Sum: (this: EnumeratorBuilder<number>) => number;
     }
+}
+
+EnumeratorBuilder.prototype.Max = function(this: EnumeratorBuilder<number>)
+{
+    return this.Accumulate((x, y) => Math.max(x, y));
 }
 
 EnumeratorBuilder.prototype.Sum = function(this: EnumeratorBuilder<number>)

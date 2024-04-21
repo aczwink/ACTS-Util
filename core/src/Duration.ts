@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020,2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -35,6 +35,11 @@ export class Duration
     }
 
     //Public methods
+    public AddTo(dateTime: Date)
+    {
+        return new Date(dateTime.valueOf() + this.ms);
+    }
+
     public ToStringWithSecondPrecision()
     {
         return this.FormatToString(1);
@@ -44,6 +49,22 @@ export class Duration
     public toString()
     {
         return this.FormatToString(0);
+    }
+
+    //Class functions
+    public static OneAvgMonth()
+    {
+        return new Duration(this.OneDay().ms * 30.4167);
+    }
+
+    public static OneDay()
+    {
+        return new Duration(this.OneMinute().ms * 60 * 24);
+    }
+
+    public static OneMinute()
+    {
+        return new Duration(1000 * 60);
     }
 
     //Private methods

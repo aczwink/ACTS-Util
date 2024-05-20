@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -73,8 +73,10 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 				keys.push(key);
 				const value = values[key];
 
-				if(value === "NOW()")
-					questionMarks.push(value);
+				if(value instanceof DBExpr)
+				{
+					questionMarks.push(value.stringRepresentation);
+				}
 				else
 				{
 					questionMarks.push("?");

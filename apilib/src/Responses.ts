@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -100,6 +100,15 @@ export function Ok<T>(data: T, headers: HTTP.ResponseHeaders): TypedHTTPResponse
         headers,
         data,
     };
+}
+
+export function PartialContent(data: Buffer, headers: HTTP.ResponseHeaders): TypedHTTPResponse<206, Buffer>
+{
+    return {
+        statusCode: 206,
+        headers,
+        data,
+    }
 }
 
 export function Unauthorized(errorMessage: string): TypedHTTPResponse<401, string>

@@ -96,7 +96,7 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
             hostName: req.hostname,
             port: req.socket.localPort!,
             routePath: req.originalUrl,
-            ip: req.ip,
+            ip: req.ip ?? "",
         };
 
         let response: DataResponse | null = null;

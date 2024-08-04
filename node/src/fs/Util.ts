@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -32,4 +32,12 @@ export function Promisify(stream: Readable | Writable): Promise<void>
         stream.on((stream instanceof Readable) ? "end" : "finish", resolve);
         stream.on("error", reject);
     });
+}
+
+export async function StreamToBuffer(stream: Readable): Promise<Buffer>
+{
+    var buffers: Buffer[] = [];
+    stream.on('data', function(d){ buffers.push(d); });
+    await Promisify(stream);
+    return Buffer.concat(buffers);
 }

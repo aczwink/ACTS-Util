@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,8 @@ export class MySQLFactory implements DBDriverFactory
 			database: config.defaultDatabase,
 			charset: "utf8mb4",
 			dateStrings: true,
+			supportBigNumbers: true,
+			bigNumberStrings: true,
 		});
 		const conn = new MySQLConnection(mysqlConn);
 
@@ -56,6 +58,8 @@ export class MySQLFactory implements DBDriverFactory
 			database: config.defaultDatabase,
 			charset: "utf8mb4",
 			dateStrings: true,
+			supportBigNumbers: true,
+			bigNumberStrings: true,
 			connectionLimit: config.maxNumberOfConnections
 		});
 

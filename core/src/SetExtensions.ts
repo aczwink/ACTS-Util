@@ -28,6 +28,7 @@ declare global
     {
         Equals: <T>(this: Set<T>, other: Set<T>) => boolean;
         Intersect: <T>(this: Set<T>, other: Set<T>) => Set<T>;
+        IsSuperSetOf: <T>(this: Set<T>, other: Set<T>) => boolean;
         ToArray: <T>(this: Set<T>) => T[];
         Union: <T>(this: Set<T>, other: Set<T>) => Set<T>;
         Values: <T>(this: Set<T>) => EnumeratorBuilder<T>;
@@ -44,6 +45,18 @@ Set.prototype.Equals = function<T>(this: Set<T>, other: Set<T>)
 Set.prototype.Intersect = function<T>(this: Set<T>, other: Set<T>)
 {
     return this.Values().Filter(x => other.has(x)).ToSet();
+}
+
+Set.prototype.IsSuperSetOf = function<T>(this: Set<T>, other: Set<T>)
+{
+    if(this.size < other.size)
+        return false;
+    for (const x of other)
+    {
+        if(!this.has(x))    
+            return false;
+    }
+    return true;
 }
 
 Set.prototype.ToArray = function<T>(this: Set<T>)

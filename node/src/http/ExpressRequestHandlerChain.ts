@@ -28,6 +28,7 @@ import { RequestHandlerChain } from "./RequestHandlerChain";
 import { DataResponse } from "./Response";
 import { UploadedFile } from "./UploadedFile";
 import { Promisify } from "../fs/Util";
+import { DateTime } from "../DateTime";
 
 export class ExpressRequestHandlerChain implements RequestHandlerChain
 {
@@ -124,6 +125,28 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
         }
     }
 
+    private MapResult(result: any): any
+    {
+        if(Array.isArray(result))
+            return result.map(this.MapResult.bind(this));
+
+        if(typeof result === "object")
+        {
+            if(result === null)
+                return null;
+
+            if(result instanceof Date)
+                return result.toISOString();
+
+            if(result instanceof DateTime)
+                return result.ToISOString();
+            
+            return result.Entries().ToDictionary( (kv: any) => kv.key, (kv: any) => this.MapResult(kv.value))
+        }
+
+        return result;
+    }
+
     private async SendReponse(response: DataResponse, res: express.Response)
     {
         res.status(response.statusCode);
@@ -155,7 +178,7 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
         }
         else
         {
-            res.json(response.data);
+            res.json(this.MapResult(response.data));
             res.end();
         }
     }

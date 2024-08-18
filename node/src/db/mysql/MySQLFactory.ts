@@ -23,6 +23,7 @@ import { DBDriverQueryExecutor, DBDriverTransactionalQueryExecutor } from "../dr
 import { MySQLConnection } from "./MySQLConnection";
 import { DBDriverConnectionPool } from "../driver/DBDriverConnectionPool";
 import { MySQLQueryBuilder } from "./MySQLQueryBuilder";
+import { DateTime } from "../../DateTime";
 
 export class MySQLFactory implements DBDriverFactory
 {
@@ -38,6 +39,8 @@ export class MySQLFactory implements DBDriverFactory
 			dateStrings: true,
 			supportBigNumbers: true,
 			bigNumberStrings: true,
+			timezone: "Z",
+			typeCast: this.TypeCast.bind(this)
 		});
 		const conn = new MySQLConnection(mysqlConn);
 
@@ -60,7 +63,9 @@ export class MySQLFactory implements DBDriverFactory
 			dateStrings: true,
 			supportBigNumbers: true,
 			bigNumberStrings: true,
-			connectionLimit: config.maxNumberOfConnections
+			timezone: "Z",
+			connectionLimit: config.maxNumberOfConnections,
+			typeCast: this.TypeCast.bind(this)
 		});
 
         const conn = await pool.GetFreeConnection();
@@ -78,13 +83,13 @@ export class MySQLFactory implements DBDriverFactory
 		return new MySQLQueryBuilder;
 	}
 
-	public ParseDateTime(dt: string): Date
+	public ParseDateTime(dt: string): DateTime
 	{
 		const parts = dt.split(" ");
 		const dateParts = parts[0].split("-").map(x => parseInt(x));
 		const timeParts = parts[1].split(":").map(x => parseInt(x));
 
-		return new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2], 0);
+		return DateTime.ConstructUTC(dateParts[0], dateParts[1], dateParts[2], timeParts[0], timeParts[1], timeParts[2]);
 	}
 
     //Private methods
@@ -121,5 +126,17 @@ export class MySQLFactory implements DBDriverFactory
 		const [{result}] = await connection.Query("SELECT " + varType + "." + variable + " AS result");
 
 		return result;
+	}
+
+	private TypeCast(field: mysql.UntypedFieldInfo & { type: string; length: number; string(): string | null; buffer(): Buffer | null; geometry(): mysql.GeometryType | null; }, next: () => void)
+	{
+		if(field.type === "DATETIME")
+		{
+			const dt = field.string()!;
+			if(dt === "0000-00-00 00:00:00")
+				return DateTime.ConstructFromUnixTimeStamp(0);
+			return this.ParseDateTime(dt);
+		}
+		return next();
 	}
 }

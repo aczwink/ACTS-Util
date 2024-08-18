@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,19 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-export class DBExpr
+interface NowExpressionDefinition
 {
-    constructor(private _stringRepresentation: string)
+    type: "CurrentDateTime";
+}
+export type DatabaseExpressionDefinition = NowExpressionDefinition;
+
+export class DatabaseExpressionContainer
+{
+    constructor(private exprDef: DatabaseExpressionDefinition)
     {
     }
 
-    get stringRepresentation(): string
+    public ToQueryRepresentation()
     {
-        return this._stringRepresentation;
+        return this.ToString(this.exprDef);
+    }
+
+    //Private methods
+    private ToString(exprDef: DatabaseExpressionDefinition)
+    {
+        switch(exprDef.type)
+        {
+            case "CurrentDateTime":
+                return "NOW()";
+        }
     }
 }
 
-export function DBExpression(expr: string)
+export function CreateDatabaseExpression(expr: DatabaseExpressionDefinition)
 {
-    return new DBExpr(expr);
+    return new DatabaseExpressionContainer(expr);
 }

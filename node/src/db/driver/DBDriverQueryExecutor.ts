@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-export type SQLArgType = boolean | number | string | null
-    | number[] | string[]; /* id-array */
+import { DateTime } from "../../DateTime";
+import { DatabaseExpressionContainer } from "../DBExpression";
+
+export type SQLArgType = boolean | number | string | null | DateTime | Buffer
+    | number[] | string[] /* id-array */
+    | DatabaseExpressionContainer;
 
 export interface DBDriverQueryExecutor
 {

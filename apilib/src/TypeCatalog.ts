@@ -391,7 +391,7 @@ export class TypeCatalog
             };
         }
         
-        const passthrough = ["Buffer", "Date", "Readable", "UploadedFile"];
+        const passthrough = ["Buffer", "Date", "DateTime", "Readable", "UploadedFile"];
         for (const entry of passthrough)
         {
             if(type.symbol.escapedName === entry)

@@ -33,7 +33,7 @@ import { DBTransactionalQueryExecutor } from "./db/DBTransactionalQueryExecutor"
 import { CreateTempDir, CreateTempFile } from "./fs/Temp";
 import { ModuleLoader } from "./ModuleLoader";
 import { FileSystemWatcher } from "./fs/FileSystemWatcher";
-import { DBExpression } from "./db/DBExpression";
+import { CreateDatabaseExpression } from "./db/DBExpression";
 
 //Exports
 import * as HTTP_APIServiceBase from "./http/APIServiceBase";
@@ -45,6 +45,7 @@ import * as HTTP_Response from "./http/Response";
 import * as HTTP_Result from "./http/Result";
 import * as HTTP_RouterRequestHandler from "./http/RouterRequestHandler";
 import * as HTTP_UploadedFile from "./http/UploadedFile";
+import { DateTime } from "./DateTime";
 export namespace HTTP
 {
     export import APIServiceBase = HTTP_APIServiceBase.APIServiceBase;
@@ -62,8 +63,9 @@ export namespace HTTP
 export {
     CreateTempDir,
     CreateTempFile,
+    DateTime,
     DBConnectionPool,
-    DBExpression,
+    CreateDatabaseExpression,
     DBFactory,
     DBResource,
     DBQueryExecutor,

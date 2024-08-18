@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { DateTime } from "../../DateTime";
 import { DBDriverConnectionPool } from "./DBDriverConnectionPool";
 import { DBDriverTransactionalQueryExecutor } from "./DBDriverQueryExecutor";
 import { DBQueryBuilder } from "./DBQueryBuilder";
@@ -43,5 +44,5 @@ export interface DBDriverFactory
     CreateQueryBuilder(): DBQueryBuilder;
     CreateConnection(config: ConnectionConfig): Promise<DBResource<DBDriverTransactionalQueryExecutor>>;
     CreateConnectionPool(config: PoolConfig): Promise<DBResource<DBDriverConnectionPool>>;
-    ParseDateTime(dt: string): Date;
+    ParseDateTime(dt: string): DateTime;
 }

@@ -257,6 +257,7 @@ export class OpenAPIGenerator
                     type: "boolean"
                 };
             case "Date":
+            case "DateTime":
                 return {
                     type: "string",
                     format: "date-time"

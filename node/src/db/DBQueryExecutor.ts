@@ -15,9 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-
-import { DBExpr } from "./DBExpression";
+import { DateTime } from "../DateTime";
+import { DatabaseExpressionContainer } from "./DBExpression";
 import { DBDriverQueryExecutor, SQLArgType } from "./driver/DBDriverQueryExecutor";
+
+export type SQLRecordValues<T> = {
+    [key in keyof T]: SQLArgType;
+};
 
 interface SQLResult
 {
@@ -61,7 +65,7 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 		return this.Query("DELETE FROM " + tableName + " WHERE " + condition, parameters);
 	}
 
-	public InsertRow(table: string, values: any): Promise<InsertResult>
+	public InsertRow<T>(table: string, values: SQLRecordValues<T>): Promise<InsertResult>
 	{
 		const keys = [];
 		const questionMarks = [];
@@ -73,14 +77,14 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 				keys.push(key);
 				const value = values[key];
 
-				if(value instanceof DBExpr)
+				if(value instanceof DatabaseExpressionContainer)
 				{
-					questionMarks.push(value.stringRepresentation);
+					questionMarks.push(value.ToQueryRepresentation());
 				}
 				else
 				{
 					questionMarks.push("?");
-					queryArgs.push(value);
+					queryArgs.push(this.MapValue(value));
 				}
 			}
 		}
@@ -90,7 +94,7 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
     
     public Select<T = SQLResult>(query: string, ...args: SQLArgType[]): Promise<T[]>
     {
-      return this.dbConn.Query(query, args);
+      return this.dbConn.Query(query, args.map(this.MapValue.bind(this)));
     }
     
     public async SelectOne<T = SQLResult>(query: string, ...args: SQLArgType[]): Promise<T | undefined>
@@ -113,9 +117,9 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 			if (values.hasOwnProperty(key))
 			{
 				let value = values[key];
-				if(value instanceof DBExpr)
+				if(value instanceof DatabaseExpressionContainer)
 				{
-					setters.push(key + " = " + value.stringRepresentation);
+					setters.push(key + " = " + value.ToQueryRepresentation());
 				}
 				else if(value === undefined)
 				{
@@ -130,5 +134,13 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 		}
 		const query = "UPDATE " + table + " SET " + setters.join(", ") + " WHERE " + condition;
 		return this.Query(query, setterArgs.concat(args));
+	}
+
+	//Private methods
+	private MapValue(value: SQLArgType)
+	{
+		if(value instanceof DateTime)
+			return value.ToUTC().Format("YYYY-MM-DD HH:mm:ss");
+		return value;
 	}
 }

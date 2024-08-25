@@ -62,7 +62,7 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 
     public DeleteRows(tableName: string, condition: string, ...parameters: SQLArgType[])
 	{
-		return this.Query("DELETE FROM " + tableName + " WHERE " + condition, parameters);
+		return this.Query("DELETE FROM " + tableName + " WHERE " + condition, parameters.map(this.MapValue.bind(this)));
 	}
 
 	public InsertRow<T>(table: string, values: SQLRecordValues<T>): Promise<InsertResult>
@@ -99,7 +99,7 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
     
     public async SelectOne<T = SQLResult>(query: string, ...args: SQLArgType[]): Promise<T | undefined>
     {
-      const result = await this.dbConn.Query(query, args);
+      const result = await this.dbConn.Query(query, args.map(this.MapValue.bind(this)));
       return result[0];
     }
 
@@ -111,7 +111,7 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 	public UpdateRows(table: string, values: any, condition: string, ...args: SQLArgType[]): Promise<UpdateResult>
 	{
         const setters = [];
-        const setterArgs = [];
+        const setterArgs: SQLArgType[] = [];
 		for (const key in values)
 		{
 			if (values.hasOwnProperty(key))
@@ -128,7 +128,7 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 				else
 				{
 					setters.push(key + " = ?");
-					setterArgs.push(value);
+					setterArgs.push(this.MapValue(value));
 				}
 			}
 		}

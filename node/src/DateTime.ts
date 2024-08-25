@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import moment from "moment-timezone";
+import 'moment/locale/de';
 
 function MapTimeZone(timeZone: string)
 {
@@ -47,6 +48,12 @@ function ValidateNaturalNumber(n: number, max: number)
 {
     if(!Number.isInteger(n))
         throw new Error("Date time values must be natural numbers. Got: " + n);
+}
+
+interface Duration
+{
+    unit: "days" | "hours" | "minutes" | "weeks";
+    count: number;
 }
 
 export class DateTime
@@ -92,22 +99,10 @@ export class DateTime
     }
 
     //Public methods
-    public AddMinutes(count: number)
+    public Add(duration: Duration)
     {
         const clone = this.moment.clone();
-        return new DateTime(clone.add(count, "minutes"));
-    }
-
-    public AddHours(count: number)
-    {
-        const clone = this.moment.clone();
-        return new DateTime(clone.add(count, "hours"));
-    }
-
-    public AddWeeks(count: number)
-    {
-        const clone = this.moment.clone();
-        return new DateTime(clone.add(count, "weeks"));
+        return new DateTime(clone.add(duration.count, duration.unit));
     }
 
     public EndOfMonth()
@@ -130,10 +125,25 @@ export class DateTime
     {
         return this.moment.isBefore(other.moment);
     }
+
+    public Subtract(duration: Duration)
+    {
+        const clone = this.moment.clone();
+        return new DateTime(clone.subtract(duration.count, duration.unit));
+    }
     
     public ToISOString()
     {
         return this.moment.toISOString();
+    }
+
+    public ToLocalizedString(locale: "de")
+    {
+        switch(locale)
+        {
+            case "de":
+                return this.Format("DD.MM.YYYY HH:mm:ss");
+        }
     }
 
     public ToUTC()
@@ -143,6 +153,12 @@ export class DateTime
 
         const clone = this.moment.clone();
         return new DateTime(clone.utc());
+    }
+
+    public ToZone(timeZone: string)
+    {
+        const clone = this.moment.clone();
+        return new DateTime(clone.tz(timeZone));
     }
 
     //Class functions

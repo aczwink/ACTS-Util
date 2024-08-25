@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -73,7 +73,6 @@ declare module "./EnumeratorBuilder"
     interface EnumeratorBuilder<T>
     {
         Filter: <OutputType = T>(this: EnumeratorBuilder<T>, filter: (value: T) => boolean) => EnumeratorBuilder<OutputType>;
-        FilterAsync: <OutputType = T>(this: EnumeratorBuilder<T>, predicate: (value: T) => Promise<boolean>) => Promise<EnumeratorBuilder<OutputType>>;
         NotNull: (this: EnumeratorBuilder<T | null>) => EnumeratorBuilder<Exclude<T, null>>;
         NotUndefined: (this: EnumeratorBuilder<T | undefined>) => EnumeratorBuilder<Exclude<T, undefined>>;
         OfType: <OutputType extends Function>(this: EnumeratorBuilder<T>, constructor: OutputType) => EnumeratorBuilder<OutputType>;
@@ -83,12 +82,6 @@ declare module "./EnumeratorBuilder"
 EnumeratorBuilder.prototype.Filter = function<InputType extends OutputType, OutputType>(this: EnumeratorBuilder<InputType>, filter: (value: InputType) => boolean)
 {
     return new EnumeratorBuilder(() => new FilterIterator<InputType, OutputType>(this.CreateInstance(), filter));
-}
-
-EnumeratorBuilder.prototype.FilterAsync = async function<InputType extends OutputType, OutputType>(this: EnumeratorBuilder<InputType>, predicate: (value: InputType) => Promise<boolean>)
-{
-    const bools = await this.Map(predicate).PromiseAll();
-    return this.ToArray().filter( (_, i) => bools[i]).Values();
 }
 
 EnumeratorBuilder.prototype.NotNull = function<T>(this: EnumeratorBuilder<T | null>)

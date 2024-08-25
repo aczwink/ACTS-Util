@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -24,11 +24,14 @@ import "./RegExpExtensions";
 import "./SetExtensions";
 import "./StringExtensions";
 
+import "./Enumeration/async/AsyncFilterEnumerator";
+
 import "./Enumeration/BoolEnumeratorExtensions";
 import "./Enumeration/FilterIterator";
 import "./Enumeration/FlatteningIterator";
 import "./Enumeration/MapIterator";
 import "./Enumeration/NumberEnumeratorExtensions";
+import "./Enumeration/PromiseEnumeratorExtensions";
 import "./Enumeration/StringEnumeratorExtensions";
 
 import { Dictionary, NumberDictionary } from "./Dictionary";
@@ -48,6 +51,11 @@ import * as OpenAPI from "./OpenAPI/Specification";
 import { OpenAPIDefaultObjectCreator } from "./OpenAPI/OpenAPIDefaultObjectCreator";
 import { OpenAPISchemaValidator } from "./OpenAPI/OpenAPISchemaValidator";
 
+function Of<T>(value: T)
+{
+    return value;
+}
+
 //Exports
 export {
     AbsURL,
@@ -62,6 +70,7 @@ export {
     Observable,
     ObservableObject,
     Observer,
+    Of,
     OpenAPI,
     OpenAPIDefaultObjectCreator,
     OpenAPISchemaValidator,

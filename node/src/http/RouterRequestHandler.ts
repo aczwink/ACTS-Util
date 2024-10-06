@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ import { RouterNode } from "./RouterNode";
 
 export class RouterRequestHandler implements RequestHandler
 {
-    constructor(private apiDefinition: OpenAPI.Root, private operationToStructureMap: Dictionary<OperationStructure>, private operationToFunctionMap: Dictionary<Function>)
+    constructor(private apiDefinition: OpenAPI.Root, private operationToStructureMap: Dictionary<OperationStructure>, private operationToFunctionMap: Dictionary<Function>, private forceHandle: boolean = true)
     {
         this.operationMap = {};
         this.rootRouterNode = new RouterNode;
@@ -91,6 +91,9 @@ export class RouterRequestHandler implements RequestHandler
                 };
             }
         }
+
+        if(!this.forceHandle)
+            return null;
 
         return {
             statusCode: 404,

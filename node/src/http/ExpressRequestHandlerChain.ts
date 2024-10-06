@@ -17,7 +17,7 @@
  * */
 import bodyParser from "body-parser";
 import cors from "cors";
-import express from "express";
+import express, { NextFunction } from "express";
 import multer from "multer";
 import { RequestListener } from "http";
 import { Readable } from "stream";
@@ -39,6 +39,7 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
             storage: multer.memoryStorage()
         });
         this.requestHandlers = [];
+        this.hasTrailingThirdParty = false;
     }
 
     //Properties
@@ -63,15 +64,24 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
         if(this.requestHandlers.length === 0)
             this.app.use(this.OnRequestIncoming.bind(this));
         this.requestHandlers.push(requestHandler);
+
+        this.hasTrailingThirdParty = false;
+    }
+
+    public AddThirdPartyHandler(handler: Function): void
+    {
+        this.app.use(handler as any);
+        this.hasTrailingThirdParty = true;
     }
 
     //Private variables
     private app: express.Express;
     private multer: multer.Multer;
     private requestHandlers: RequestHandler[];
+    private hasTrailingThirdParty: boolean;
 
     //Private methods
-    private async HandleRequest(req: express.Request, res: express.Response)
+    private async HandleRequest(req: express.Request, res: express.Response, next: NextFunction)
     {
         if(req.files !== undefined)
         {
@@ -110,6 +120,8 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
 
         if(response != null)
             this.SendReponse(response, res);
+        else if(this.hasTrailingThirdParty)
+            next();
         else
         {
             this.SendReponse({
@@ -184,7 +196,7 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
     }
 
     //Event handlers
-    private async OnRequestIncoming(req: express.Request, res: express.Response)
+    private async OnRequestIncoming(req: express.Request, res: express.Response, next: NextFunction)
     {
         if(req.headers["content-type"]?.startsWith("multipart/form-data;"))
         {
@@ -195,11 +207,11 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
                 {
                     if(err)
                         throw err;
-                    context.HandleRequest(req, res);
+                    context.HandleRequest(req, res, next);
                 }
             );
         }
         else
-            this.HandleRequest(req, res);
+            this.HandleRequest(req, res, next);
     }
 }

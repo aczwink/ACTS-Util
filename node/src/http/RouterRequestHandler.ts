@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-
+import jwt from "jsonwebtoken";
 import { Dictionary, AbsURL, OpenAPI } from "acts-util-core";
 import { OperationStructure } from "./OperationStructure";
 import { OperationValidator, ValidatedArgs } from "./OperationValidator";
@@ -23,6 +23,7 @@ import { Request } from "./Request";
 import { RequestHandler } from "./RequestHandler";
 import { DataResponse } from "./Response";
 import { RouterNode } from "./RouterNode";
+import { OpenAPISecurityVerifier } from "./OpenAPISecurityVerifier";
 
 export class RouterRequestHandler implements RequestHandler
 {
@@ -50,6 +51,23 @@ export class RouterRequestHandler implements RequestHandler
         if(operationId !== null)
         {
             const operation = this.operationMap[operationId]!;
+            const securityVerifier = new OpenAPISecurityVerifier(this.apiDefinition);
+            const error = securityVerifier.Verify(request.headers.authorization, operation);
+            if(error !== undefined)
+            {
+                return {
+                    statusCode: 401,
+                    headers: {
+                        "Content-Type": {
+                            mediaType: "text/html",
+                            charset: "utf-8"
+                        }
+                    },
+                    data: "Authorization failed because of: " + error
+                };
+            }
+
+
             const operationValidator = new OperationValidator(this.apiDefinition, operation);
             const validatedArgs = operationValidator.Validate(routeParams, url.queryParams, request.body);
             if(validatedArgs instanceof Error)
@@ -149,6 +167,8 @@ export class RouterRequestHandler implements RequestHandler
                     return validatedArgs.body[ps.name];
                 case "header":
                     return request.headers[ps.name.toLowerCase()];
+                case "header-auth-bearer-jwt":
+                    return jwt.decode(request.headers.authorization!.substring("Bearer ".length), { json: true })
                 case "path":
                     return validatedArgs.routeParams[ps.name];
                 case "query":

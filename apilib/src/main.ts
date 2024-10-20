@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,13 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { APIRegistryInstance, APIRegistryInterface } from './APIRegistry';
-import { APIController, Body, BodyProp, Common, Delete, FormField, Get, Header, Patch, Path, Post, Put, Query, Request, Security } from './decorators';
+import { APIController, Auth, Body, BodyProp, Common, Delete, FormField, Get, Header, Patch, Path, Post, Put, Query, Request, Security } from './decorators';
 import { BadRequest, Conflict, Forbidden, InternalServerError, NotFound, Ok, Unauthorized } from './Responses';
 import { WrapAPIs } from './Wrap';
 
 export const APIRegistry: APIRegistryInterface = APIRegistryInstance;
 
 export {
+    Auth,
     APIController,
     BadRequest,
     Body,

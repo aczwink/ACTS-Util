@@ -65,7 +65,7 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 		return this.Query("DELETE FROM " + tableName + " WHERE " + condition, parameters.map(this.MapValue.bind(this)));
 	}
 
-	public InsertRow<T>(table: string, values: SQLRecordValues<T>): Promise<InsertResult>
+	public async InsertRow<T>(table: string, values: SQLRecordValues<T>): Promise<InsertResult>
 	{
 		const keys = [];
 		const questionMarks = [];
@@ -74,7 +74,7 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 		{
 			if (values.hasOwnProperty(key))
 			{
-				keys.push(key);
+				keys.push('`' + key + '`');
 				const value = values[key];
 
 				if(value instanceof DatabaseExpressionContainer)
@@ -89,7 +89,7 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
 			}
 		}
 		let query = "INSERT INTO " + table + " (" + keys.join(",") + ") VALUES (" + questionMarks.join(",") + ")";
-		return this.Query(query, queryArgs);
+		return await this.Query(query, queryArgs);
 	}
     
     public Select<T = SQLResult>(query: string, ...args: SQLArgType[]): Promise<T[]>
@@ -103,9 +103,9 @@ export class DBQueryExecutor implements DBDriverQueryExecutor
       return result[0];
     }
 
-    public Query(query: string, args?: SQLArgType[]): Promise<any>
+    public async Query(query: string, args?: SQLArgType[]): Promise<any>
     {
-      return this.dbConn.Query(query, args);
+      return await this.dbConn.Query(query, args);
 	}
 	
 	public UpdateRows(table: string, values: any, condition: string, ...args: SQLArgType[]): Promise<UpdateResult>

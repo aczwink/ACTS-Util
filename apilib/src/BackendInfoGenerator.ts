@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -34,11 +34,23 @@ export class BackendInfoGenerator
                 const route = apiControllerMetadata.baseRoute + (operation.route === undefined ? "" : "/" + operation.route);
                 const operationId = APIRegistryInstance.GenerateOperationId(route, operation.httpMethod);
 
-                result[operationId] = {
-                    parameters: operation.parameters.Values()
-                        .Map(this.MapParameterMetadata.bind(this, apiControllerMetadata.common?.parameters))
+                let params = operation.parameters.Values()
+                    .Map(this.MapParameterMetadata.bind(this, apiControllerMetadata.common?.parameters))
+                    .Map(x => x.Values()).Flatten()
+                    .ToArray();
+
+                if((apiControllerMetadata.common !== undefined) && (operation.parameters.find(x => x.source === "common-data") === undefined))
+                {
+                    const commonParams = apiControllerMetadata.common.parameters.Values()
+                        .Map(x => this.MapParameterMetadata(undefined, x))
                         .Map(x => x.Values()).Flatten()
-                        .ToArray()
+                        .ToArray();
+
+                    params = commonParams.concat(params);
+                }
+
+                result[operationId] = {
+                    parameters: params
                 };
             }
         }
@@ -51,6 +63,11 @@ export class BackendInfoGenerator
     {
         switch(pm.source)
         {
+            case "auth-jwt":
+                return [{
+                    name: pm.name,
+                    source: "header-auth-bearer-jwt"
+                }];
             case "body":
                 return [{
                     name: pm.name,

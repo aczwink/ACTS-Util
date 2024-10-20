@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ export interface ResponseMetadata
 export interface ParameterMetadata
 {
     name: string;
-    source: "body" | "body-prop" | "common-data" | "form-field" | "header" | "path" | "query" | "request";
+    source: "auth-jwt" | "body" | "body-prop" | "common-data" | "form-field" | "header" | "path" | "query" | "request";
     schemaName: TypeOrRef;
     required: boolean;
 }
@@ -40,6 +40,12 @@ interface MethodMetadata
     responses: ResponseMetadata[];
 }
 
+export interface SecurityMetadata
+{
+    securitySchemeName: string;
+    scopes: string[];
+}
+
 export interface CommonMethodMetadata extends MethodMetadata
 {
 }
@@ -48,7 +54,7 @@ export interface OperationMetadata extends MethodMetadata
 {
     route?: string;
     httpMethod: HTTPMethod;
-    security?: string[];
+    security?: SecurityMetadata;
 }
 
 export interface APIControllerMetadata

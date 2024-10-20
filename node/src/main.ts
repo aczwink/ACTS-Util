@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -43,6 +43,7 @@ import * as HTTP_RequestHandlerChain from "./http/RequestHandlerChain";
 import * as HTTP_RequestSender from "./http/RequestSender";
 import * as HTTP_Response from "./http/Response";
 import * as HTTP_Result from "./http/Result";
+import * as HTTP_JWTVerifier from "./http/JWTVerifier";
 import * as HTTP_RouterRequestHandler from "./http/RouterRequestHandler";
 import * as HTTP_UploadedFile from "./http/UploadedFile";
 import { DateTime } from "./DateTime";
@@ -50,8 +51,9 @@ export namespace HTTP
 {
     export import APIServiceBase = HTTP_APIServiceBase.APIServiceBase;
     export import CreateResult = HTTP_Result.CreateResult;
-    export import ParameterStructure = HTTP_OperationStructure.ParameterStructure;
+    export import JWTVerifier = HTTP_JWTVerifier.JWTVerifier;
     export import OperationStructure = HTTP_OperationStructure.OperationStructure;
+    export import ParameterStructure = HTTP_OperationStructure.ParameterStructure;
     export import Request = HTTP_Request.Request;
     export import RequestHandlerChain = HTTP_RequestHandlerChain.RequestHandlerChain;
     export import RequestSender = HTTP_RequestSender.RequestSender;

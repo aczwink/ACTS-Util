@@ -17,14 +17,9 @@
  * */
 import { Dictionary, OpenAPI } from "acts-util-core";
 import { APIRegistryInstance } from "./APIRegistry";
-import { APIControllerMetadata, CommonMethodMetadata, ParameterMetadata, ResponseMetadata } from "./Metadata";
+import { APIControllerMetadata, CommonMethodMetadata, ParameterMetadata, ResponseMetadata, SecurityMetadata } from "./Metadata";
 import { DocumentationData, TypeCatalog, TypeOrRef } from "./TypeCatalog";
 import { TypesDiscriminator } from "./TypesDiscriminator";
-
-export interface SecuritySchemeDef extends OpenAPI.SecurityScheme
-{
-    global: boolean;
-}
 
 export class OpenAPIGenerator
 {
@@ -33,15 +28,12 @@ export class OpenAPIGenerator
     }
 
     //Public methods
-    public Generate(apiControllersMetadata: APIControllerMetadata[], securitySchemes: Dictionary<SecuritySchemeDef>): OpenAPI.Root
+    public Generate(apiControllersMetadata: APIControllerMetadata[], securitySchemes: Dictionary<OpenAPI.SecurityScheme>): OpenAPI.Root
     {
         return {
             components: {
                 schemas: this.CreateSchemas(apiControllersMetadata),
-                securitySchemes: securitySchemes.Entries().ToDictionary(kv => kv.key, kv => ({
-                    type: kv.value!.type,
-                    scheme: kv.value!.scheme
-                }))
+                securitySchemes
             },
             info: {
                 title: "TODO", //TODO
@@ -49,14 +41,14 @@ export class OpenAPIGenerator
             },
             openapi: "3.1.0",
             paths: this.CreatePathsObject(apiControllersMetadata),
-            security: securitySchemes.Entries().Filter(kv => kv.value!.global).Map(kv => ({ [kv.key]: [] })).ToArray()
+            //security: securitySchemes.Entries().Filter(kv => kv.value!.global).Map(kv => ({ [kv.key]: [] })).ToArray()
         };
     }
 
     //Private methods
     private CreateParameters(parameters: ParameterMetadata[]): OpenAPI.Parameter[]
     {
-        const otherParams = ["body", "body-prop", "form-field", "header", "request"];
+        const otherParams = ["auth-jwt", "body", "body-prop", "form-field", "header", "request"];
         return parameters.Values()
             .Filter(x => !otherParams.Contains(x.source))
             .Map(param => ({
@@ -90,13 +82,14 @@ export class OpenAPIGenerator
                     parameters: this.CreateParameters(parameters),
                     requestBody: this.CreateRequestBody(parameters),
                     responses: this.CreateResponses(responses),
-                    security: (operation.security === undefined) ? undefined : (operation.security.map(k => ({ [k]: [] }) )),
+                    security: this.CreateSecurityRequirement(operation.security),
                 };
             }
         }
 
         return obj;
     }
+
     private VerifyParameters(parameters: ParameterMetadata[], methodName: string)
     {
         for (let index = 0; index < parameters.length; index++)
@@ -301,6 +294,15 @@ export class OpenAPIGenerator
 
         return {
             $ref: "#/components/schemas/" + typeOrRef
+        };
+    }
+
+    private CreateSecurityRequirement(security?: SecurityMetadata): OpenAPI.SecurityRequirement | undefined
+    {
+        if(security === undefined)
+            return undefined;
+        return {
+            [security.securitySchemeName]: security.scopes
         };
     }
 

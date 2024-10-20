@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -45,10 +45,14 @@ export class DBConnectionPool
             async Query(query: string, args?: SQLArgType[]): Promise<any>
             {
                 const conn = await pool.GetFreeConnection();
-                const reuslt = conn.value.Query(query, args);
-                conn.Close();
-
-                return reuslt;
+                try
+                {
+                    return await conn.value.Query(query, args);
+                }
+                finally
+                {
+                    conn.Close();
+                }
             }
         });
     }

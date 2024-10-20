@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -90,6 +90,8 @@ export function APIController<T extends {new(...args:any[]):{}}>(baseRoute: stri
                     const result = await commonFunc(...args.slice(0, commonArgsLength));
                     if( (result !== undefined) && (result !== null) && (typeof result.statusCode === "number") )
                         return result;
+                    if(result === undefined)
+                        return await origFunc(...args.slice(commonArgsLength));
                     return await origFunc(result, ...args.slice(commonArgsLength));
                 };
             }
@@ -97,6 +99,13 @@ export function APIController<T extends {new(...args:any[]):{}}>(baseRoute: stri
             APIRegistryInstance.RegisterEndPoint("/" + baseRoute + props.route, props.httpMethod, func)
         });
     };
+}
+
+export function Auth(format: "jwt")
+{
+    return function(targetObject: Object, methodName: string, parameterIndex: number)
+    {
+    }
 }
 
 export function Body(targetObject: Object, methodName: string, parameterIndex: number)
@@ -166,9 +175,9 @@ export function Request(targetObject: Object, methodName: string, parameterIndex
 {
 }
 
-export function Security(securitySchemeName?: string)
+export function Security(securitySchemeName?: string, oAuthScopes?: string[])
 {
-    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
+    return function(targetClass: any, methodName?: string, methodDescriptor?: PropertyDescriptor)
     {
     }
 }

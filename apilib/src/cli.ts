@@ -21,8 +21,7 @@ import ts from "typescript";
 import path from "path";
 import { OpenAPIGenerationOrchestrator } from "./OpenAPIGenerationOrchestrator";
 import { APIClassGenerator } from "./APIClassGenerator";
-import { Dictionary } from "acts-util-core";
-import { SecuritySchemeDef } from "./OpenAPIGenerator";
+import { Dictionary, OpenAPI } from "acts-util-core";
 
 interface ConfigBase
 {
@@ -40,7 +39,7 @@ interface APIClassGenConfig extends ConfigBase
 interface OpenAPIGenConfig extends ConfigBase
 {
     type: "openapi";
-    securitySchemes: Dictionary<SecuritySchemeDef>;
+    securitySchemes: Dictionary<OpenAPI.SecurityScheme>;
 }
 
 type APILibConfig = APIClassGenConfig | OpenAPIGenConfig;

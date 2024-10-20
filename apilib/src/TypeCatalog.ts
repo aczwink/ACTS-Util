@@ -366,6 +366,12 @@ export class TypeCatalog
         if(type.flags === ts.TypeFlags.NonPrimitive)
             return "object";
 
+        if(type.symbol === undefined)
+        {
+            console.log(type);
+            throw new Error("TODO: implement me");
+        }
+
         if(type.symbol.escapedName === "Array")
         {
             const nested = this.typeChecker.getTypeArguments(type as ts.TypeReference);

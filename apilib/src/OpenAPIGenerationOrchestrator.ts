@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,16 +18,16 @@
 import fs from "fs";
 import ts from "typescript";
 import { ModuleLoader } from "acts-util-node";
-import { OpenAPIGenerator, SecuritySchemeDef } from "./OpenAPIGenerator";
+import { OpenAPIGenerator } from "./OpenAPIGenerator";
 import { SourceFileAnalyzer } from "./SourceFileAnalyzer";
 import { TypeCatalog } from "./TypeCatalog";
 import { BackendInfoGenerator } from "./BackendInfoGenerator";
-import { Dictionary } from "acts-util-core";
+import { Dictionary, OpenAPI } from "acts-util-core";
 
 export class OpenAPIGenerationOrchestrator
 {
     //Public methods
-    public async Generate(sourcePath: string, destPath: string, securitySchemes: Dictionary<SecuritySchemeDef>, compilerOptions: ts.CompilerOptions)
+    public async Generate(sourcePath: string, destPath: string, securitySchemes: Dictionary<OpenAPI.SecurityScheme>, compilerOptions: ts.CompilerOptions)
     {
         const moduleLoader = new ModuleLoader;
         const sourceFiles = await moduleLoader.FindModuleFiles(sourcePath, ".ts");

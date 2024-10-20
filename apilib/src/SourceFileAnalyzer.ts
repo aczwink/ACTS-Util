@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
  * */
 import ts from "typescript";
 import "acts-util-core";
-import { APIControllerMetadata, CommonMethodMetadata, OperationMetadata, ParameterMetadata } from "./Metadata";
+import { APIControllerMetadata, CommonMethodMetadata, OperationMetadata, ParameterMetadata, SecurityMetadata } from "./Metadata";
 import { TypeCatalog } from "./TypeCatalog";
 import { HTTPMethod } from "./APIRegistry";
 
@@ -34,7 +34,7 @@ interface OperationDecoratorInfo
 interface SecurityDecoratorInfo
 {
     type: "security";
-    security: string[];
+    data: SecurityMetadata;
 }
 
 type MethodDecoratorInfo = CommonMethodDecoratorInfo | OperationDecoratorInfo | SecurityDecoratorInfo;
@@ -48,7 +48,7 @@ interface OperationAPIMethodInfo
     type: "operation";
     httpMethod: HTTPMethod;
     route: string | undefined;
-    security: string[] | undefined;
+    security: SecurityMetadata | undefined;
 }
 
 type APIMethodInfo = CommonAPIMethodInfo | OperationAPIMethodInfo;
@@ -126,19 +126,18 @@ export class SourceFileAnalyzer
             }
             else if(decorator.expression.expression.escapedText === "Security")
             {
-                const arg = decorator.expression.arguments[0];
                 return {
                     type: "security",
-                    security: []
+                    data: this.ExtractSecurityArguments(decorator.expression.arguments)
                 };
             }
         }
     }
 
     private ExtractParameterDecoratorInfo(decorators: readonly ts.Decorator[] | undefined)
-        : "body" | "body-prop" | "common-data" | "form-field" | "header" | "path" | "query" | "request"
+        : "auth-jwt" | "body" | "body-prop" | "common-data" | "form-field" | "header" | "path" | "query" | "request"
     {
-        if((decorators !== undefined) && (decorators.length == 1))
+        if((decorators !== undefined) && (decorators.length === 1))
         {
             const node = decorators[0].expression;
             if(ts.isIdentifier(node))
@@ -162,8 +161,13 @@ export class SourceFileAnalyzer
                     case "Request":
                         return "request";
                     default:
-                        throw new Error("Method not implemented.");
+                        throw new Error("Method not implemented:" + node.escapedText);
                 }
+            }
+            else if(ts.isCallExpression(node) && ts.isIdentifier(node.expression) && ts.isStringLiteral(node.arguments[0]))
+            {
+                if((node.expression.escapedText === "Auth") && (node.arguments[0].text === "jwt"))
+                    return "auth-jwt";
             }
         }
         throw new Error("Method not implemented.");
@@ -173,12 +177,13 @@ export class SourceFileAnalyzer
     {
         const nameNode = param.name;
 
-        const schemaName = this.typeCatalog.ResolveSchemaNameFromType(param.type!);
         if(ts.isIdentifier(nameNode))
         {
+            const src = this.ExtractParameterDecoratorInfo(ts.getDecorators(param));
+            const schemaName = (src === "auth-jwt") ? "null" : this.typeCatalog.ResolveSchemaNameFromType(param.type!);
             return {
                 name: nameNode.text,
-                source: this.ExtractParameterDecoratorInfo(ts.getDecorators(param)),
+                source: src,
                 schemaName,
                 required: param.questionToken === undefined
             };
@@ -198,6 +203,29 @@ export class SourceFileAnalyzer
         return infos;
     }
 
+    private ExtractSecurityArguments(args: ts.NodeArray<ts.Expression>): SecurityMetadata
+    {
+        const tc = this.typeCatalog;
+        function ExtractString(expr: ts.Expression)
+        {
+            if(ts.isStringLiteral(expr))
+                return expr.text;
+            if(ts.isIdentifier(expr))
+                return tc.ResolveConstant(expr);
+
+            console.log(expr);
+            throw new Error("TODO: implement me");
+        }
+        
+        if(!ts.isArrayLiteralExpression(args[1]))
+            throw new Error("TODO: implement me");
+
+        return {
+            scopes: (args[1] === undefined) ? [] : args[1].elements.map(ExtractString),
+            securitySchemeName: ExtractString(args[0])
+        };
+    }
+
     private FindAPIControllerMetadata(classDecl: ts.ClassDeclaration, filePath: string): APIControllerMetadata | undefined
     {
         const baseRoute = this.FindAPIControllerDecorator(classDecl);
@@ -207,6 +235,8 @@ export class SourceFileAnalyzer
 
             let common: CommonMethodMetadata | undefined;
             const operations: OperationMetadata[] = [];
+
+            const securityDecorator = this.FindAPIControllerSecurityDecorator(classDecl);
             for (const member of classDecl.members)
             {
                 if(ts.isMethodDeclaration(member) && ts.canHaveDecorators(member) && (ts.getDecorators(member) !== undefined)
@@ -215,6 +245,9 @@ export class SourceFileAnalyzer
                     const apiDecorator = this.FindAPIMethodDecorators(ts.getDecorators(member)!);
                     if(apiDecorator)
                     {
+                        if((apiDecorator.type === "operation") && (apiDecorator.security === undefined))
+                            apiDecorator.security = securityDecorator;
+
                         const methodName = (member.name as ts.Identifier).text;
                         const parametersInfo = this.ExtractParametersInfo(member.parameters);
                         //console.log("method: ", (member.name as ts.Identifier).text);
@@ -272,6 +305,19 @@ export class SourceFileAnalyzer
         }
     }
 
+    private FindAPIControllerSecurityDecorator(classDecl: ts.ClassDeclaration)
+    {
+        const decorators = ts.getDecorators(classDecl);
+        for (const decorator of decorators!)
+        {
+            if(ts.isCallExpression(decorator.expression)
+                && ts.isIdentifier(decorator.expression.expression)
+                && (decorator.expression.expression.escapedText === "Security")
+                )
+                return this.ExtractSecurityArguments(decorator.expression.arguments);
+        }
+    }
+
     private FindAPIMethodDecorators(decorators: readonly ts.Decorator[]): APIMethodInfo | undefined
     {
         let common: CommonMethodDecoratorInfo | undefined;
@@ -303,7 +349,7 @@ export class SourceFileAnalyzer
                 type: "operation",
                 httpMethod: op.httpMethod,
                 route: op.route,
-                security: sec?.security
+                security: sec?.data
             };
         }
 

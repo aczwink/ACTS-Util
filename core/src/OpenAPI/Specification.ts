@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -98,8 +98,13 @@ interface HTTPSecurityScheme
     type: "http";
     scheme: string;
 }
+interface OpenIDConnectSecurityScheme
+{
+    type: "openIdConnect";
+    openIdConnectUrl: string;
+}
 
-export type SecurityScheme = HTTPSecurityScheme;
+export type SecurityScheme = HTTPSecurityScheme | OpenIDConnectSecurityScheme;
 
 interface Components
 {
@@ -138,7 +143,7 @@ export interface Response
     content?: Dictionary<MediaType>;
 }
 
-type SecurityRequirement = Dictionary<string[]>;
+export type SecurityRequirement = Dictionary<string[]>;
 
 export interface Operation
 {
@@ -146,7 +151,7 @@ export interface Operation
     parameters: Parameter[];
     requestBody?: RequestBody;
     responses: Dictionary<Response>;
-    security?: SecurityRequirement[];
+    security?: SecurityRequirement;
 }
 
 export interface PathItem
@@ -166,5 +171,5 @@ export interface Root
     openapi: "3.1.0";
     info: Info;
     paths: Paths;
-    security?: SecurityRequirement[];
+    security?: SecurityRequirement;
 }

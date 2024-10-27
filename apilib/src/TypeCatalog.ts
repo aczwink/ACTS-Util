@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import ts from "typescript";
-import { Dictionary, EqualsAny } from "acts-util-core";
+import { Dictionary, EqualsAny, ObjectExtensions } from "acts-util-core";
 import { ResponseMetadata } from "./Metadata";
 
 interface HTTPResponseWithCode
@@ -102,13 +102,13 @@ export class TypeCatalog
     //Properties
     public get namedTypes()
     {
-        return this._namedTypes.OwnKeys().Map(k => k.toString());
+        return ObjectExtensions.OwnKeys(this._namedTypes).Map(k => k.toString());
     }
 
     //Public methods
     public GetNamedType(schemaName: string)
     {
-        const obj = this._namedTypes[schemaName]!.Clone();
+        const obj = ObjectExtensions.Clone(this._namedTypes[schemaName]!);
         delete (obj as any).type;
 
         return obj;

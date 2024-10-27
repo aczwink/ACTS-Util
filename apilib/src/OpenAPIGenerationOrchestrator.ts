@@ -27,7 +27,7 @@ import { Dictionary, OpenAPI } from "acts-util-core";
 export class OpenAPIGenerationOrchestrator
 {
     //Public methods
-    public async Generate(sourcePath: string, destPath: string, securitySchemes: Dictionary<OpenAPI.SecurityScheme>, compilerOptions: ts.CompilerOptions)
+    public async Generate(sourcePath: string, destPath: string, securitySchemes: Dictionary<OpenAPI.SecurityScheme>, globalSecurityRequirement: OpenAPI.SecurityRequirement | undefined, compilerOptions: ts.CompilerOptions)
     {
         const moduleLoader = new ModuleLoader;
         const sourceFiles = await moduleLoader.FindModuleFiles(sourcePath, ".ts");
@@ -74,7 +74,7 @@ export class OpenAPIGenerationOrchestrator
         }
 
         const oapigen = new OpenAPIGenerator(typeCatalog);
-        const oapiobj = oapigen.Generate(apiDefs, securitySchemes);
+        const oapiobj = oapigen.Generate(apiDefs, securitySchemes, globalSecurityRequirement);
 
         const outputData = JSON.stringify(oapiobj, undefined, 4);
         await fs.promises.writeFile(destPath + ".json", outputData, "utf-8");

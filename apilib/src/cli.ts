@@ -39,6 +39,7 @@ interface APIClassGenConfig extends ConfigBase
 interface OpenAPIGenConfig extends ConfigBase
 {
     type: "openapi";
+    globalSecurityRequirement?: OpenAPI.SecurityRequirement;
     securitySchemes: Dictionary<OpenAPI.SecurityScheme>;
 }
 
@@ -78,7 +79,7 @@ async function ProcessConfig(config: APILibConfig)
                 );
 
                 const gen = new OpenAPIGenerationOrchestrator;
-                await gen.Generate(sourcePath, destPath, config.securitySchemes, parsedConfig.options);
+                await gen.Generate(sourcePath, destPath, config.securitySchemes, config.globalSecurityRequirement, parsedConfig.options);
             }
             break;
     }

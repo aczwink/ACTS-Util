@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { AbsURL } from "acts-util-core";
+import { AbsURL, ObjectExtensions } from "acts-util-core";
 import { HTTPMethod, RequestHeaders, RequestSender } from "./RequestSender";
 import { ResponseHeaders } from "./Response";
 
@@ -55,7 +55,7 @@ export class APIServiceBase
 
     public async SendRequest(requestData: RequestData, headers: RequestHeaders)
     {
-        const headersCopy = headers.Clone();
+        const headersCopy = ObjectExtensions.Clone(headers);
         if(requestData.body !== undefined)
         {
             if(headersCopy["Content-Type"] === undefined)

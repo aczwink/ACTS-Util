@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Dictionary, OpenAPI } from "acts-util-core";
+import { Dictionary, ObjectExtensions, OpenAPI } from "acts-util-core";
 
 export class APIPathNode
 {
@@ -30,7 +30,7 @@ export class APIPathNode
     //Properties
     public get children()
     {
-        return this._children.Entries();
+        return ObjectExtensions.Entries(this._children);
     }
 
     public get pathItem()
@@ -61,7 +61,7 @@ export class APIPathNode
             if(this.hasOnlyWildCardChild)
                 return this._children["*"]!.Add(pathSegments.slice(1), pathItem);
 
-            if(this._children.Values().Any())
+            if(ObjectExtensions.Values(this._children).Any())
                 throw new Error("Conflict: Route with segment '" + currentSegment + "' is supposed to be wildcard but already has children: " + this.children.Map(x => x.key.toString()).Join(", "));
             this.hasOnlyWildCardChild = true;
             const child = this._children["*"] = new APIPathNode;

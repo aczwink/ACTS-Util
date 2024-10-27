@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import fs from "fs";
-import { Dictionary, OpenAPI } from "acts-util-core";
+import { Dictionary, ObjectExtensions, OpenAPI } from "acts-util-core";
 import { EnumeratorBuilder } from "acts-util-core/dist/Enumeration/EnumeratorBuilder";
 import { APIPathNode } from "./APIPathNode";
 
@@ -104,11 +104,18 @@ export class APIClassGenerator
                     if(("anyOf" in value) || ("oneOf" in value))
                         throw new Error("not implemented");
 
-                    if(value.type === "object")
+                    if(value.type === "array")
                     {
                         return {
                             contentType: key,
-                            params: "{ " + value.properties.Entries()
+                            params: "Array<" + this.GenerateSchemaSourceCode(value.items) + ">"
+                        };
+                    }
+                    else if(value.type === "object")
+                    {
+                        return {
+                            contentType: key,
+                            params: "{ " + ObjectExtensions.Entries(value.properties)
                                 .Map(kv => kv.key + ": " + this.GenerateSchemaSourceCode(kv.value!))
                                 .Join("; ")
                                 + " }"
@@ -152,7 +159,7 @@ export class APIClassGenerator
             case "number":
                 break;
             case "object":
-                return schema.properties.Entries()
+                return ObjectExtensions.Entries(schema.properties)
                     .Map(kv => this.FindFormatRules([...keys, kv.key] as string[], kv.value!, schemas) ).Flatten();
             case "string":
                 if(schema.format === "date-time")
@@ -264,7 +271,7 @@ export class APIClassGenerator
             return "";
 
         const responseType = this.FindResponseType(operation.responses);
-        const errStatusCodes = operation.responses.OwnKeys().Map(x => x.toString())
+        const errStatusCodes = ObjectExtensions.OwnKeys(operation.responses).Map(x => x.toString())
             .Filter(x => x !== responseType.statusCode.toString())
             .Filter(x => !this.excludedStatusCodes.has(parseInt(x)))
             .Join(" | ");
@@ -315,7 +322,7 @@ export class APIClassGenerator
     private GenerateAPIObjects(paths: OpenAPI.Paths, schemas: Dictionary<OpenAPI.Schema>)
     {
         const root = new APIPathNode();
-        paths.Entries().ForEach(x => root.Add(x.key.toString().substring(1).split("/"), x.value!));
+        ObjectExtensions.Entries(paths).ForEach(x => root.Add(x.key.toString().substring(1).split("/"), x.value!));
 
         return root.children
             .Map(kv => this.GenerateAPIObject(kv.key.toString(), kv.value!, schemas))
@@ -358,7 +365,7 @@ export class APIClassGenerator
 
     private GenerateModelsSourceCode(schemas: Dictionary<OpenAPI.Schema>)
     {
-        return schemas.Entries().Map(kv => this.GenerateModelSourceCode(kv.key.toString(), kv.value!)).Join("\n\n");
+        return ObjectExtensions.Entries(schemas).Map(kv => this.GenerateModelSourceCode(kv.key.toString(), kv.value!)).Join("\n\n");
     }
 
     private GenerateRequestDataInterfaceSourceCode()
@@ -455,7 +462,7 @@ export type ResponseData<SuccessStatusCodeType, ErrorStatusCodeType, DataType> =
                 return "null";
             case "object":
                 return "{\n"
-                    + schema.properties.Entries()
+                    + ObjectExtensions.Entries(schema.properties)
                     .Map(kv => this.Indent(indention + 1) + this.DeclarationToSourceCode(kv.key.toString(), schema.required.Contains(kv.key), kv.value!, indention + 1) + ";")
                     .Join("\n")
                     + "\n" + this.Indent(indention) + "}";

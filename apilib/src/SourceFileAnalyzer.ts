@@ -34,7 +34,7 @@ interface OperationDecoratorInfo
 interface SecurityDecoratorInfo
 {
     type: "security";
-    data: SecurityMetadata;
+    data: SecurityMetadata | null;
 }
 
 type MethodDecoratorInfo = CommonMethodDecoratorInfo | OperationDecoratorInfo | SecurityDecoratorInfo;
@@ -48,7 +48,7 @@ interface OperationAPIMethodInfo
     type: "operation";
     httpMethod: HTTPMethod;
     route: string | undefined;
-    security: SecurityMetadata | undefined;
+    security?: SecurityMetadata | null;
 }
 
 type APIMethodInfo = CommonAPIMethodInfo | OperationAPIMethodInfo;
@@ -180,7 +180,8 @@ export class SourceFileAnalyzer
         if(ts.isIdentifier(nameNode))
         {
             const src = this.ExtractParameterDecoratorInfo(ts.getDecorators(param));
-            const schemaName = (src === "auth-jwt") ? "null" : this.typeCatalog.ResolveSchemaNameFromType(param.type!);
+            const isServerOnlyType = (src === "auth-jwt") || (src === "request");
+            const schemaName = isServerOnlyType ? "null" : this.typeCatalog.ResolveSchemaNameFromType(param.type!);
             return {
                 name: nameNode.text,
                 source: src,
@@ -203,7 +204,7 @@ export class SourceFileAnalyzer
         return infos;
     }
 
-    private ExtractSecurityArguments(args: ts.NodeArray<ts.Expression>): SecurityMetadata
+    private ExtractSecurityArguments(args: ts.NodeArray<ts.Expression>): SecurityMetadata | null
     {
         const tc = this.typeCatalog;
         function ExtractString(expr: ts.Expression)
@@ -216,7 +217,10 @@ export class SourceFileAnalyzer
             console.log(expr);
             throw new Error("TODO: implement me");
         }
-        
+
+        if(args.length === 0)
+            return null;
+
         if(!ts.isArrayLiteralExpression(args[1]))
             throw new Error("TODO: implement me");
 

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 import { ArrayIterator } from "./Enumeration/ArrayIterator";
 import { HierarchicalComparator } from "./EqualsAny";
 import { EnumeratorBuilder } from "./Enumeration/EnumeratorBuilder";
+import { ObjectExtensions } from "./ObjectExtensions";
 
 export {};
 
@@ -79,7 +80,7 @@ Array.prototype.DeepClone = function<T>(this: Array<T>)
 
         if(Array.isArray(value))
             value = value.DeepClone();
-        else if(Object.IsObject(value))
+        else if(ObjectExtensions.IsObject(value))
             value = value.DeepClone();
 
         result.push(value);

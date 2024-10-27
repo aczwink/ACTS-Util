@@ -29,6 +29,7 @@ import { DataResponse } from "./Response";
 import { UploadedFile } from "./UploadedFile";
 import { Promisify } from "../fs/Util";
 import { DateTime } from "../DateTime";
+import { ObjectExtensions } from "acts-util-core";
 
 export class ExpressRequestHandlerChain implements RequestHandlerChain
 {
@@ -153,7 +154,7 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
             if(result instanceof DateTime)
                 return result.ToISOString();
             
-            return result.Entries().ToDictionary( (kv: any) => kv.key, (kv: any) => this.MapResult(kv.value))
+            return ObjectExtensions.Entries(result).ToDictionary( (kv: any) => kv.key, (kv: any) => this.MapResult(kv.value))
         }
 
         return result;

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
+import { ObjectExtensions } from "acts-util-core";
 import { EnumSchema, TypeCatalog, TypeOrRef } from "./TypeCatalog";
 
 export class TypesDiscriminator
@@ -30,7 +31,7 @@ export class TypesDiscriminator
         const possibleProps = types.Values().Map(this.ResolveReferences.bind(this)).Map(this.ResolveProperties.bind(this)).ToArray();
         if(possibleProps.Values().Filter(x => x === null).Any())
             return null;
-        const candidates = possibleProps.Values().NotNull().Map(ps => ps.OwnKeys().ToSet()).Accumulate( (acc, next) => acc.Intersect(next) ).ToArray();
+        const candidates = possibleProps.Values().NotNull().Map(ps => ObjectExtensions.OwnKeys(ps).ToSet()).Accumulate( (acc, next) => acc.Intersect(next) ).ToArray();
         for (const candidate of candidates)
         {
             const candidateTypes = possibleProps.Values().NotNull().Map(ps => ps[candidate]!.type).Map(this.ResolveReferences.bind(this)).ToArray();

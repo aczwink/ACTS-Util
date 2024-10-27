@@ -19,7 +19,6 @@ import "./ArrayExtensions";
 import "./FunctionExtensions";
 import "./MapExtensions";
 import "./NumberExtensions";
-import "./ObjectExtensions";
 import "./RegExpExtensions";
 import "./SetExtensions";
 import "./StringExtensions";
@@ -43,7 +42,7 @@ import { Duration } from "./Duration";
 import { Subject } from "./Observables/Subject";
 import { EqualsAny } from "./EqualsAny";
 import { TimeUtil } from "./TimeUtil";
-import { ObservableObject } from "./ObjectExtensions";
+import { ObjectExtensions, ObservableObject } from "./ObjectExtensions";
 import { CachedProperty } from "./CachedProperty";
 import { AbsURL } from "./AbsURL";
 import { URLParser } from "./URLParser";
@@ -77,6 +76,7 @@ export {
     Property,
     PropertyObserver,
     ResolutionStrategy,
+    ObjectExtensions,
     Subject,
     SubscriberFunction,
     Subscription,

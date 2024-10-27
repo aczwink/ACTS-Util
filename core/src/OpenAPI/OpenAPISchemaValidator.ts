@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
+import { ObjectExtensions } from "../ObjectExtensions";
 import { NumberSchema, ObjectSchema, OneOfSchema, Reference, Root, Schema, StringSchema } from "./Specification";
 
 export class OpenAPISchemaValidator
@@ -82,7 +83,7 @@ export class OpenAPISchemaValidator
 
     public ValidateObject(obj: any, schema: ObjectSchema)
     {
-        return schema.properties.Entries().Map(kv => this.ValidateProperty(obj, schema.required, kv.key.toString(), kv.value!)).All();
+        return ObjectExtensions.Entries(schema.properties).Map(kv => this.ValidateProperty(obj, schema.required, kv.key.toString(), kv.value!)).All();
     }
 
     public ValidateString(value: string, schema: StringSchema)

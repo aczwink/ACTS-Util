@@ -20,6 +20,7 @@ import { APIRegistryInstance } from "./APIRegistry";
 import { APIControllerMetadata, CommonMethodMetadata, ParameterMetadata, ResponseMetadata, SecurityMetadata } from "./Metadata";
 import { DocumentationData, TypeCatalog, TypeOrRef } from "./TypeCatalog";
 import { TypesDiscriminator } from "./TypesDiscriminator";
+import { SecurityRequirement } from "acts-util-core/dist/OpenAPI/Specification";
 
 export class OpenAPIGenerator
 {
@@ -28,7 +29,7 @@ export class OpenAPIGenerator
     }
 
     //Public methods
-    public Generate(apiControllersMetadata: APIControllerMetadata[], securitySchemes: Dictionary<OpenAPI.SecurityScheme>): OpenAPI.Root
+    public Generate(apiControllersMetadata: APIControllerMetadata[], securitySchemes: Dictionary<OpenAPI.SecurityScheme>, globalSecurityRequirement?: SecurityRequirement): OpenAPI.Root
     {
         return {
             components: {
@@ -41,7 +42,7 @@ export class OpenAPIGenerator
             },
             openapi: "3.1.0",
             paths: this.CreatePathsObject(apiControllersMetadata),
-            //security: securitySchemes.Entries().Filter(kv => kv.value!.global).Map(kv => ({ [kv.key]: [] })).ToArray()
+            security: globalSecurityRequirement
         };
     }
 
@@ -297,13 +298,17 @@ export class OpenAPIGenerator
         };
     }
 
-    private CreateSecurityRequirement(security?: SecurityMetadata): OpenAPI.SecurityRequirement | undefined
+    private CreateSecurityRequirement(security?: SecurityMetadata | null): OpenAPI.SecurityRequirement | undefined
     {
         if(security === undefined)
             return undefined;
-        return {
-            [security.securitySchemeName]: security.scopes
-        };
+        if(security === null)
+            return [];
+        return [
+            {
+                [security.securitySchemeName]: security.scopes
+            }
+        ];
     }
 
     private CreateResponseObject(response: ResponseMetadata): OpenAPI.Response

@@ -33,32 +33,35 @@ export class OpenAPISecurityVerifier
         if(authorizationHeader === undefined)
             return "missing Authorization header";
 
-        for (const securitySchemeName in operation.security)
+        for (const security of operation.security)
         {
-            if (Object.prototype.hasOwnProperty.call(operation.security, securitySchemeName))
+            for (const securitySchemeName in security)
             {
-                const scheme = this.root.components.securitySchemes[securitySchemeName]!;
-                
-                switch(scheme.type)
+                if (Object.prototype.hasOwnProperty.call(security, securitySchemeName))
                 {
-                    case "http":
-                        throw new Error("Method not implemented.");
-                    case "openIdConnect":
+                    const scheme = this.root.components.securitySchemes[securitySchemeName]!;
+                    
+                    switch(scheme.type)
                     {
-                        const requiredScopes = operation.security[securitySchemeName];
-
-                        const accessToken = jwt.decode(authorizationHeader.substring("Bearer ".length), { json: true })!;
-                        if((requiredScopes === undefined) || (requiredScopes.length === 0))
-                            return undefined;
-
-                        const scopeLine = accessToken.scope ?? "";
-                        const providedScopes = scopeLine.split(" ") as string[];
-                        for (const scope of requiredScopes)
+                        case "http":
+                            throw new Error("Method not implemented.");
+                        case "openIdConnect":
                         {
-                            if(!providedScopes.includes(scope))
-                                return "Missing scope: " + scope;
+                            const requiredScopes = security[securitySchemeName];
+    
+                            const accessToken = jwt.decode(authorizationHeader.substring("Bearer ".length), { json: true })!;
+                            if((requiredScopes === undefined) || (requiredScopes.length === 0))
+                                return undefined;
+    
+                            const scopeLine = accessToken.scope ?? "";
+                            const providedScopes = scopeLine.split(" ") as string[];
+                            for (const scope of requiredScopes)
+                            {
+                                if(!providedScopes.includes(scope))
+                                    return "Missing scope: " + scope;
+                            }
+                            return undefined;
                         }
-                        return undefined;
                     }
                 }
             }

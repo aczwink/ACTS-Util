@@ -143,7 +143,7 @@ export interface Response
     content?: Dictionary<MediaType>;
 }
 
-export type SecurityRequirement = Dictionary<string[]>;
+export type SecurityRequirement = Dictionary<string[]>[];
 
 export interface Operation
 {

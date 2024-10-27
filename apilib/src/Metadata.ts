@@ -54,7 +54,7 @@ export interface OperationMetadata extends MethodMetadata
 {
     route?: string;
     httpMethod: HTTPMethod;
-    security?: SecurityMetadata;
+    security?: SecurityMetadata | null;
 }
 
 export interface APIControllerMetadata

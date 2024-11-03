@@ -143,7 +143,7 @@ export class EnumeratorBuilder<T>
         return grouped.Entries();
     }
 
-    public OrderBy( selector: (element: T) => number | string )
+    public OrderBy( selector: (element: T) => number | string | number[] )
     {
         const result = this.ToArray();
         result.SortBy(selector);

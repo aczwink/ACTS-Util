@@ -32,24 +32,40 @@ declare global
         Equals: <T>(this: T[], other: T[]) => boolean;
         IsEmpty: <T>(this: T[]) => boolean;
         Remove: <T>(this: T[], index: number) => void;
-        SortBy: <T>(this: T[], selector: (element: T) => number | string) => void;
+        SortBy: <T>(this: T[], selector: (element: T) => number | string | number[]) => void;
         SortByDescending: <T>(this: T[], selector: (element: T) => number | string) => void;
         Values: <T>(this: T[]) => EnumeratorBuilder<T>;
     }
 }
 
 
-function SortArray<T>(array: Array<T>, selector: (element: T) => number | string, ascending: boolean)
+function SortArray<T, U extends (number | string | number[])>(array: Array<T>, selector: (element: T) => U, ascending: boolean)
 {
+    function diff(a: number | string, b: number | string)
+    {
+        if((typeof a === "number") && (typeof b === "number"))
+            return a - b;
+        return a.toString().localeCompare(b.toString());
+    }
+    function diff_arrays(a: number[], b: number[]): number
+    {
+        if(a.length === 0)
+            return 0;
+        const d = diff(a[0], b[0]);
+        if(d !== 0)
+            return d;
+        return diff_arrays(a.slice(1), b.slice(1));
+    }
+
     return array.sort( (a,b) => {
         const sa = selector(a);
         const sb = selector(b);
 
         let result;
-        if((typeof sa === "number") && (typeof sb === "number"))
-            result = sa - sb;
+        if(Array.isArray(sa))
+            result = diff_arrays(sa, sb as number[]);
         else
-            result = sa.toString().localeCompare(sb.toString());
+            result = diff(sa, sb as number | string);
         return ascending ? result : -result;
     });
 }
@@ -81,7 +97,7 @@ Array.prototype.DeepClone = function<T>(this: Array<T>)
         if(Array.isArray(value))
             value = value.DeepClone();
         else if(ObjectExtensions.IsObject(value))
-            value = value.DeepClone();
+            value = ObjectExtensions.DeepClone(value);
 
         result.push(value);
     }
@@ -105,7 +121,7 @@ Array.prototype.Remove = function<T>(this: Array<T>, index: number)
     this.splice(index, 1);
 }
 
-Array.prototype.SortBy = function<T>(this: Array<T>, selector: (element: T) => number | string)
+Array.prototype.SortBy = function<T>(this: Array<T>, selector: (element: T) => number | string | number[])
 {
     return SortArray(this, selector, true);
 }

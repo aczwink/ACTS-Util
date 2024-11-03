@@ -36,20 +36,20 @@ export const ObjectExtensions = {
         return result as T;
     },
 
-    DeepClone: function<T>(this: T): T
+    DeepClone: function<T>(object: T): T
     {
         const result: any = {};
 
-        for (const key in this)
+        for (const key in object)
         {
-            if(!(this as any).hasOwnProperty(key))
+            if(!(object as any).hasOwnProperty(key))
                 continue;
                 
-            let value = this[key] as any;
+            let value = object[key] as any;
             if(Array.isArray(value))
                 value = value.DeepClone();
             else if(ObjectExtensions.IsObject(value))
-                value = value.DeepClone();
+                value = ObjectExtensions.DeepClone(value);
 
             result[key] = value;
         }

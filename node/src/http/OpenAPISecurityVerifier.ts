@@ -28,45 +28,57 @@ export class OpenAPISecurityVerifier
     //Public methods
     public Verify(authorizationHeader: string | undefined, operation: OpenAPI.Operation)
     {
-        if(operation.security === undefined)
+        const security = operation.security ?? this.root.security;
+        if(security === undefined)
+            return undefined;
+        if(security.length === 0)
             return undefined;
         if(authorizationHeader === undefined)
             return "missing Authorization header";
 
-        for (const security of operation.security)
+        for (const securityRequirement of security)
         {
-            for (const securitySchemeName in security)
+            for (const securitySchemeName in securityRequirement)
             {
-                if (Object.prototype.hasOwnProperty.call(security, securitySchemeName))
+                if (Object.prototype.hasOwnProperty.call(securityRequirement, securitySchemeName))
                 {
                     const scheme = this.root.components.securitySchemes[securitySchemeName]!;
                     
                     switch(scheme.type)
                     {
                         case "http":
-                            throw new Error("Method not implemented.");
+                            return this.ValidateHTTPBearerAuth(authorizationHeader);
                         case "openIdConnect":
-                        {
-                            const requiredScopes = security[securitySchemeName];
-    
-                            const accessToken = jwt.decode(authorizationHeader.substring("Bearer ".length), { json: true })!;
-                            if((requiredScopes === undefined) || (requiredScopes.length === 0))
-                                return undefined;
-    
-                            const scopeLine = accessToken.scope ?? "";
-                            const providedScopes = scopeLine.split(" ") as string[];
-                            for (const scope of requiredScopes)
-                            {
-                                if(!providedScopes.includes(scope))
-                                    return "Missing scope: " + scope;
-                            }
-                            return undefined;
-                        }
+                            return this.ValidateOIDC(authorizationHeader, securityRequirement[securitySchemeName]);
                     }
                 }
             }
         }
 
         return "Authorization header doesn't match";
+    }
+
+    //Private methods
+    private ValidateHTTPBearerAuth(authorizationHeader: string)
+    {
+        if(!authorizationHeader.startsWith("Bearer "))
+            return "Authorization header malformed";
+        return undefined;
+    }
+
+    private ValidateOIDC(authorizationHeader: string, requiredScopes?: string[])
+    {    
+        const accessToken = jwt.decode(authorizationHeader.substring("Bearer ".length), { json: true })!;
+        if((requiredScopes === undefined) || (requiredScopes.length === 0))
+            return undefined;
+
+        const scopeLine = accessToken.scope ?? "";
+        const providedScopes = scopeLine.split(" ") as string[];
+        for (const scope of requiredScopes)
+        {
+            if(!providedScopes.includes(scope))
+                return "Missing scope: " + scope;
+        }
+        return undefined;
     }
 }

@@ -96,7 +96,8 @@ export type Schema = AnyOfSchema | ArraySchema | BooleanSchema | NullSchema | Nu
 interface HTTPSecurityScheme
 {
     type: "http";
-    scheme: string;
+    scheme: "bearer";
+    bearerFormat?: string;
 }
 interface OpenIDConnectSecurityScheme
 {

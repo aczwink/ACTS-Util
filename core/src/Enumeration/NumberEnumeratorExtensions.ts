@@ -23,6 +23,7 @@ declare module "./EnumeratorBuilder"
     interface EnumeratorBuilder<T>
     {
         Max: (this: EnumeratorBuilder<number>) => number;
+        Min: (this: EnumeratorBuilder<number>) => number;
         Sum: (this: EnumeratorBuilder<number>) => number;
     }
 }
@@ -30,6 +31,11 @@ declare module "./EnumeratorBuilder"
 EnumeratorBuilder.prototype.Max = function(this: EnumeratorBuilder<number>)
 {
     return this.Accumulate((x, y) => Math.max(x, y));
+}
+
+EnumeratorBuilder.prototype.Min = function(this: EnumeratorBuilder<number>)
+{
+    return this.Accumulate((x, y) => Math.min(x, y));
 }
 
 EnumeratorBuilder.prototype.Sum = function(this: EnumeratorBuilder<number>)

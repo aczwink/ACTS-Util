@@ -52,7 +52,7 @@ function ValidateNaturalNumber(n: number, max: number)
 
 interface Duration
 {
-    unit: "days" | "hours" | "minutes" | "weeks";
+    unit: "days" | "hours" | "minutes" | "months" | "weeks";
     count: number;
 }
 
@@ -179,6 +179,11 @@ export class DateTime
     {
         return new DateTime(moment.unix(unixTimeStamp));
     }
+    
+    public static ConstructFromUnixTimeStampWithMilliSeconds(ms: number)
+    {
+        return new DateTime(moment(ms));
+    }
 
     public static ConstructUTC(year: number, month: number, day: number, hours: number, minutes: number, seconds: number)
     {
@@ -191,6 +196,10 @@ export class DateTime
 		return new DateTime(mom);
 	}
 
+    /**
+     * 
+     * @returns local time
+     */
     public static Now()
     {
         return new DateTime(moment());

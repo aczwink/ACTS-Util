@@ -16,15 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
+import jwt, { JwtHeader, SigningKeyCallback } from "jsonwebtoken";
 import { Request } from "./Request";
 import { RequestHandler } from "./RequestHandler";
 import { DataResponse } from "./Response";
+import { Dictionary } from "acts-util-core";
 
 export class JWTVerifier implements RequestHandler
 {
-    constructor(private publicKey: crypto.KeyObject, private issuer: string, private force: boolean)
+    constructor(private jwks: { keys: crypto.JsonWebKey[] }, private issuer: string, private force: boolean)
     {
+        this.keys = {};
     }
 
     public async HandleRequest(request: Request): Promise<DataResponse | null>
@@ -35,28 +37,55 @@ export class JWTVerifier implements RequestHandler
                 return this.ReportError("Authorization header missing");
             return null;
         }
-
-        try
-        {
+        
+        const auth = request.headers.authorization;
+        return await new Promise<DataResponse | null>(resolve => {
             jwt.verify(
-                request.headers.authorization.substring("Bearer ".length),
-                this.publicKey,
+                auth.substring("Bearer ".length),
+                this.GetKey.bind(this),
                 {
                     issuer: this.issuer
+                },
+                error => {
+                    if(error !== null)
+                        resolve(this.ReportError(error.message));
+                    else
+                        resolve(null);
                 }
             );
-        }
-        catch(e)
-        {
-            if(e instanceof jwt.JsonWebTokenError)
-                return this.ReportError(e.message);
-            throw e;
-        }
-
-        return null;
+        });
     }
 
     //Private methods
+    private GetKey(header: JwtHeader, callback: SigningKeyCallback)
+    {
+        if(header.kid === undefined)
+        {
+            callback(new Error("Illegal token"));
+            return;
+        }
+
+        const kid = header.kid;
+        const key = this.keys[kid];
+        if(key !== undefined)
+        {
+            callback(null, key);
+            return;
+        }
+
+        const result = this.jwks.keys.find(x => x.kid === kid);
+        if(result === undefined)
+            callback(new Error("key not found"));
+        else
+        {
+            const key = this.keys[kid] = crypto.createPublicKey({
+                key: result,
+                format: 'jwk'
+            });
+            callback(null, key);
+        }
+    }
+
     private ReportError(message: string): DataResponse
     {
         return {
@@ -70,4 +99,7 @@ export class JWTVerifier implements RequestHandler
             data: message
         };
     }
+
+    //State
+    private keys: Dictionary<crypto.KeyObject>;
 }

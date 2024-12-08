@@ -60,6 +60,17 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
         this.app.use(cors({ origin: trustedOrigins }));
     }
 
+    public AddDynamicCORSHandler(check: (origin: string) => boolean): void
+    {
+        this.app.use(
+            cors({
+                origin: (origin, callback) => {
+                    callback(null, check(origin ?? ""))
+                }
+            })
+        );
+    }
+
     public AddRequestHandler(requestHandler: RequestHandler): void
     {
         if(this.requestHandlers.length === 0)

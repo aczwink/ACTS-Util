@@ -24,6 +24,7 @@ export interface RequestHandlerChain
 
     AddBodyParser(): void;
     AddCORSHandler(trustedOrigins: string[]): void;
+    AddDynamicCORSHandler(check: (origin: string) => boolean): void;
     AddRequestHandler(requestHandler: RequestHandler): void;
     AddThirdPartyHandler(handler: Function): void;
 }

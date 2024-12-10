@@ -287,6 +287,7 @@ export class OpenAPIGenerator
                     type: "string"
                 };
             case "UploadedFile":
+            case "UploadedFileRef":
                 return {
                     type: "string",
                     format: "binary"

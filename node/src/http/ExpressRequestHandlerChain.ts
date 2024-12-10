@@ -26,19 +26,30 @@ import { RequestHandler } from "./RequestHandler";
 
 import { RequestHandlerChain } from "./RequestHandlerChain";
 import { DataResponse } from "./Response";
-import { UploadedFile } from "./UploadedFile";
+import { UploadedFile, UploadedFileRef } from "./UploadedFile";
 import { Promisify } from "../fs/Util";
 import { DateTime } from "../DateTime";
 import { ObjectExtensions } from "acts-util-core";
 
 export class ExpressRequestHandlerChain implements RequestHandlerChain
 {
-    constructor()
+    constructor(uploadPath?: string)
     {
         this.app = express();
-        this.multer = multer({
-            storage: multer.memoryStorage()
-        });
+        if(uploadPath === undefined)
+        {
+            this.multer = multer({
+                storage: multer.memoryStorage()
+            });
+        }
+        else
+        {
+            this.multer = multer({
+                storage: multer.diskStorage({
+                    destination: uploadPath
+                })
+            });
+        }  
         this.requestHandlers = [];
         this.hasTrailingThirdParty = false;
     }
@@ -101,12 +112,24 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
             {
                 for (const file of req.files)
                 {
-                    const uf: UploadedFile = {
-                        originalName: file.originalname,
-                        mediaType: file.mimetype,
-                        buffer: file.buffer
-                    };
-                    req.body[file.fieldname] = uf;
+                    if(file.buffer === undefined)
+                    {
+                        const uf: UploadedFileRef = {
+                            filePath: file.path,
+                            mediaType: file.mimetype,
+                            originalName: file.originalname,
+                        };
+                        req.body[file.fieldname] = uf;
+                    }
+                    else
+                    {
+                        const uf: UploadedFile = {
+                            originalName: file.originalname,
+                            mediaType: file.mimetype,
+                            buffer: file.buffer
+                        };
+                        req.body[file.fieldname] = uf;
+                    }
                 }
             }
         }

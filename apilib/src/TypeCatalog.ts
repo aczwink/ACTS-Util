@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import ts from "typescript";
-import { Dictionary, EqualsAny, ObjectExtensions } from "acts-util-core";
+import { Dictionary, EqualsAny, ObjectExtensions, Of } from "acts-util-core";
 import { ResponseMetadata } from "./Metadata";
 
 interface HTTPResponseWithCode
@@ -195,6 +195,29 @@ export class TypeCatalog
         }];
     }
 
+    private DebugTypeToString(type: ts.Type): string
+    {
+        if((type.flags & ts.TypeFlags.Undefined) || (type.flags & ts.TypeFlags.Void))
+            return "undefined";
+        if((type.flags & ts.TypeFlags.Number) || type.isNumberLiteral())
+            return "number";
+        if(type.flags & ts.TypeFlags.String)
+            return "string";
+
+        if(type.isUnion())
+            return type.types.map(x => this.DebugTypeToString(x)).join(" | ");
+
+        if(type.symbol.escapedName === "Promise")
+        {
+            const nested = this.typeChecker.getTypeArguments(type as ts.TypeReference);
+            return "Promise<" + this.DebugTypeToString(nested[0]) + ">";
+        }
+        if(type.aliasSymbol?.escapedName === "TypedHTTPResponse")
+            return "TypedHTTPResponse<" + (type.aliasTypeArguments![0] as ts.NumberLiteralType).value + ">";
+
+        return type.symbol.name;
+    }
+
     private MergeEqualTypes(types: (string | Type)[])
     {
         return types.filter( (x, i) => i === types.findIndex(y => EqualsAny(x, y)) );
@@ -276,7 +299,25 @@ export class TypeCatalog
             }];
         }
         else if(mappedType.kind === "union")
-            return mappedType.subTypes.Values().Map(this.CreateResponsesFromType.bind(this)).Map(x => x.Values()).Flatten().ToArray();
+        {
+            return mappedType.subTypes.Values()
+                .Map(this.CreateResponsesFromType.bind(this))
+                .Map(x => x.Values()).Flatten()
+                .GroupBy(x => x.statusCode)
+                .Map(x => {
+                    if(x.value.length === 1)
+                        return x.value[0];
+                    return {
+                        statusCode: x.value[0].statusCode,
+                        schemaName: Of<UnionType>({
+                            kind: "union",
+                            subTypes: x.value.map(y => y.schemaName),
+                            type: mappedType.type
+                        })
+                    };
+                })
+                .ToArray();
+        }
         
         return this.CreateStandardReponse(mappedType);
     }

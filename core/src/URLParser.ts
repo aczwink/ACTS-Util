@@ -59,7 +59,7 @@ export class URLParser
         else if(protocol === "https")
             port = 443;
 
-        const pathAndQuery = url.substring(pathPos + 1);
+        const pathAndQuery = url.substring(pathPos);
         const parts = pathAndQuery.split("?");
 
         return {

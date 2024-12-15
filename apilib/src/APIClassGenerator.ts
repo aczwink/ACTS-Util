@@ -51,17 +51,17 @@ interface ResponseTypeWithStatusCode extends ResponseType
 
 export class APIClassGenerator
 {
-    constructor(private excludedStatusCodes: Set<number>)
+    constructor(private excludedStatusCodes: Set<number>, private target: "browser" | "node")
     {
     }
 
     //Public methods
-    public async Generate(sourcePath: string, destPath: string, header?: string)
+    public async Generate(sourcePath: string, destPath: string, header: string)
     {
         const openAPIDef: OpenAPI.Root = JSON.parse(await fs.promises.readFile(sourcePath, "utf-8"));
 
         const apiSourceCode = this.GenerateSourceCode(openAPIDef);
-        const finalSourceCode = (header === undefined) ? apiSourceCode : (header + "\n\n" + apiSourceCode);
+        const finalSourceCode = header + "\n\n" + apiSourceCode;
         await fs.promises.writeFile(destPath, finalSourceCode, "utf-8");
     }
 
@@ -228,7 +228,7 @@ export class APIClassGenerator
         if(mediaType.schema === undefined)
         {
             return {
-                returnTypeName: "Blob",
+                returnTypeName: (this.target === "browser") ? "Blob" : "Buffer",
                 format: "blob",
                 returnTypeSchema: {
                     type: "object",

@@ -24,7 +24,7 @@ import { Dictionary } from "acts-util-core";
 
 export class JWTVerifier implements RequestHandler
 {
-    constructor(private jwks: { keys: crypto.JsonWebKey[] }, private issuer: string, private force: boolean)
+    constructor(private jwks: { keys: crypto.JsonWebKey[] }, private issuer: string, private audience: string, private force: boolean)
     {
         this.keys = {};
     }
@@ -44,6 +44,7 @@ export class JWTVerifier implements RequestHandler
                 auth.substring("Bearer ".length),
                 this.GetKey.bind(this),
                 {
+                    audience: this.audience,
                     issuer: this.issuer
                 },
                 error => {
@@ -62,6 +63,11 @@ export class JWTVerifier implements RequestHandler
         if(header.kid === undefined)
         {
             callback(new Error("Illegal token"));
+            return;
+        }
+        if(header.typ !== "at+jwt")
+        {
+            callback(new Error("Not an access token"));
             return;
         }
 

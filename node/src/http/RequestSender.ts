@@ -23,7 +23,7 @@ import { ResponseHeaders } from "./Response";
 export interface RequestHeaders
 {
     Authorization?: string;
-    "Content-Type"?: "application/json";
+    "Content-Type"?: "application/json" | "application/x-www-form-urlencoded";
     "Content-Length"?: number;
     Host?: string;
     "User-Agent"?: string;

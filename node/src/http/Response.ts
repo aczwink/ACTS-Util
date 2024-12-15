@@ -22,10 +22,11 @@ export interface ResponseHeaders
     "Accept-Ranges"?: "bytes";
     "Cache-Control"?: string;
     "Content-Disposition"?: string;
+    "Content-Encoding"?: "gzip";
     "Content-Length"?: number;
     "Content-Range"?: string;
     "Content-Type"?: {
-        mediaType: "application/json" | "image/gif" | "text/html" | "video/mp4";
+        mediaType: "application/gzip" | "application/json" | "application/octet-stream" | "image/gif" | "text/html" | "video/mp4";
         charset?: "utf-8";
     };
 }

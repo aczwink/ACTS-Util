@@ -23,9 +23,8 @@ export interface UploadedFile
     buffer: Buffer;
 }
 
-export interface UploadedFileRef
+export interface UploadedBlobRef
 {
-    originalName: string;
     mediaType: string;
     filePath: string;
 }

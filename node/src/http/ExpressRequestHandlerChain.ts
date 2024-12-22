@@ -26,7 +26,7 @@ import { RequestHandler } from "./RequestHandler";
 
 import { RequestHandlerChain } from "./RequestHandlerChain";
 import { DataResponse } from "./Response";
-import { UploadedFile, UploadedFileRef } from "./UploadedFile";
+import { UploadedBlobRef, UploadedFile } from "./UploadedFile";
 import { Promisify } from "../fs/Util";
 import { DateTime } from "../DateTime";
 import { ObjectExtensions } from "acts-util-core";
@@ -114,10 +114,9 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
                 {
                     if(file.buffer === undefined)
                     {
-                        const uf: UploadedFileRef = {
+                        const uf: UploadedBlobRef = {
                             filePath: file.path,
                             mediaType: file.mimetype,
-                            originalName: file.originalname,
                         };
                         req.body[file.fieldname] = uf;
                     }
@@ -215,6 +214,9 @@ export class ExpressRequestHandlerChain implements RequestHandlerChain
 
         if(response.data instanceof Buffer)
         {
+            if(response.headers["Content-Length"] === undefined)
+                res.setHeader("Content-Length", response.data.byteLength);
+
             res.write(response.data);
             res.end();
         }

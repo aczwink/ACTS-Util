@@ -59,8 +59,8 @@ export namespace HTTP
     export import RequestSender = HTTP_RequestSender.RequestSender;
     export import ResponseHeaders = HTTP_Response.ResponseHeaders;
     export import RouterRequestHandler = HTTP_RouterRequestHandler.RouterRequestHandler;
+    export import UploadedBlobRef = HTTP_UploadedFile.UploadedBlobRef;
     export import UploadedFile = HTTP_UploadedFile.UploadedFile;
-    export import UploadedFileRef = HTTP_UploadedFile.UploadedFileRef;
 }
 
 export {

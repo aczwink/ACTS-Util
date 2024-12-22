@@ -470,7 +470,7 @@ export type ResponseData<SuccessStatusCodeType, ErrorStatusCodeType, DataType> =
                 if(schema.enum !== undefined)
                     return schema.enum.Values().Map(x => '"' + x + '"').Join(" | ");
                 if(schema.format === "binary")
-                    return "File";
+                    return "Blob";
                 if(schema.format === "date-time")
                     return "Date";
                 return "string";

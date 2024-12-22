@@ -286,8 +286,8 @@ export class OpenAPIGenerator
                     title: docData?.title,
                     type: "string"
                 };
+            case "UploadedBlobRef":
             case "UploadedFile":
-            case "UploadedFileRef":
                 return {
                     type: "string",
                     format: "binary"

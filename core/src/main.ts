@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2025 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -49,6 +49,7 @@ import { URLParser } from "./URLParser";
 import * as OpenAPI from "./OpenAPI/Specification";
 import { OpenAPIDefaultObjectCreator } from "./OpenAPI/OpenAPIDefaultObjectCreator";
 import { OpenAPISchemaValidator } from "./OpenAPI/OpenAPISchemaValidator";
+import { KeyValuePair } from "./KeyValuePair";
 
 function Of<T>(value: T)
 {
@@ -64,6 +65,7 @@ export {
     EqualsAny,
     Injector,
     Instantiatable,
+    KeyValuePair,
     MulticastObservable,
     NumberDictionary,
     Observable,

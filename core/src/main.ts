@@ -50,6 +50,8 @@ import * as OpenAPI from "./OpenAPI/Specification";
 import { OpenAPIDefaultObjectCreator } from "./OpenAPI/OpenAPIDefaultObjectCreator";
 import { OpenAPISchemaValidator } from "./OpenAPI/OpenAPISchemaValidator";
 import { KeyValuePair } from "./KeyValuePair";
+import { EnumeratorBuilder } from "./Enumeration/EnumeratorBuilder";
+import { Enumerable } from "./Enumeration/Enumerable";
 
 function Of<T>(value: T)
 {
@@ -62,6 +64,8 @@ export {
     CachedProperty,
     Dictionary,
     Duration,
+    Enumerable,
+    EnumeratorBuilder,
     EqualsAny,
     Injector,
     Instantiatable,

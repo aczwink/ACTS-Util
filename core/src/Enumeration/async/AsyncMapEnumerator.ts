@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2024-2025 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2025 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,9 @@
 import { AsyncEnumerator } from "./AsyncEnumerator";
 import { AsyncEnumeratorExpression } from "./AsyncEnumeratorExpression";
 
-class AsyncFilterEnumerator<InputType, OutputType extends InputType> implements AsyncEnumerator<OutputType>
+class AsyncMapEnumerator<InputType, OutputType> implements AsyncEnumerator<OutputType>
 {
-    constructor(private baseIterator: AsyncEnumerator<InputType>, private predicate: (value: InputType) => boolean | Promise<boolean>)
+    constructor(private baseIterator: AsyncEnumerator<InputType>, private func: (value: InputType) => OutputType)
     {
     }
 
@@ -35,11 +35,8 @@ class AsyncFilterEnumerator<InputType, OutputType extends InputType> implements 
         while(await this.baseIterator.MoveForward())
         {
             const current = this.baseIterator.GetCurrentValue();
-            if(await this.predicate(current))
-            {
-                this.current = current as OutputType;
-                return true;
-            }
+            this.current = this.func(current);
+            return true;
         }
         return false;
     }
@@ -52,17 +49,11 @@ declare module "./AsyncEnumeratorExpression"
 {
     interface AsyncEnumeratorExpression<T>
     {
-        Filter: <OutputType = T>(this: AsyncEnumeratorExpression<T>, predicate: (value: T) => boolean | Promise<boolean>) => AsyncEnumeratorExpression<OutputType>;
-        NotUndefined: <T>(this: AsyncEnumeratorExpression<T | undefined>) => AsyncEnumeratorExpression<T>;
+        Map: <OutputType = T>(this: AsyncEnumeratorExpression<T>, func: (input: T) => OutputType) => AsyncEnumeratorExpression<OutputType>;
     }
 }
 
-AsyncEnumeratorExpression.prototype.Filter = function<InputType, OutputType extends InputType>(this: AsyncEnumeratorExpression<InputType>, predicate: (value: InputType) => boolean | Promise<boolean>)
+AsyncEnumeratorExpression.prototype.Map = function<InputType, OutputType>(this: AsyncEnumeratorExpression<InputType>, func: (value: InputType) => OutputType)
 {
-    return new AsyncEnumeratorExpression(() => new AsyncFilterEnumerator<InputType, OutputType>(this.CreateEnumerator(), predicate));
-}
-
-AsyncEnumeratorExpression.prototype.NotUndefined = function<T>(this: AsyncEnumeratorExpression<T | undefined>)
-{
-    return this.Filter<T>( x => x !== undefined);
+    return new AsyncEnumeratorExpression(() => new AsyncMapEnumerator<InputType, OutputType>(this.CreateEnumerator(), func));
 }

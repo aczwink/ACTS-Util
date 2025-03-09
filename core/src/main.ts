@@ -24,6 +24,7 @@ import "./SetExtensions";
 import "./StringExtensions";
 
 import "./Enumeration/async/AsyncFilterEnumerator";
+import "./Enumeration/async/AsyncMapEnumerator";
 
 import "./Enumeration/BoolEnumeratorExtensions";
 import "./Enumeration/FilterIterator";

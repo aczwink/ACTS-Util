@@ -53,6 +53,7 @@ import { OpenAPISchemaValidator } from "./OpenAPI/OpenAPISchemaValidator";
 import { KeyValuePair } from "./KeyValuePair";
 import { EnumeratorBuilder } from "./Enumeration/EnumeratorBuilder";
 import { Enumerable } from "./Enumeration/Enumerable";
+import { OIDC_Config } from "./OIDC";
 
 function Of<T>(value: T)
 {
@@ -77,6 +78,7 @@ export {
     ObservableObject,
     Observer,
     Of,
+    OIDC_Config,
     OpenAPI,
     OpenAPIDefaultObjectCreator,
     OpenAPISchemaValidator,

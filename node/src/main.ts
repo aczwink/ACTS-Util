@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2025 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -47,6 +47,7 @@ import * as HTTP_JWTVerifier from "./http/JWTVerifier";
 import * as HTTP_RouterRequestHandler from "./http/RouterRequestHandler";
 import * as HTTP_UploadedFile from "./http/UploadedFile";
 import { DateTime } from "./DateTime";
+import ACTSUtilPackedEncryptionFormat from "./encryption/symmetric";
 export namespace HTTP
 {
     export import APIServiceBase = HTTP_APIServiceBase.APIServiceBase;
@@ -64,6 +65,7 @@ export namespace HTTP
 }
 
 export {
+    ACTSUtilPackedEncryptionFormat,
     CreateTempDir,
     CreateTempFile,
     DateTime,

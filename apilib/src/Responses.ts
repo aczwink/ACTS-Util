@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2025 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -109,6 +109,16 @@ export function PartialContent(data: Buffer, headers: HTTP.ResponseHeaders): Typ
         headers,
         data,
     }
+}
+
+export function Redirect(url: string)
+{
+    return {
+        statusCode: 301,
+        headers: {
+            Location: url
+        }
+    };
 }
 
 export function Unauthorized(errorMessage: string): TypedHTTPResponse<401, string>

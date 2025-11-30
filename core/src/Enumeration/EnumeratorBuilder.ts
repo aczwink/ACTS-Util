@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2025 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -143,14 +143,14 @@ export class EnumeratorBuilder<T>
         return grouped.Entries();
     }
 
-    public OrderBy( selector: (element: T) => number | string | number[] )
+    public OrderBy( selector: (element: T) => number | string | (number | string)[] )
     {
         const result = this.ToArray();
         result.SortBy(selector);
         return result.Values();
     }
 
-    public OrderByDescending( selector: (element: T) => number | string )
+    public OrderByDescending( selector: (element: T) => number | string | (number | string)[] )
     {
         const result = this.ToArray();
         result.SortByDescending(selector);

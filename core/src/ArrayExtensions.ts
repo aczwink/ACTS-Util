@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2025 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -30,16 +30,18 @@ declare global
         Contains: <T>(this: T[], value: T) => boolean;
         DeepClone: <T>(this: T[]) => T[];
         Equals: <T>(this: T[], other: T[]) => boolean;
+        Interleave: <T>(this: T[], seperator: T) => T[];
         IsEmpty: <T>(this: T[]) => boolean;
+        Last: <T>(this: T[]) => T;
         Remove: <T>(this: T[], index: number) => void;
-        SortBy: <T>(this: T[], selector: (element: T) => number | string | number[]) => void;
-        SortByDescending: <T>(this: T[], selector: (element: T) => number | string) => void;
+        SortBy: <T>(this: T[], selector: (element: T) => number | string | (number | string)[]) => void;
+        SortByDescending: <T>(this: T[], selector: (element: T) => number | string | (number | string)[]) => void;
         Values: <T>(this: T[]) => EnumeratorBuilder<T>;
     }
 }
 
 
-function SortArray<T, U extends (number | string | number[])>(array: Array<T>, selector: (element: T) => U, ascending: boolean)
+function SortArray<T, U extends (number | string | (number | string)[])>(array: Array<T>, selector: (element: T) => U, ascending: boolean)
 {
     function diff(a: number | string, b: number | string)
     {
@@ -47,7 +49,7 @@ function SortArray<T, U extends (number | string | number[])>(array: Array<T>, s
             return a - b;
         return a.toString().localeCompare(b.toString());
     }
-    function diff_arrays(a: number[], b: number[]): number
+    function diff_arrays(a: (number | string)[], b: (number | string)[]): number
     {
         if(a.length === 0)
             return 0;
@@ -63,7 +65,7 @@ function SortArray<T, U extends (number | string | number[])>(array: Array<T>, s
 
         let result;
         if(Array.isArray(sa))
-            result = diff_arrays(sa, sb as number[]);
+            result = diff_arrays(sa, sb as (number | string)[]);
         else
             result = diff(sa, sb as number | string);
         return ascending ? result : -result;
@@ -111,9 +113,19 @@ Array.prototype.Equals = function<T>(this: T[], other: T[])
     return cmp.EqualsArray(this, other);
 }
 
+Array.prototype.Interleave = function<T>(this: T[], seperator: T)
+{
+    return ([] as T[]).concat(...this.map(n => [n, seperator])).slice(0, -1);
+}
+
 Array.prototype.IsEmpty = function<T>(this: Array<T>)
 {
     return this.length === 0;
+}
+
+Array.prototype.Last = function<T>(this: T[])
+{
+    return this[this.length - 1];
 }
 
 Array.prototype.Remove = function<T>(this: Array<T>, index: number)
@@ -121,12 +133,12 @@ Array.prototype.Remove = function<T>(this: Array<T>, index: number)
     this.splice(index, 1);
 }
 
-Array.prototype.SortBy = function<T>(this: Array<T>, selector: (element: T) => number | string | number[])
+Array.prototype.SortBy = function<T>(this: Array<T>, selector: (element: T) => number | string | (number | string)[])
 {
     return SortArray(this, selector, true);
 }
 
-Array.prototype.SortByDescending = function<T>(this: Array<T>, selector: (element: T) => number | string)
+Array.prototype.SortByDescending = function<T>(this: Array<T>, selector: (element: T) => number | string | (number | string)[])
 {
     return SortArray(this, selector, false);
 }

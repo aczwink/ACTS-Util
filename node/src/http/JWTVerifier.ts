@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2024-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ import { Dictionary } from "acts-util-core";
 
 export class JWTVerifier implements RequestHandler
 {
-    constructor(private jwks: { keys: crypto.JsonWebKey[] }, private issuer: string, private audience: string, private force: boolean)
+    constructor(private jwks: { keys: (crypto.webcrypto.JsonWebKey & { kid: string; })[] }, private issuer: string, private audience: string, private force: boolean)
     {
         this.keys = {};
     }

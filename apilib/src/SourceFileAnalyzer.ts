@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -63,7 +63,7 @@ export class SourceFileAnalyzer
     public Analyze(sourceFile: ts.SourceFile, relativeSourceFilePath: string)
     {
         const syntaxList = sourceFile.getChildren()[0];
-        const topLevels = syntaxList.getChildren().Values();
+        const topLevels = (syntaxList.getChildren() as ts.Node[]).Values();
 
         return topLevels
             .Filter(x => x.kind === ts.SyntaxKind.ClassDeclaration)

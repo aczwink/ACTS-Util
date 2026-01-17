@@ -1,8 +1,11 @@
 name: Release core to github packages
 
 on:
-  release:
-    types: [created]
+  push:
+    branches: [ "master", "github-package-registry" ] #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:

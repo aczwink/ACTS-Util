@@ -16,7 +16,9 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+        working-directory: ./core
       - run: npm test
+        working-directory: ./core
 
   publish-gpr:
     needs: build

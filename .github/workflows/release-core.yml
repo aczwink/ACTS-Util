@@ -17,18 +17,18 @@ jobs:
           node-version: 20
       - run: |
           npm ci
-          npm compile
+          npm run compile
           npm link
         working-directory: ./core
       - run: |
           npm ci
-          npm compile
+          npm run compile
           npm link
         working-directory: ./test
       - run: |
           npm link acts-util-core acts-util-test
           npm ci
-          npm compile
+          npm run compile
         working-directory: ./core-tests
       - run: npm run run
         working-directory: ./core-tests

@@ -18,15 +18,12 @@ jobs:
       - run: |
           npm ci
           npm run compile
-          npm link
         working-directory: ./core
       - run: |
           npm ci
           npm run compile
-          npm link
         working-directory: ./test
       - run: |
-          npm link acts-util-core acts-util-test
           npm ci
           npm run compile
         working-directory: ./core-tests

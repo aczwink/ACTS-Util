@@ -6,6 +6,7 @@
   "types": "dist/main.d.ts",
   "scripts": {
     "compile": "tsc",
+    "test": "tsc -p tsconfig.tests.json && node node_modules/acts-util-test/dist/runner.js dist/tests",
     "webpack-debug": "npx webpack --config webpack.config.debug.js"
   },
   "repository": {
@@ -23,7 +24,8 @@
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
     "webpack": "^5.104.1",
-    "webpack-cli": "^6.0.1"
+    "webpack-cli": "^6.0.1",
+    "acts-util-test": "^1.0.0"
   },
   "prepublish": "tsc",
   "dependencies": {

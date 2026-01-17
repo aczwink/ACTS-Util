@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
  * */
 
 import { Expect, It } from "acts-util-test";
+import {EqualsAny} from "../src/main";
 
 It("Equals with cycle in objects", () => {
     const a = {
@@ -29,7 +30,7 @@ It("Equals with cycle in objects", () => {
     a.obj = a;
     b.obj = b;
 
-    Expect(a.Equals(b)).ToBe(true);
+    Expect(EqualsAny(a, b)).ToBe(true);
 });
 
 It("Equals with cycle in objects and additional property", () => {
@@ -45,5 +46,5 @@ It("Equals with cycle in objects and additional property", () => {
     a.obj = a;
     b.obj = b;
 
-    Expect(a.Equals(b)).ToBe(false);
+    Expect(EqualsAny(a, b)).ToBe(false);
 });

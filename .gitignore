@@ -4,4 +4,3 @@ node_modules
 apilib/package-lock.json
 core-tests/package-lock.json
 node/package-lock.json
-test/package-lock.json

@@ -20,7 +20,7 @@ import jwt, { JwtHeader, SigningKeyCallback } from "jsonwebtoken";
 import { Request } from "./Request";
 import { RequestHandler } from "./RequestHandler";
 import { DataResponse } from "./Response";
-import { Dictionary } from "acts-util-core";
+import { Dictionary } from "@aczwink/acts-util-core";
 
 export class JWTVerifier implements RequestHandler
 {

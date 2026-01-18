@@ -51,6 +51,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
+      - name: Echo versions
+        run: |
+            echo "Committed version: ${{ steps.version_check.outputs.committed-version }}"
+            echo "Retrieved version: ${{ steps.version_check.outputs.retrieved-version }}"
+            echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
+            echo "Is commited version free: ${{ steps.version_check.outputs.is-committed-version-free }}"
+            echo "Result: ${{ steps.version_check.outputs.result }}"
+
       - name: Publish core
         if: steps.version_check.outputs.is-new-version == 'true'
         env:
@@ -76,11 +84,19 @@ jobs:
 
       - name: Check node version vs registry
         id: version_check
-        uses: PostHog/check-package-version@v2
+        uses: dupy-ts/check-package-version@main
         with:
           path: ./node
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Echo versions
+        run: |
+            echo "Committed version: ${{ steps.version_check.outputs.committed-version }}"
+            echo "Retrieved version: ${{ steps.version_check.outputs.retrieved-version }}"
+            echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
+            echo "Is commited version free: ${{ steps.version_check.outputs.is-committed-version-free }}"
+            echo "Result: ${{ steps.version_check.outputs.result }}"
 
       - name: Publish node
         if: steps.version_check.outputs.is-new-version == 'true'

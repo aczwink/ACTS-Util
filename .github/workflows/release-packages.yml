@@ -2,7 +2,7 @@ name: Release to github packages
 
 on:
   push:
-    branches: [ "master", "github-package-registry" ] #TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:
@@ -56,8 +56,6 @@ jobs:
             echo "Committed version: ${{ steps.version_check.outputs.committed-version }}"
             echo "Retrieved version: ${{ steps.version_check.outputs.retrieved-version }}"
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
-            echo "Is commited version free: ${{ steps.version_check.outputs.is-committed-version-free }}"
-            echo "Result: ${{ steps.version_check.outputs.result }}"
 
       - name: Publish core
         if: steps.version_check.outputs.is-new-version == 'true'
@@ -95,8 +93,6 @@ jobs:
             echo "Committed version: ${{ steps.version_check.outputs.committed-version }}"
             echo "Retrieved version: ${{ steps.version_check.outputs.retrieved-version }}"
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
-            echo "Is commited version free: ${{ steps.version_check.outputs.is-committed-version-free }}"
-            echo "Result: ${{ steps.version_check.outputs.result }}"
 
       - name: Publish node
         if: steps.version_check.outputs.is-new-version == 'true'

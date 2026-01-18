@@ -42,11 +42,10 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
-          scope: '@aczwink'
 
       - name: Check core version vs registry
         id: version_check
-        uses: PostHog/check-package-version@v2
+        uses: dupy-ts/check-package-version@main
         with:
           path: ./core
         env:

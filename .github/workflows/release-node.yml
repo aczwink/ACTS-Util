@@ -21,6 +21,10 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - run: |
           npm ci
+          npm run compile
+        working-directory: ./core
+      - run: |
+          npm ci
           npm run build
         working-directory: ./node
         env:

@@ -1,6 +1,6 @@
 {
   "name": "acts-util-test",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A testing library for TypeScript / JavaScript",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
@@ -22,6 +22,6 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "acts-util-core": "*"
+    "acts-util-core": "^1.0.0"
   }
 }

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ import { DataResponse } from "./Response";
 import { UploadedBlobRef, UploadedFile } from "./UploadedFile";
 import { Promisify } from "../fs/Util";
 import { DateTime } from "../DateTime";
-import { ObjectExtensions } from "acts-util-core";
+import { ObjectExtensions } from "@aczwink/acts-util-core";
 
 export class ExpressRequestHandlerChain implements RequestHandlerChain
 {

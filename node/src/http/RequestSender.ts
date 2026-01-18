@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2025 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
  * */
 import http from "http";
 import https from "https";
-import { AbsURL, Dictionary, ObjectExtensions } from "acts-util-core";
+import { AbsURL, Dictionary, ObjectExtensions } from "@aczwink/acts-util-core";
 import { ResponseHeaders } from "./Response";
 
 export interface RequestHeaders

@@ -1,6 +1,6 @@
 {
   "name": "acts-util-core-tests",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -19,5 +19,9 @@
   "homepage": "https://github.com/aczwink/ACTS-Util#readme",
   "devDependencies": {
     "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "acts-util-core": "^1.0.0",
+    "acts-util-test": "^1.0.0"
   }
 }

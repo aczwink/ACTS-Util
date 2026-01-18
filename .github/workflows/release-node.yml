@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish-node:
+  publish-gpr:
     runs-on: ubuntu-latest
     permissions:
       contents: read

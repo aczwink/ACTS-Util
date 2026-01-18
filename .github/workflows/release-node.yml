@@ -20,18 +20,11 @@ jobs:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
       - run: |
-          node -v
-          npm -v
-          npm config get @aczwink:registry
-          npm whoami --registry=https://npm.pkg.github.com || true
-          npm view @aczwink/acts-util-core --registry=https://npm.pkg.github.com || true
-          npm ci
-          npm run compile
-        working-directory: ./core
-      - run: |
           npm ci
           npm run build
         working-directory: ./node
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: npm publish
         working-directory: ./node
         env:

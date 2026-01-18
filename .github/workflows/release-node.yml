@@ -20,6 +20,11 @@ jobs:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
       - run: |
+          node -v
+          npm -v
+          npm config get @aczwink:registry
+          npm whoami --registry=https://npm.pkg.github.com || true
+          npm view @aczwink/acts-util-core --registry=https://npm.pkg.github.com || true
           npm ci
           npm run compile
         working-directory: ./core

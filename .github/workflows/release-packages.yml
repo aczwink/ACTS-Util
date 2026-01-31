@@ -2,7 +2,7 @@ name: Release to github packages
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "pipeline" ]
   workflow_dispatch:
 
 jobs:
@@ -13,19 +13,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: |
+      - name: Building core
+        run: |
           npm ci
           npm run compile
         working-directory: ./core
-      - run: |
+      - name: Building test
+        run: |
           npm ci
           npm run compile
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         working-directory: ./test
-      - run: |
+      - name: Building core tests
+        run: |
           npm ci
           npm run compile
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         working-directory: ./core-tests
-      - run: npm run run
+      - name: Running core tests
+        run: npm run run
         working-directory: ./core-tests
 
   publish-core:

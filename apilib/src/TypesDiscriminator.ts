@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { ObjectExtensions } from "acts-util-core";
+import { ObjectExtensions } from "@aczwink/acts-util-core";
 import { EnumSchema, TypeCatalog, TypeOrRef } from "./TypeCatalog";
 
 export class TypesDiscriminator

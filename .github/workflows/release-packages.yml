@@ -101,3 +101,77 @@ jobs:
           npm run build
           npm publish
         working-directory: ./node
+
+  publish-apilib:
+    needs: publish-node
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Check node version vs registry
+        id: version_check
+        uses: dupy-ts/check-package-version@main
+        with:
+          path: ./apilib
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Echo versions
+        run: |
+            echo "Committed version: ${{ steps.version_check.outputs.committed-version }}"
+            echo "Retrieved version: ${{ steps.version_check.outputs.retrieved-version }}"
+            echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
+
+      - name: Publish node
+        if: steps.version_check.outputs.is-new-version == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci
+          npm run build
+          npm publish
+        working-directory: ./apilib
+        
+  publish-test:
+    needs: publish-core
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com/
+
+      - name: Check node version vs registry
+        id: version_check
+        uses: dupy-ts/check-package-version@main
+        with:
+          path: ./test
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Echo versions
+        run: |
+            echo "Committed version: ${{ steps.version_check.outputs.committed-version }}"
+            echo "Retrieved version: ${{ steps.version_check.outputs.retrieved-version }}"
+            echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
+
+      - name: Publish node
+        if: steps.version_check.outputs.is-new-version == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci
+          npm run compile
+          npm publish
+        working-directory: ./test

@@ -22,6 +22,6 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "acts-util-core": "^1.0.0"
+    "@aczwink/acts-util-core": "^1.0.0"
   }
 }

@@ -9,6 +9,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     permissions:
+      checks: write
       packages: read
     steps:
       - uses: actions/checkout@v4

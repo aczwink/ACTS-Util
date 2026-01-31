@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "run": "node node_modules/acts-util-test/dist/runner.js dist"
+    "run": "node node_modules/@aczwink/acts-util-test/dist/runner.js dist"
   },
   "repository": {
     "type": "git",

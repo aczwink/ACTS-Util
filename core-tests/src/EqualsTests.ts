@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { EqualsAny } from "acts-util-core";
-import { Expect, It } from "acts-util-test";
+import { EqualsAny } from "@aczwink/acts-util-core";
+import { Expect, It } from "@aczwink/acts-util-test";
 
 It("Equals with cycle in objects", () => {
     const a = {

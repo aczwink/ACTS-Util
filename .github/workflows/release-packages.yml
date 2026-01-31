@@ -9,6 +9,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     permissions:
+      checks: write
       packages: read
     steps:
       - uses: actions/checkout@v4
@@ -16,11 +17,13 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
+
       - name: Building core
         run: |
           npm ci
           npm run compile
         working-directory: ./core
+
       - name: Building test
         run: |
           npm ci
@@ -28,6 +31,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         working-directory: ./test
+
       - name: Building core tests
         run: |
           npm ci
@@ -35,9 +39,24 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
         working-directory: ./core-tests
+
       - name: Running core tests
-        run: npm run run
+        run: npm run --silent run mocha-json 1>results.json 2>results-stderr.log
         working-directory: ./core-tests
+        
+      - name: Archive test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-result-report
+          path: ./core-tests/results*
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Tests
+          path: ./core-tests/results.json
+          reporter: mocha-json
 
   publish-core:
     needs: build-and-test
@@ -67,7 +86,7 @@ jobs:
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
 
       - name: Publish core
-        if: steps.version_check.outputs.is-new-version == 'true'
+        if: steps.version_check.outputs.is-new-version == 'true' || steps.version_check.outputs.is-published == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -104,7 +123,7 @@ jobs:
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
 
       - name: Publish node
-        if: steps.version_check.outputs.is-new-version == 'true'
+        if: steps.version_check.outputs.is-new-version == 'true' || steps.version_check.outputs.is-published == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -140,8 +159,8 @@ jobs:
             echo "Retrieved version: ${{ steps.version_check.outputs.retrieved-version }}"
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
 
-      - name: Publish node
-        if: steps.version_check.outputs.is-new-version == 'true'
+      - name: Publish package
+        if: steps.version_check.outputs.is-new-version == 'true' || steps.version_check.outputs.is-published == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -177,8 +196,8 @@ jobs:
             echo "Retrieved version: ${{ steps.version_check.outputs.retrieved-version }}"
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
 
-      - name: Publish node
-        if: steps.version_check.outputs.is-new-version == 'true'
+      - name: Publish package
+        if: steps.version_check.outputs.is-new-version == 'true' || steps.version_check.outputs.is-published == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

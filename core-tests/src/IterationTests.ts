@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Expect, It } from "acts-util-test";
+import { Expect, It } from "@aczwink/acts-util-test";
 
 It("Array to set", () => {
     Expect( [1, 2, 3, 4, 5, 4, 3, 2, 1, 0].Values().ToSet() )

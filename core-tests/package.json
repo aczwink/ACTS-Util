@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "run": "node node_modules/acts-util-test/dist/runner.js dist"
+    "run": "node node_modules/@aczwink/acts-util-test/dist/runner.js dist"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "acts-util-core": "^1.0.0",
-    "acts-util-test": "^1.0.0"
+    "@aczwink/acts-util-core": "^1.0.0",
+    "@aczwink/acts-util-test": "^1.0.0"
   }
 }

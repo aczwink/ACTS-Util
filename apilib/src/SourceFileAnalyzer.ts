@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import ts from "typescript";
-import "acts-util-core";
+import "@aczwink/acts-util-core";
 import { APIControllerMetadata, CommonMethodMetadata, OperationMetadata, ParameterMetadata, SecurityMetadata } from "./Metadata";
 import { TypeCatalog } from "./TypeCatalog";
 import { HTTPMethod } from "./APIRegistry";

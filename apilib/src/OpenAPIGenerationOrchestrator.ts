@@ -22,7 +22,7 @@ import { OpenAPIGenerator } from "./OpenAPIGenerator";
 import { SourceFileAnalyzer } from "./SourceFileAnalyzer";
 import { TypeCatalog } from "./TypeCatalog";
 import { BackendInfoGenerator } from "./BackendInfoGenerator";
-import { Dictionary, OpenAPI } from "acts-util-core";
+import { Dictionary, OpenAPI } from "@aczwink/acts-util-core";
 
 export class OpenAPIGenerationOrchestrator
 {

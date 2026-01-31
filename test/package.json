@@ -1,5 +1,5 @@
 {
-  "name": "acts-util-test",
+  "name": "@aczwink/acts-util-test",
   "version": "1.0.0",
   "description": "A testing library for TypeScript / JavaScript",
   "main": "dist/main.js",

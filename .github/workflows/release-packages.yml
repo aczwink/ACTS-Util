@@ -2,7 +2,7 @@ name: Release to github packages
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "pipeline" ]
   workflow_dispatch:
 
 jobs:
@@ -67,7 +67,7 @@ jobs:
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
 
       - name: Publish core
-        if: steps.version_check.outputs.is-new-version == 'true'
+        if: steps.version_check.outputs.is-new-version == 'true' || steps.version_check.outputs.is-published == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -104,7 +104,7 @@ jobs:
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
 
       - name: Publish node
-        if: steps.version_check.outputs.is-new-version == 'true'
+        if: steps.version_check.outputs.is-new-version == 'true' || steps.version_check.outputs.is-published == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -141,7 +141,7 @@ jobs:
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
 
       - name: Publish node
-        if: steps.version_check.outputs.is-new-version == 'true'
+        if: steps.version_check.outputs.is-new-version == 'true' || steps.version_check.outputs.is-published == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -178,7 +178,7 @@ jobs:
             echo "Has been published: ${{ steps.version_check.outputs.is-published }}"
 
       - name: Publish node
-        if: steps.version_check.outputs.is-new-version == 'true'
+        if: steps.version_check.outputs.is-new-version == 'true' || steps.version_check.outputs.is-published == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

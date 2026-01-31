@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Expect, It } from "acts-util-test";
-import { Duration } from "acts-util-core";
+import { Expect, It } from "@aczwink/acts-util-test";
+import { Duration } from "@aczwink/acts-util-core";
 
 It("Minutes", () => {
     const d = new Duration(60 * 1000);

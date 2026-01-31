@@ -21,7 +21,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "acts-util-core": "^1.0.0",
-    "acts-util-test": "^1.0.0"
+    "@aczwink/acts-util-core": "^1.0.0",
+    "@aczwink/acts-util-test": "^1.0.0"
   }
 }

@@ -35,6 +35,7 @@ jobs:
 
       - name: Building core tests
         run: |
+          npm i ../core
           npm ci
           npm run compile
         env:

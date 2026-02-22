@@ -28,7 +28,7 @@
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.2.2",
     "typescript": "^5.9.3",
-    "webdav": "^5.8.0",
+    "webdav": "^5.9.0",
     "jwa": "^2.0.1"
   },
   "prepublish": "tsc",

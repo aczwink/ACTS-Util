@@ -1,6 +1,6 @@
 {
   "name": "@aczwink/acts-util-test",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A testing library for TypeScript / JavaScript",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
@@ -18,10 +18,11 @@
   },
   "homepage": "https://github.com/aczwink/ACTS-Util#readme",
   "devDependencies": {
-    "@types/node": "^14.18.33",
-    "typescript": "^3.9.7"
+    "@types/node": "^25.6.0",
+    "typescript": "^6.0.2"
   },
   "dependencies": {
-    "@aczwink/acts-util-core": "^1.0.0"
+    "@aczwink/acts-util-core": "^1.0.0",
+    "chalk": "^5.6.2"
   }
 }

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { TestCase, internal_context } from "./Definitions";
+import { TestCase } from "./Definitions";
 import { Expector } from "./Expector";
+import { GetCurrentTestFilePath } from "./internal";
 
 export const testCases: TestCase[] = [];
 
@@ -36,6 +37,6 @@ export function It(title: string, testFunction: () => void)
     testCases.push({
         title,
         testFunction,
-        relativeFilePath: internal_context.testFilePath
+        relativeFilePath: GetCurrentTestFilePath()
     });
 }

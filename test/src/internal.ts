@@ -16,18 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-export interface TestCase
+let g_testFilePath = "";
+
+export function GetCurrentTestFilePath()
 {
-    title: string;
-    relativeFilePath: string;
-    testFunction: () => void;
+    return g_testFilePath;
 }
 
-export interface TestRunResult
+export function SetCurrentTestFilePath(path: string)
 {
-    testSuite: string;
-    testTitle: string;
-    filePath: string;
-    error?: Error;
-    executionDuration: number;
+    g_testFilePath = path;
 }

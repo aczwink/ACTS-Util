@@ -18,16 +18,26 @@
 import chalk from 'chalk';
 import { TestRunResult } from "./Definitions";
 
-function DecorateWithColor(text: string, decoration: "green" | "red-bold")
+interface Attribute
+{
+    key: string;
+    maxLength: number;
+    value: string;
+}
+
+function AttributeToString(attribute: Attribute)
+{
+    return Decorate(attribute.key, "bold-underline") + ": " + attribute.value.padEnd(attribute.maxLength);
+}
+
+function Decorate(text: string, decoration: "bold-underline")
 {
     if(process.stdout.isTTY)
     {
         switch(decoration)
         {
-            case "green":
-                return chalk.green(text);
-            case "red-bold":
-                return chalk.red.bold(text);
+            case "bold-underline":
+                return chalk.bold.underline(text);
         }
     }
     return text;
@@ -38,20 +48,52 @@ function ErrorToString(error: Error)
     return error.message;
 }
 
-function TestResultToString(result: TestRunResult)
+function StatusToString(success: boolean)
 {
-    if(result.error === undefined)
-        return DecorateWithColor("success", "green");
-    return DecorateWithColor("failed", "red-bold") + " (" + ErrorToString(result.error) + ")";
+    return success ? "✅" : "❌";
 }
 
 export function GenerateTextOutput(results: TestRunResult[])
 {
     const data = [];
+
+    const maxSuiteLen = results.Values().Map(x => x.testSuite.length).Max();
+    const maxTitleLen = results.Values().Map(x => x.testTitle.length).Max();
+    const maxFileLen = results.Values().Map(x => x.filePath.length).Max();
     for (const result of results)
     {
-        const text = "Result of test case '" + result.testSuite + "/" + result.testTitle + "': " + TestResultToString(result) + " file: " + result.filePath;
-        data.push(text);
+        const success = result.error === undefined;
+
+        const attribs = [
+            {
+                key: "Suite",
+                value: result.testSuite,
+                maxLength: maxSuiteLen
+            },
+            {
+                key: "Case",
+                value: result.testTitle,
+                maxLength: maxTitleLen
+            },
+            {
+                key: "File",
+                value: result.filePath,
+                maxLength: maxFileLen
+            }
+        ];
+        if(!success)
+        {
+            attribs.push({
+                key: "Error",
+                value: ErrorToString(result.error!),
+                maxLength: 0
+            });
+        }
+
+        const mapped = attribs.map(AttributeToString);
+        const text = mapped.join(" | ");
+        const line = StatusToString(success) + " " + text;
+        data.push(line);
     }
 
     const succeeded = results.Values().Filter(x => x.error === undefined).Count();

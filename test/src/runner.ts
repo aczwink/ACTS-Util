@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,10 @@
 import * as fs from "fs";
 import * as path from "path";
 import { testCases } from "./main";
-import { TestRunResult, internal_context } from "./Definitions";
+import { TestRunResult } from "./Definitions";
 import { GenerateTextOutput } from "./GenerateTextOutput";
 import { GenerateMochaJSONOutput } from "./GenerateMochaJSONOutput";
+import { SetCurrentTestFilePath } from "./internal";
 
 async function LoadAll(rootPath: string, dirPath: string)
 {
@@ -38,7 +39,7 @@ async function LoadAll(rootPath: string, dirPath: string)
         else if(child.endsWith(".js"))
         {
             const loadPath = absChildPath.substr(0, absChildPath.length - 3);
-            internal_context.testFilePath = relChildPath;
+            SetCurrentTestFilePath(relChildPath);
             await import(loadPath);
         }
     }
@@ -63,7 +64,7 @@ async function RunAll(directoryPath: string)
             err = error;
         }
         const after = Date.now();
-        const suite = testCase.relativeFilePath.split("/");
+        const suite = testCase.relativeFilePath.split(path.sep);
         suite.Remove(suite.length - 1);
         testExecutions.push({
             testSuite: suite.join("/"),

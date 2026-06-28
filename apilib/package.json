@@ -1,6 +1,6 @@
 {
   "name": "@aczwink/acts-util-apilib",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A utility library for dealing with HTTP APIs with Node.js for TypeScript / JavaScript",
   "main": "dist/main.js",
   "bin": "dist/cli.js",

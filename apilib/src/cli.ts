@@ -34,6 +34,7 @@ interface APIClassGenConfig extends ConfigBase
     type: "api";
     excludedStatusCodes: number[];
     header?: string;
+    imports?: Dictionary<string>;
     target: "browser" | "node";
 }
 
@@ -66,7 +67,7 @@ async function ProcessConfig(config: APILibConfig)
     {
         case "api":
             {
-                const gen = new APIClassGenerator(config.excludedStatusCodes.Values().ToSet(), config.target);
+                const gen = new APIClassGenerator(config.excludedStatusCodes.Values().ToSet(), config.target, config.imports ?? {});
                 await gen.Generate(sourcePath, destPath, config.header ?? "");
             }
             break;

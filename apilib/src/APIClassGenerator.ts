@@ -51,7 +51,9 @@ interface ResponseTypeWithStatusCode extends ResponseType
 
 export class APIClassGenerator
 {
-    constructor(private excludedStatusCodes: Set<number>, private target: "browser" | "node")
+    constructor(private excludedStatusCodes: Set<number>, private target: "browser" | "node",
+        private imports: Dictionary<string>
+    )
     {
     }
 
@@ -61,7 +63,8 @@ export class APIClassGenerator
         const openAPIDef: OpenAPI.Root = JSON.parse(await fs.promises.readFile(sourcePath, "utf-8"));
 
         const apiSourceCode = this.GenerateSourceCode(openAPIDef);
-        const finalSourceCode = header + "\n\n" + apiSourceCode;
+        const importsSourceCode = this.GenerateImportsSourceCode();
+        const finalSourceCode = [importsSourceCode, header, apiSourceCode].filter(x => x.length > 0).join("\n\n");
         await fs.promises.writeFile(destPath, finalSourceCode, "utf-8");
     }
 
@@ -343,6 +346,12 @@ export class APIClassGenerator
         return this.Indent(indention) + segmentName + ": {\n" + content + "\n" + this.Indent(indention) + "},";
     }
 
+    private GenerateImportsSourceCode()
+    {
+        return ObjectExtensions.Entries(this.imports)
+            .Map(kv => `import { ${kv.key} } from "${kv.value}";`).Join("\n");
+    }
+
     private GenerateModelSourceCode(modelName: string, schema: OpenAPI.Schema)
     {
         if(("anyOf" in schema) || ("oneOf" in schema))
@@ -365,7 +374,9 @@ export class APIClassGenerator
 
     private GenerateModelsSourceCode(schemas: Dictionary<OpenAPI.Schema>)
     {
-        return ObjectExtensions.Entries(schemas).Map(kv => this.GenerateModelSourceCode(kv.key.toString(), kv.value!)).Join("\n\n");
+        return ObjectExtensions.Entries(schemas)
+            .Filter(kv => this.imports[kv.key] === undefined)
+            .Map(kv => this.GenerateModelSourceCode(kv.key.toString(), kv.value!)).Join("\n\n");
     }
 
     private GenerateRequestDataInterfaceSourceCode()

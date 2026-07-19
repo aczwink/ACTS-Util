@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2025 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -54,6 +54,7 @@ import { KeyValuePair } from "./KeyValuePair";
 import { EnumeratorBuilder } from "./Enumeration/EnumeratorBuilder";
 import { Enumerable } from "./Enumeration/Enumerable";
 import { OIDC_Config } from "./OIDC";
+import { Fraction } from "./Fraction";
 
 function Of<T>(value: T)
 {
@@ -69,6 +70,7 @@ export {
     Enumerable,
     EnumeratorBuilder,
     EqualsAny,
+    Fraction,
     Injector,
     Instantiatable,
     KeyValuePair,

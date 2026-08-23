@@ -73,8 +73,8 @@ export function APIController<T extends {new(...args:any[]):{}}>(baseRoute: stri
         const apiClassInstance = MakeObjectAPIClassInstance<HTTPEndPointProperties>(constructor.prototype);
         const setups = apiClassInstance.__apiEndPointSetups;
 
-        GlobalInjector.RegisterProvider(constructor, constructor);
-        const instance: any = GlobalInjector.Resolve(constructor);
+        GlobalInjector().RegisterProvider(constructor, constructor);
+        const instance: any = GlobalInjector().Resolve(constructor);
 
         setups.Values().ForEach(props => {
             let func = instance[props.methodName].bind(instance);

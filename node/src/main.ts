@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2025 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@ import { EncryptedFileSystem } from "./fs/EncryptedFileSystem";
 import { OSFileSystem } from "./fs/OSFileSystem";
 import { VirtualRootFileSystem } from "./fs/VirtualRootFileSystem";
 import { WebDAVFileSystem } from "./fs/WebDAVFileSystem";
-import { Promisify } from "./fs/Util";
+import { Promisify, ReadObjectFile } from "./fs/Util";
 import { Lock } from "./Lock";
 import { LockedProperty } from "./LockedProperty";
 import { GlobalInjector, Injectable } from "./api/GlobalInjector";
@@ -87,6 +87,7 @@ export {
     ModuleLoader,
     OSFileSystem,
     Promisify,
+    ReadObjectFile,
     VirtualRootFileSystem,
     WebDAVFileSystem,
 };

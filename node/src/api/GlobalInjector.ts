@@ -18,11 +18,16 @@
 import "reflect-metadata";
 import { Injector } from "@aczwink/acts-util-core";
 
-export const GlobalInjector = new Injector;
-GlobalInjector.RegisterInstance(Injector, GlobalInjector);
+const g_globalInjector = new Injector;
+g_globalInjector.RegisterInstance(Injector, g_globalInjector);
+
+export function GlobalInjector()
+{
+    return g_globalInjector;
+}
 
 export function Injectable<T extends {new(...args:any[]):{}}>(constructor:T)
 {
-    GlobalInjector.RegisterProvider(constructor, constructor);
+    g_globalInjector.RegisterProvider(constructor, constructor);
     return constructor;
 }

@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,14 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import fs from "fs";
+import path from "path";
+import yaml from "yaml";
 import { Writable, Readable } from "stream";
-
-export function ReadablePromise(stream: Readable)
-{
-    return new Promise<void>( resolve => {
-        stream.on("readable", resolve);
-    });
-}
 
 export function Promisify(stream: Readable): Promise<void>;
 export function Promisify(stream: Writable): Promise<void>;
@@ -32,6 +28,28 @@ export function Promisify(stream: Readable | Writable): Promise<void>
         stream.on((stream instanceof Readable) ? "end" : "finish", resolve);
         stream.on("error", reject);
     });
+}
+
+export function ReadablePromise(stream: Readable)
+{
+    return new Promise<void>( resolve => {
+        stream.on("readable", resolve);
+    });
+}
+
+export async function ReadObjectFile<T>(configPath: string)
+{
+    const data = await fs.promises.readFile(configPath, "utf-8");
+    switch(path.extname(configPath))
+    {
+        case ".json":
+            return JSON.parse(data) as T;
+        case ".yaml":
+        case ".yml":
+            return yaml.parse(data) as T;
+    }
+
+    throw new Error("Can't read object file: " + configPath);
 }
 
 export async function StreamToBuffer(stream: Readable): Promise<Buffer>

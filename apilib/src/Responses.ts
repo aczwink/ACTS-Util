@@ -111,13 +111,14 @@ export function PartialContent(data: Buffer, headers: HTTP.ResponseHeaders): Typ
     }
 }
 
-export function Redirect(url: string)
+export function Redirect(url: string): TypedHTTPResponse<301, undefined>
 {
     return {
         statusCode: 301,
         headers: {
             Location: url
-        }
+        },
+        data: undefined,
     };
 }
 

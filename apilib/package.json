@@ -1,6 +1,6 @@
 {
   "name": "@aczwink/acts-util-apilib",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A utility library for dealing with HTTP APIs with Node.js for TypeScript / JavaScript",
   "main": "dist/main.js",
   "bin": "dist/cli.js",
@@ -22,11 +22,11 @@
   "devDependencies": {
     "@types/node": "^26.2.0",
     "@types/uuid": "^11.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@aczwink/acts-util-core": "^1.0.1",
-    "@aczwink/acts-util-node": "^1.1.0",
+    "@aczwink/acts-util-node": "^1.1.1",
     "uuid": "^14.0.2"
   }
 }

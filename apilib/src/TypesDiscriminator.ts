@@ -68,7 +68,7 @@ export class TypesDiscriminator
 
     private AreTypesDiscriminant(types: TypeOrRef[])
     {
-        //TODO: not implemented for anything else but enum right now
+        //not implemented for anything else but enum right now
         const enumSchemas = types.Values().Map(x => typeof x === "string" ? null : (x.kind === "enum" ? x.schema : null)).NotNull().ToArray();
         if(enumSchemas.length != types.length)
             return false;

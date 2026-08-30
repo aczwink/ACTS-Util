@@ -85,19 +85,19 @@ export class OperationValidator
                         const y = b[key];
 
                         if( (typeof x) !== (typeof y) )
-                            throw new Error("TODO: implement me");
+                            throw new Error("implement me");
                     }
                     if(ka.length > kb.length)
                         return a;
                     else if(ka.length === kb.length)
-                        throw new Error("TODO: implement me");
+                        throw new Error("implement me");
                     return b;
                 }
                 default:
-                    throw new Error("TODO: implement me");
+                    throw new Error("implement me");
             }
         }
-        throw new Error("TODO: implement me");
+        throw new Error("implement me");
     }
 
     private ValidateBody(body: any, requestBody: OpenAPI.RequestBody | undefined)

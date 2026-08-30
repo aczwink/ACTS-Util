@@ -136,7 +136,7 @@ export class TypeCatalog
 
         const signatures = type.getCallSignatures();
         if(signatures.length !== 1)
-            throw new Error("TODO: implement me");
+            throw new Error("implement me");
 
         return this.ResolveResponsesFromType(signatures[0].getReturnType());
     }
@@ -410,7 +410,7 @@ export class TypeCatalog
         if(type.symbol === undefined)
         {
             console.log(type);
-            throw new Error("TODO: implement me");
+            throw new Error("implement me");
         }
 
         if(type.symbol.escapedName === "Array")

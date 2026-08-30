@@ -1,6 +1,6 @@
 /**
  * ACTS-Util
- * Copyright (C) 2022-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2022-2026 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ export interface Reference
 {
     $ref: string;
     description?: string;
-    title?: string; //TODO: THIS IS NONSTANDARD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    title?: string; //THIS IS NONSTANDARD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 interface SchemaBase

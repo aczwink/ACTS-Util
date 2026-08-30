@@ -37,8 +37,8 @@ export class OpenAPIGenerator
                 securitySchemes
             },
             info: {
-                title: "TODO", //TODO
-                version: "TODO" //TODO
+                title: "implement me",
+                version: "implement me"
             },
             openapi: "3.1.0",
             paths: this.CreatePathsObject(apiControllersMetadata),
@@ -56,7 +56,7 @@ export class OpenAPIGenerator
                 in: param.source as any,
                 name: param.name,
                 required: param.required,
-                schema: this.CreateSchemaOrReference(param.schemaName) as OpenAPI.Schema //TODO: check this, a ref is not allowed for a parameter?
+                schema: this.CreateSchemaOrReference(param.schemaName) as OpenAPI.Schema //check this, a ref is not allowed for a parameter?
         })).ToArray();
     }
 
@@ -315,7 +315,7 @@ export class OpenAPIGenerator
     private CreateResponseObject(response: ResponseMetadata): OpenAPI.Response
     {
         return {
-            description: "TODO",
+            description: "implement me",
             content: this.CreateResponseContent(response)
         };
     }

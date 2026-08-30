@@ -144,7 +144,7 @@ export class APIClassGenerator
         if("anyOf" in schema)
         {
             //return schema.anyOf.Values().Map(x => this.FindFormatRules(keys, x, schemas)).Flatten();
-            //TODO: implement this
+            //implement this
             const empty: FormatRule[] = [];
             return empty.Values();
         }

@@ -215,14 +215,14 @@ export class SourceFileAnalyzer
                 return tc.ResolveConstant(expr);
 
             console.log(expr);
-            throw new Error("TODO: implement me");
+            throw new Error("implement me");
         }
 
         if(args.length === 0)
             return null;
 
         if(!ts.isArrayLiteralExpression(args[1]))
-            throw new Error("TODO: implement me");
+            throw new Error("implement me");
 
         return {
             scopes: (args[1] === undefined) ? [] : args[1].elements.map(ExtractString),
